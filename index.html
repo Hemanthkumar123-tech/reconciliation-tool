@@ -397,7 +397,7 @@ tbody tr:hover { background:rgba(255,255,255,.045); }
 
 <header class="glass">
   <div class="eyebrow">✦ CASE RECONCILIATION SYSTEM</div>
-  <h1>Jayaprdha Medanta</h1>
+  <h1>Jay Prabha Medanta Super Specialty Hospital, Patna Medanta</h1>
   <p class="subtitle">Monthly Case Reconciliation Dashboard</p>
 </header>
 
@@ -1273,7 +1273,7 @@ $("exportBtn").addEventListener("click", () => {
     "Blank Identifiers": r.blanks,
     "Client Source Data": r.clientRows,
     "5C Source Data": r.fivecRows
-  }, "Jayaprdha_Medanta_Reconciliation.xlsx");
+  }, "Jay Prabha Medanta Super Specialty Hospital, Patnaa_Reconciliation.xlsx");
 });
 
 $("exportCurrentBtn").addEventListener("click", () => {
@@ -1291,7 +1291,7 @@ $("exportCurrentBtn").addEventListener("click", () => {
   const rows = getTabRows(state.activeTab);
   const title = names[state.activeTab] || "Results";
 
-  downloadWorkbook({ [title]: rows }, `Jayaprdha_${title}.xlsx`);
+  downloadWorkbook({ [title]: rows }, `Jay Prabha Medanta Super Specialty Hospital, Patna_${title}.xlsx`);
 });
 
 function resetApp() {
