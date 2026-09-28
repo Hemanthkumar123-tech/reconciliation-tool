@@ -2,1313 +2,812 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jay Prabha Medanta - Monthly Reconciliation</title>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>5C vs Client Reconciliation</title>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Excel and PDF readers -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-<style>
-:root {
-    --primary: #174ea6;
-    --primary-dark: #123d82;
-    --background: #f3f6fb;
-    --border: #dce3ee;
-    --text: #202938;
-    --muted: #64748b;
-    --success: #15803d;
-    --danger: #b91c1c;
-}
+  <style>
+    * { box-sizing: border-box; }
 
-* { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #f8fafc;
+      background:
+        radial-gradient(circle at 15% 10%, #4776b9 0, transparent 35%),
+        linear-gradient(135deg, #101d3a, #183d63 55%, #176b78);
+    }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: var(--background);
-    color: var(--text);
-}
+    .container {
+      max-width: 1250px;
+      margin: auto;
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 22px;
+      background: rgba(255,255,255,.13);
+      box-shadow: 0 18px 55px rgba(0,0,0,.22);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
 
-header {
-    background: linear-gradient(120deg, #123d82, #2366bd);
-    color: white;
-    padding: 25px 30px;
-}
+    h1 { text-align: center; margin: 0 0 8px; }
+    .subtitle { text-align: center; color: #dbeafe; margin-bottom: 28px; }
 
-header h1 { margin: 0 0 8px; font-size: 25px; }
-header p { margin: 0; opacity: .9; }
+    .upload-grid, .key-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 20px;
+    }
 
-.container {
-    max-width: 1450px;
-    margin: 24px auto;
-    padding: 0 18px 40px;
-}
+    .panel {
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 15px;
+      background: rgba(255,255,255,.10);
+    }
 
-.card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 22px;
-    margin-bottom: 20px;
-    box-shadow: 0 3px 12px rgba(15,23,42,.04);
-}
+    .panel h3 { margin: 0 0 14px; }
+    .panel p { color: #dbeafe; font-size: 13px; }
 
-.card h2 { font-size: 19px; margin: 0 0 18px; }
+    input[type="file"], select {
+      width: 100%;
+      padding: 11px;
+      border-radius: 9px;
+      border: 1px solid rgba(255,255,255,.35);
+      background: rgba(255,255,255,.92);
+      color: #172033;
+    }
 
-.step {
-    display: inline-block;
-    background: #e8f0fe;
-    color: var(--primary);
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 12px;
-}
+    label { display: block; margin-bottom: 8px; font-weight: 600; }
 
-.upload-grid {
-    display: grid;
-    grid-template-columns: repeat(2,minmax(0,1fr));
-    gap: 18px;
-}
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
 
-.upload-box {
-    border: 2px dashed #b9c8dd;
-    border-radius: 10px;
-    padding: 20px;
-    background: #fbfdff;
-}
+    button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 9px;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+      background: #167dce;
+    }
 
-.upload-box h3 { margin-top: 0; }
+    button:hover { filter: brightness(1.1); }
+    button:disabled { opacity: .55; cursor: not-allowed; }
 
-input[type=file], select, button { font: inherit; }
+    .primary { background: #159b71; }
+    .secondary { background: #52647c; }
+    .export { background: #2476d2; }
 
-input[type=file] {
-    width: 100%;
-    padding: 10px;
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-}
+    #status {
+      padding: 13px;
+      margin: 14px 0;
+      border-radius: 9px;
+      background: rgba(0,0,0,.2);
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
 
-select {
-    min-width: 220px;
-    padding: 10px 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 7px;
-    background: white;
-}
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
 
-button {
-    border: 0;
-    border-radius: 7px;
-    padding: 11px 16px;
-    cursor: pointer;
-    font-weight: 600;
-    background: var(--primary);
-    color: white;
-}
+    .stat {
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.14);
+      text-align: center;
+    }
 
-button:hover { background: var(--primary-dark); }
-button:disabled { opacity: .45; cursor: not-allowed; }
-button.secondary { background: #475569; }
-button.success { background: var(--success); }
+    .stat strong { display: block; font-size: 25px; margin-top: 5px; }
 
-.actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 16px;
-}
+    details {
+      margin-top: 20px;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 12px;
+      background: rgba(0,0,0,.13);
+    }
 
-.status {
-    margin-top: 12px;
-    font-size: 13px;
-    color: var(--muted);
-    overflow-wrap: anywhere;
-}
+    summary {
+      padding: 15px;
+      cursor: pointer;
+      font-weight: 700;
+    }
 
-.notice {
-    padding: 13px 15px;
-    background: #fff7e6;
-    border: 1px solid #f3d59b;
-    color: #854d0e;
-    border-radius: 8px;
-    font-size: 13px;
-    line-height: 1.6;
-    margin-bottom: 18px;
-}
+    .details-content { padding: 0 15px 15px; }
 
-.stats {
-    display: grid;
-    grid-template-columns: repeat(5,minmax(0,1fr));
-    gap: 12px;
-}
+    .table-wrap {
+      width: 100%;
+      max-height: 460px;
+      overflow: auto;
+      border-radius: 10px;
+      background: rgba(7,18,35,.55);
+    }
 
-.stat {
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 15px;
-    background: #fbfdff;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 750px;
+      font-size: 13px;
+    }
 
-.stat span {
-    display: block;
-    color: var(--muted);
-    font-size: 12px;
-    margin-bottom: 8px;
-}
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      vertical-align: top;
+      white-space: nowrap;
+    }
 
-.stat strong { font-size: 24px; }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #173c60;
+    }
 
-.toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-}
+    .muted { color: #dbeafe; font-size: 13px; }
+    .pagination { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+    .pagination button { padding: 8px 12px; }
+    .hidden { display: none !important; }
 
-.toolbar label {
-    font-size: 13px;
-    font-weight: bold;
-}
-
-.small {
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-/* Collapsible Section 4 */
-details.verification {
-    padding: 0;
-    overflow: hidden;
-}
-
-details.verification > summary {
-    list-style: none;
-    cursor: pointer;
-    padding: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    user-select: none;
-}
-
-details.verification > summary::-webkit-details-marker {
-    display: none;
-}
-
-.summary-title {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.summary-title h2 {
-    margin: 0;
-    font-size: 19px;
-}
-
-.summary-title .step { width: fit-content; }
-
-.dropdown-arrow {
-    font-size: 24px;
-    color: var(--primary);
-    transition: transform .2s ease;
-}
-
-details.verification[open] .dropdown-arrow {
-    transform: rotate(180deg);
-}
-
-.verification-content {
-    border-top: 1px solid var(--border);
-    padding: 22px;
-}
-
-.table-wrap {
-    overflow: auto;
-    max-height: 480px;
-    min-height: 120px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    position: relative;
-    background: white;
-}
-
-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width: max-content;
-    min-width: 100%;
-    font-size: 12px;
-    white-space: nowrap;
-}
-
-th, td {
-    border-bottom: 1px solid #e5eaf1;
-    border-right: 1px solid #e5eaf1;
-    padding: 9px 11px;
-    text-align: left;
-    max-width: 350px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-th {
-    background: #eaf1fb;
-    color: #183b70;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-}
-
-tr:nth-child(even) td { background: #fafcff; }
-
-.empty {
-    padding: 25px;
-    text-align: center;
-    color: var(--muted);
-}
-
-.pagination {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-top: 12px;
-}
-
-.page-buttons {
-    display: flex;
-    gap: 8px;
-}
-
-.page-buttons button {
-    padding: 8px 13px;
-}
-
-@media(max-width:800px) {
-    .upload-grid { grid-template-columns: 1fr; }
-    .stats { grid-template-columns: repeat(2,1fr); }
-    header { padding: 20px; }
-}
-</style>
+    @media (max-width: 760px) {
+      body { padding: 10px; }
+      .container { padding: 16px; }
+      .upload-grid, .key-grid { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
 
 <body>
-
-<header>
-    <h1>Jay Prabha Medanta Super Specialty Hospital</h1>
-    <p>Monthly Client vs 5C Reconciliation</p>
-</header>
-
 <div class="container">
+  <h1>Monthly Reconciliation</h1>
+  <p class="subtitle">5C Network vs Client Records</p>
 
-<div class="notice">
-    <strong>Important:</strong> Upload the original Client and 5C files.
-    Confirm the identifier and extracted data before running reconciliation.
-    Files are processed locally in your browser.
-</div>
+  <div class="upload-grid">
+    <section class="panel">
+      <h3>1. Client Document</h3>
+      <p>Upload the client transaction PDF, Excel, or CSV file.</p>
+      <input type="file" id="clientFile" accept=".pdf,.xlsx,.xls,.csv">
+      <p id="clientFileInfo">No file selected.</p>
+    </section>
 
-<!-- STEP 1 -->
-<section class="card">
-    <div class="step">STEP 1</div>
-    <h2>Upload Source Files</h2>
+    <section class="panel">
+      <h3>2. 5C Document</h3>
+      <p>Upload the 5C Excel or CSV file.</p>
+      <input type="file" id="fiveCFile" accept=".xlsx,.xls,.csv">
+      <p id="fiveCFileInfo">No file selected.</p>
+    </section>
+  </div>
 
-    <div class="upload-grid">
-        <div class="upload-box">
-            <h3>Client / Hospital File</h3>
-            <input type="file" id="clientFile"
-                accept=".xlsx,.xls,.csv,.txt,.pdf">
-            <div class="status" id="clientStatus">No Client file uploaded.</div>
-        </div>
+  <section class="panel">
+    <h3>3. Matching Identifier</h3>
+    <p>Select the column used to compare the two files. For Medicover, the client PDF contains an <b>Order Id</b> column. Select the corresponding identifier from the 5C file.</p>
 
-        <div class="upload-box">
-            <h3>5C Network File</h3>
-            <input type="file" id="fiveCFile"
-                accept=".xlsx,.xls,.csv,.txt,.pdf">
-            <div class="status" id="fiveCStatus">No 5C file uploaded.</div>
-        </div>
+    <div class="key-grid">
+      <div>
+        <label for="clientKey">Client identifier</label>
+        <select id="clientKey" disabled>
+          <option value="">Upload client file first</option>
+        </select>
+      </div>
+      <div>
+        <label for="fiveCKey">5C identifier</label>
+        <select id="fiveCKey" disabled>
+          <option value="">Upload 5C file first</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button class="primary" id="compareBtn" onclick="reconcileData()">Cross Check & Compare</button>
+    <button class="export hidden" id="exportBtn" onclick="exportExcel()">Download Excel Report</button>
+    <button class="secondary" onclick="resetApp()">Reset</button>
+  </div>
+
+  <div id="status">Upload both documents to begin.</div>
+
+  <div id="resultsArea" class="hidden">
+    <div class="summary-grid">
+      <div class="stat">Client records<strong id="clientCount">0</strong></div>
+      <div class="stat">5C records<strong id="fiveCCount">0</strong></div>
+      <div class="stat">Missing in 5C<strong id="missing5CCount">0</strong></div>
+      <div class="stat">Missing in Client<strong id="missingClientCount">0</strong></div>
     </div>
 
-    <div class="actions">
-        <button id="processBtn" onclick="processFiles()" disabled>
-            Process and Reconcile
-        </button>
-        <button class="secondary" onclick="resetApp()">Reset</button>
-    </div>
-</section>
+    <details open>
+      <summary>Step 4 — Reconciliation Results</summary>
+      <div class="details-content">
+        <label for="resultSource">Select records to view</label>
+        <select id="resultSource" onchange="renderPage()">
+          <option value="all">All unmatched records</option>
+          <option value="missing5C">Present in Client, missing in 5C</option>
+          <option value="missingClient">Present in 5C, missing in Client</option>
+          <option value="duplicatesClient">Duplicate IDs in Client</option>
+          <option value="duplicates5C">Duplicate IDs in 5C</option>
+          <option value="blankClient">Blank IDs in Client</option>
+          <option value="blank5C">Blank IDs in 5C</option>
+        </select>
 
-<!-- STEP 2 -->
-<section class="card">
-    <div class="step">STEP 2</div>
-    <h2>Source Configuration</h2>
-
-    <div class="upload-grid">
-        <div>
-            <h3>Client Configuration</h3>
-            <div class="toolbar">
-                <label for="clientSheet">Worksheet:</label>
-                <select id="clientSheet" onchange="updateColumnOptions('client')">
-                    <option value="">Upload Client file first</option>
-                </select>
-            </div>
-            <div class="toolbar">
-                <label for="clientId">Identifier:</label>
-                <select id="clientId">
-                    <option value="">Select identifier</option>
-                </select>
-            </div>
-        </div>
-
-        <div>
-            <h3>5C Configuration</h3>
-            <div class="toolbar">
-                <label for="fiveCSheet">Worksheet:</label>
-                <select id="fiveCSheet" onchange="updateColumnOptions('fiveC')">
-                    <option value="">Upload 5C file first</option>
-                </select>
-            </div>
-            <div class="toolbar">
-                <label for="fiveCId">Identifier:</label>
-                <select id="fiveCId">
-                    <option value="">Select identifier</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <p class="small">
-        Select the common case or study identifier, such as Study ID,
-        Order ID, Accession Number, or Case ID.
-    </p>
-</section>
-
-<!-- STEP 3 -->
-<section class="card">
-    <div class="step">STEP 3</div>
-    <h2>Reconciliation Summary</h2>
-
-    <div class="stats">
-        <div class="stat"><span>Client Records</span><strong id="clientCount">0</strong></div>
-        <div class="stat"><span>5C Records</span><strong id="fiveCCount">0</strong></div>
-        <div class="stat"><span>Matched</span><strong id="matchedCount">0</strong></div>
-        <div class="stat"><span>Missing from 5C</span><strong id="missing5CCount">0</strong></div>
-        <div class="stat"><span>Missing from Client</span><strong id="missingClientCount">0</strong></div>
-    </div>
-</section>
-
-<!-- STEP 4: COLLAPSIBLE DROPDOWN -->
-<details class="card verification" id="verificationSection">
-    <summary>
-        <div class="summary-title">
-            <span class="step">STEP 4</span>
-            <h2>Extracted Data Verification</h2>
-            <span class="small">Click to expand or collapse the extracted data.</span>
-        </div>
-        <span class="dropdown-arrow">▼</span>
-    </summary>
-
-    <div class="verification-content">
-        <div class="toolbar">
-            <label for="verificationSource">Choose data to verify:</label>
-            <select id="verificationSource" onchange="changeVerificationSource()">
-                <option value="client">Client Data</option>
-                <option value="fiveC">5C Data</option>
-            </select>
-        </div>
-
-        <p class="small">
-            All extracted records are available here. Use the vertical scrollbar
-            inside the table to move through the records and the horizontal
-            scrollbar to view additional columns. Use the page controls below
-            to navigate through large datasets.
-        </p>
-
-        <div id="verificationInfo" class="status">
-            Upload and process files to view extracted data.
-        </div>
-
-        <div class="table-wrap" id="verificationTable">
-            <div class="empty">No data available.</div>
+        <p class="muted" id="resultInfo"></p>
+        <div class="table-wrap">
+          <table>
+            <thead id="resultHead"></thead>
+            <tbody id="resultBody"></tbody>
+          </table>
         </div>
 
         <div class="pagination">
-            <div id="verificationPageInfo" class="small">Page 0 of 0</div>
-            <div class="page-buttons">
-                <button class="secondary" id="prevPageBtn"
-                    onclick="changePage(-1)" disabled>Previous</button>
-                <button class="secondary" id="nextPageBtn"
-                    onclick="changePage(1)" disabled>Next</button>
-            </div>
+          <button class="secondary" onclick="changePage(-1)">Previous</button>
+          <span id="pageInfo">Page 1</span>
+          <button class="secondary" onclick="changePage(1)">Next</button>
         </div>
-    </div>
-</details>
-
-<!-- STEP 5 -->
-<section class="card">
-    <div class="step">STEP 5</div>
-    <h2>Mismatch Details</h2>
-
-    <div class="toolbar">
-        <label for="resultType">Select result:</label>
-        <select id="resultType" onchange="renderResults()">
-            <option value="missing5C">Missing from 5C</option>
-            <option value="missingClient">Missing from Client</option>
-            <option value="matched">Matched Records</option>
-            <option value="duplicates">Duplicate IDs</option>
-            <option value="blank">Blank IDs</option>
-        </select>
-    </div>
-
-    <div class="toolbar">
-        <button class="success" onclick="exportCurrent()" id="exportCurrentBtn" disabled>
-            Export Current Result
-        </button>
-        <button onclick="exportAll()" id="exportAllBtn" disabled>
-            Export Complete Reconciliation
-        </button>
-    </div>
-
-    <div id="resultInfo" class="status">
-        Run reconciliation to view mismatch details.
-    </div>
-
-    <div class="table-wrap" id="resultTable">
-        <div class="empty">No reconciliation results yet.</div>
-    </div>
-</section>
-
+      </div>
+    </details>
+  </div>
 </div>
 
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc =
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-const PAGE_SIZE = 100;
+  const PAGE_SIZE = 100;
 
-const STANDARD_FIELDS = [
-    "Study ID",
-    "Client ID",
-    "Modality",
-    "Study Name",
-    "Order ID",
-    "Patient ID",
-    "Patient Name"
-];
+  let clientData = [];
+  let fiveCData = [];
+  let clientHeaders = [];
+  let fiveCHeaders = [];
+  let results = {};
+  let currentPage = 1;
+  let exportData = {};
 
-const state = {
-    client: { file:null, workbook:null, rows:[], headers:[], idColumn:"" },
-    fiveC: { file:null, workbook:null, rows:[], headers:[], idColumn:"" },
-    results:null,
-    sourceRows:{ client:[], fiveC:[] },
-    verificationPage:0
-};
-
-document.getElementById("clientFile").addEventListener("change", e => {
-    loadFile("client", e.target.files[0]);
-});
-
-document.getElementById("fiveCFile").addEventListener("change", e => {
-    loadFile("fiveC", e.target.files[0]);
-});
-
-function cleanText(value) {
-    if (value === null || value === undefined) return "";
-    return String(value).replace(/\u00a0/g," ").trim();
-}
-
-function normalizeHeader(value) {
-    return cleanText(value).toLowerCase().replace(/[^a-z0-9]/g,"");
-}
-
-function normalizeId(value) {
-    let s = cleanText(value);
-    if (!s) return "";
-
-    if (/^\d+\.0+$/.test(s)) {
-        s = s.replace(/\.0+$/,"");
-    }
-
-    return s.toUpperCase().replace(/\s+/g,"");
-}
-
-function setStatus(source,message) {
-    document.getElementById(
-        source === "client" ? "clientStatus" : "fiveCStatus"
-    ).textContent = message;
-}
-
-async function loadFile(source,file) {
+  document.getElementById("clientFile").addEventListener("change", async function () {
+    const file = this.files[0];
     if (!file) return;
 
-    const obj = state[source];
-
-    obj.file = file;
-    obj.workbook = null;
-    obj.rows = [];
-    obj.headers = [];
-    obj.idColumn = "";
-
-    setStatus(source,"Reading " + file.name + "...");
+    document.getElementById("clientFileInfo").textContent = "Reading " + file.name + "...";
 
     try {
-        const ext = file.name.split(".").pop().toLowerCase();
+      const parsed = await parseAnyFile(file, true);
+      clientData = parsed.rows;
+      clientHeaders = parsed.headers;
+      populateSelect("clientKey", clientHeaders, true);
 
-        if (["xlsx","xls","csv"].includes(ext)) {
-            const buffer = await file.arrayBuffer();
+      document.getElementById("clientFileInfo").textContent =
+        file.name + " — " + clientData.length.toLocaleString() + " records detected.";
 
-            const workbook = XLSX.read(buffer,{
-                type:"array",
-                cellDates:true
-            });
-
-            obj.workbook = workbook;
-
-            const sheetSelect = document.getElementById(
-                source === "client" ? "clientSheet" : "fiveCSheet"
-            );
-
-            sheetSelect.innerHTML = "";
-
-            workbook.SheetNames.forEach(name => {
-                const option = document.createElement("option");
-                option.value = name;
-                option.textContent = name;
-                sheetSelect.appendChild(option);
-            });
-
-            sheetSelect.value = workbook.SheetNames[0];
-            updateColumnOptions(source);
-
-            setStatus(
-                source,
-                "Loaded: " + file.name +
-                " | Worksheets: " + workbook.SheetNames.length
-            );
-
-        } else if (ext === "txt") {
-            const text = await file.text();
-            const parsed = parseDelimitedText(text);
-
-            obj.rows = parsed.rows;
-            obj.headers = parsed.headers;
-
-            updateIdentifierDropdown(source);
-
-            setStatus(
-                source,
-                "Loaded text file: " + file.name +
-                " | Candidate rows: " + obj.rows.length
-            );
-
-        } else if (ext === "pdf") {
-            const buffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({data:buffer}).promise;
-            const text = await extractPdfText(pdf);
-            const parsed = parseDelimitedText(text);
-
-            obj.rows = parsed.rows;
-            obj.headers = parsed.headers;
-
-            updateIdentifierDropdown(source);
-
-            setStatus(
-                source,
-                "PDF text extracted: " + file.name +
-                " | Candidate rows: " + obj.rows.length +
-                " | Verify extracted records before reconciliation"
-            );
-
-        } else {
-            throw new Error("Unsupported file type.");
-        }
-
-        document.getElementById("processBtn").disabled =
-            !(state.client.file && state.fiveC.file);
-
-    } catch(error) {
-        console.error(error);
-        setStatus(source,"Error: " + error.message);
-        alert("Unable to read " + file.name + ". " + error.message);
+      setStatus(parsed.message || "Client file loaded. Please verify the identifier.");
+    } catch (err) {
+      console.error(err);
+      setStatus("Client file could not be read: " + err.message);
+      document.getElementById("clientFileInfo").textContent = "Error reading file.";
     }
-}
+  });
 
-async function extractPdfText(pdf) {
-    let fullText = "";
+  document.getElementById("fiveCFile").addEventListener("change", async function () {
+    const file = this.files[0];
+    if (!file) return;
 
-    for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
-        const page = await pdf.getPage(pageNo);
-        const content = await page.getTextContent();
+    document.getElementById("fiveCFileInfo").textContent = "Reading " + file.name + "...";
 
-        let lastY = null;
-        let line = "";
+    try {
+      const parsed = await parseAnyFile(file, false);
+      fiveCData = parsed.rows;
+      fiveCHeaders = parsed.headers;
+      populateSelect("fiveCKey", fiveCHeaders, false);
 
-        for (const item of content.items) {
-            const y = item.transform ? item.transform[5] : null;
+      document.getElementById("fiveCFileInfo").textContent =
+        file.name + " — " + fiveCData.length.toLocaleString() + " records detected.";
 
-            if (lastY !== null && y !== null && Math.abs(y-lastY) > 3) {
-                fullText += line + "\n";
-                line = "";
-            }
-
-            line += item.str + " ";
-            lastY = y;
-        }
-
-        if (line.trim()) fullText += line + "\n";
-        fullText += "\n";
+      setStatus(parsed.message || "5C file loaded. Please verify the identifier.");
+    } catch (err) {
+      console.error(err);
+      setStatus("5C file could not be read: " + err.message);
+      document.getElementById("fiveCFileInfo").textContent = "Error reading file.";
     }
+  });
 
-    return fullText;
-}
+  function setStatus(message) {
+    document.getElementById("status").textContent = message;
+  }
 
-function parseDelimitedText(text) {
-    const lines = text.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+  function normalizeHeader(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+  }
 
-    if (!lines.length) return {headers:[],rows:[]};
+  function findPreferredHeader(headers, isClient) {
+    const preferred = isClient
+      ? ["Order Id", "Order ID", "Study Id", "Study ID", "Client Id", "Case Id", "Accession"]
+      : ["Study Id", "Study ID", "Order Id", "Order ID", "Client Id", "Case Id", "Accession"];
 
-    const sample = lines.slice(0,10).join("\n");
-    let delimiter = "\t";
-
-    if (!sample.includes("\t")) {
-        delimiter = sample.includes("|") ? "|" : ",";
+    for (const name of preferred) {
+      const found = headers.find(h => normalizeHeader(h) === normalizeHeader(name));
+      if (found) return found;
     }
+    return headers[0] || "";
+  }
 
-    const parsed = lines.map(line => splitDelimitedLine(line,delimiter));
-
-    const headerIndex = parsed.findIndex(row =>
-        row.some(cell =>
-            /study.?id|case.?id|order.?id|accession|patient.?id/i.test(cell)
-        )
-    );
-
-    if (headerIndex < 0) return {headers:[],rows:[]};
-
-    const headers = parsed[headerIndex].map((h,i) =>
-        cleanText(h) || "Column " + (i+1)
-    );
-
-    const rows = [];
-
-    for (let i=headerIndex+1; i<parsed.length; i++) {
-        const values = parsed[i];
-
-        if (!values.some(v => cleanText(v))) continue;
-
-        const row = {};
-
-        headers.forEach((header,index) => {
-            row[header] = cleanText(values[index] || "");
-        });
-
-        rows.push(row);
-    }
-
-    return {headers,rows};
-}
-
-function splitDelimitedLine(line,delimiter) {
-    const result = [];
-    let current = "";
-    let inQuotes = false;
-
-    for (let i=0; i<line.length; i++) {
-        const ch = line[i];
-
-        if (ch === '"') {
-            if (inQuotes && line[i+1] === '"') {
-                current += '"';
-                i++;
-            } else {
-                inQuotes = !inQuotes;
-            }
-        } else if (ch === delimiter && !inQuotes) {
-            result.push(current.trim());
-            current = "";
-        } else {
-            current += ch;
-        }
-    }
-
-    result.push(current.trim());
-    return result;
-}
-
-function updateColumnOptions(source) {
-    const obj = state[source];
-
-    if (!obj.workbook) return;
-
-    const sheetSelect = document.getElementById(
-        source === "client" ? "clientSheet" : "fiveCSheet"
-    );
-
-    const worksheet = obj.workbook.Sheets[sheetSelect.value];
-
-    obj.rows = XLSX.utils.sheet_to_json(worksheet,{
-        defval:"",
-        raw:false
-    });
-
-    obj.headers = obj.rows.length ? Object.keys(obj.rows[0]) : [];
-
-    updateIdentifierDropdown(source);
-}
-
-function updateIdentifierDropdown(source) {
-    const obj = state[source];
-
-    const select = document.getElementById(
-        source === "client" ? "clientId" : "fiveCId"
-    );
-
+  function populateSelect(id, headers, isClient) {
+    const select = document.getElementById(id);
     select.innerHTML = "";
 
-    const placeholder = document.createElement("option");
-    placeholder.value = "";
-    placeholder.textContent = "Select identifier column";
-    select.appendChild(placeholder);
-
-    obj.headers.forEach(header => {
-        const option = document.createElement("option");
-        option.value = header;
-        option.textContent = header;
-        select.appendChild(option);
+    headers.forEach(header => {
+      const option = document.createElement("option");
+      option.value = header;
+      option.textContent = header;
+      select.appendChild(option);
     });
 
-    const preferred = findPreferredIdColumn(obj.headers);
+    select.disabled = headers.length === 0;
 
-    if (preferred) {
-        select.value = preferred;
-        obj.idColumn = preferred;
+    const preferred = findPreferredHeader(headers, isClient);
+    if (preferred) select.value = preferred;
+  }
+
+  async function parseAnyFile(file, isClient) {
+    const ext = file.name.split(".").pop().toLowerCase();
+
+    if (ext === "pdf") {
+      if (!isClient) {
+        throw new Error("PDF support is intended for the client transaction report. Please upload the 5C file as Excel or CSV.");
+      }
+      return await parseTransactionPdf(file);
     }
 
-    select.onchange = () => {
-        obj.idColumn = select.value;
-    };
-}
-
-function findPreferredIdColumn(headers) {
-    const priority = [
-        "studyid",
-        "caseid",
-        "accessionnumber",
-        "accessionno",
-        "orderid",
-        "patientid",
-        "clientid"
-    ];
-
-    for (const candidate of priority) {
-        const match = headers.find(h => normalizeHeader(h) === candidate);
-        if (match) return match;
+    if (["xlsx", "xls", "csv"].includes(ext)) {
+      return await parseSpreadsheet(file);
     }
 
-    return "";
-}
-
-function standardizeRow(row) {
-    const output = {};
-
-    for (const field of STANDARD_FIELDS) {
-        const target = normalizeHeader(field);
-
-        const sourceKey = Object.keys(row).find(key => {
-            const normalized = normalizeHeader(key);
-
-            if (target === "studyid") {
-                return ["studyid","studyuid","studyidentifier"].includes(normalized);
-            }
-
-            if (target === "clientid") {
-                return ["clientid","clientcode","clientnumber"].includes(normalized);
-            }
-
-            if (target === "modality") {
-                return ["modality","modalityname"].includes(normalized);
-            }
-
-            if (target === "studyname") {
-                return ["studyname","examname","procedure","proceduredescription"].includes(normalized);
-            }
-
-            if (target === "orderid") {
-                return ["orderid","orderno","ordernumber","accessionnumber","accessionno"].includes(normalized);
-            }
-
-            if (target === "patientid") {
-                return ["patientid","mrn","mrnumber","patientnumber"].includes(normalized);
-            }
-
-            if (target === "patientname") {
-                return ["patientname","name"].includes(normalized);
-            }
-
-            return normalized === target;
-        });
-
-        output[field] = sourceKey ? cleanText(row[sourceKey]) : "";
-    }
-
-    return output;
-}
-
-function getSourceRows(source) {
-    const obj = state[source];
-
-    const idColumn = document.getElementById(
-        source === "client" ? "clientId" : "fiveCId"
-    ).value;
-
-    if (!idColumn) {
-        throw new Error("Please select the identifier column for " + source + ".");
-    }
-
-    obj.idColumn = idColumn;
-
-    return obj.rows.map((original,index) => ({
-        source,
-        rowNumber:index+1,
-        id:normalizeId(original[idColumn]),
-        original,
-        standard:standardizeRow(original)
-    }));
-}
-
-function emptyStandard() {
-    const output = {};
-    STANDARD_FIELDS.forEach(field => output[field] = "");
-    return output;
-}
-
-function prefixFields(record,prefix) {
-    const output = {};
-
-    STANDARD_FIELDS.forEach(field => {
-        output[prefix + " " + field] = record[field] || "";
-    });
-
-    return output;
-}
-
-function processFiles() {
-    try {
-        const clientRows = getSourceRows("client");
-        const fiveCRows = getSourceRows("fiveC");
-
-        state.sourceRows.client = clientRows;
-        state.sourceRows.fiveC = fiveCRows;
-
-        const clientMap = new Map();
-        const fiveCMap = new Map();
-
-        clientRows.forEach(row => {
-            if (!row.id) return;
-            if (!clientMap.has(row.id)) clientMap.set(row.id,[]);
-            clientMap.get(row.id).push(row);
-        });
-
-        fiveCRows.forEach(row => {
-            if (!row.id) return;
-            if (!fiveCMap.has(row.id)) fiveCMap.set(row.id,[]);
-            fiveCMap.get(row.id).push(row);
-        });
-
-        const matched = [];
-        const missing5C = [];
-        const missingClient = [];
-        const duplicates = [];
-        const blank = [];
-
-        clientRows.forEach(row => {
-            if (!row.id) {
-                blank.push({
-                    Source:"Client",
-                    "Source Row":row.rowNumber,
-                    "Identifier Column":state.client.idColumn,
-                    "Client Study ID":row.standard["Study ID"],
-                    "Client Order ID":row.standard["Order ID"],
-                    "Client Patient ID":row.standard["Patient ID"],
-                    "Client Patient Name":row.standard["Patient Name"]
-                });
-            }
-        });
-
-        fiveCRows.forEach(row => {
-            if (!row.id) {
-                blank.push({
-                    Source:"5C",
-                    "Source Row":row.rowNumber,
-                    "Identifier Column":state.fiveC.idColumn,
-                    "5C Study ID":row.standard["Study ID"],
-                    "5C Order ID":row.standard["Order ID"],
-                    "5C Patient ID":row.standard["Patient ID"],
-                    "5C Patient Name":row.standard["Patient Name"]
-                });
-            }
-        });
-
-        clientMap.forEach((records,id) => {
-            if (records.length > 1) {
-                records.forEach(row => {
-                    duplicates.push({
-                        "Duplicate Source":"Client",
-                        Identifier:id,
-                        "Source Row":row.rowNumber,
-                        ...prefixFields(row.standard,"Client")
-                    });
-                });
-            }
-        });
-
-        fiveCMap.forEach((records,id) => {
-            if (records.length > 1) {
-                records.forEach(row => {
-                    duplicates.push({
-                        "Duplicate Source":"5C",
-                        Identifier:id,
-                        "Source Row":row.rowNumber,
-                        ...prefixFields(row.standard,"5C")
-                    });
-                });
-            }
-        });
-
-        clientRows.forEach(client => {
-            if (!client.id) return;
-
-            const matches = fiveCMap.get(client.id);
-
-            if (matches && matches.length) {
-                matched.push({
-                    "Match ID":client.id,
-                    ...prefixFields(client.standard,"Client"),
-                    ...prefixFields(matches[0].standard,"5C")
-                });
-            } else {
-                missing5C.push({
-                    "Mismatch ID":client.id,
-                    ...prefixFields(client.standard,"Client"),
-                    ...prefixFields(emptyStandard(),"5C")
-                });
-            }
-        });
-
-        fiveCRows.forEach(fiveC => {
-            if (!fiveC.id) return;
-
-            if (!clientMap.has(fiveC.id)) {
-                missingClient.push({
-                    "Mismatch ID":fiveC.id,
-                    ...prefixFields(emptyStandard(),"Client"),
-                    ...prefixFields(fiveC.standard,"5C")
-                });
-            }
-        });
-
-        state.results = {
-            matched,
-            missing5C,
-            missingClient,
-            duplicates,
-            blank
-        };
-
-        document.getElementById("clientCount").textContent = clientRows.length;
-        document.getElementById("fiveCCount").textContent = fiveCRows.length;
-        document.getElementById("matchedCount").textContent = matched.length;
-        document.getElementById("missing5CCount").textContent = missing5C.length;
-        document.getElementById("missingClientCount").textContent = missingClient.length;
-
-        document.getElementById("exportCurrentBtn").disabled = false;
-        document.getElementById("exportAllBtn").disabled = false;
-
-        state.verificationPage = 0;
-
-        renderVerification();
-        renderResults();
-
-        alert("Reconciliation completed. Please review the extracted data and results.");
-
-    } catch(error) {
-        alert(error.message);
-    }
-}
-
-/* SECTION 4 PAGINATION */
-
-function changeVerificationSource() {
-    state.verificationPage = 0;
-    renderVerification();
-}
-
-function changePage(direction) {
-    const source = document.getElementById("verificationSource").value;
-    const rows = state[source].rows;
-
-    const totalPages = Math.max(1,Math.ceil(rows.length/PAGE_SIZE));
-
-    state.verificationPage += direction;
-    state.verificationPage = Math.max(
-        0,
-        Math.min(state.verificationPage,totalPages-1)
-    );
-
-    renderVerification();
-}
-
-function renderVerification() {
-    const source = document.getElementById("verificationSource").value;
-    const obj = state[source];
-    const rows = obj.rows || [];
-
-    if (!rows.length) {
-        document.getElementById("verificationInfo").textContent =
-            "No extracted data available.";
-
-        document.getElementById("verificationTable").innerHTML =
-            '<div class="empty">No data available.</div>';
-
-        document.getElementById("verificationPageInfo").textContent =
-            "Page 0 of 0";
-
-        document.getElementById("prevPageBtn").disabled = true;
-        document.getElementById("nextPageBtn").disabled = true;
-        return;
-    }
-
-    const totalPages = Math.ceil(rows.length/PAGE_SIZE);
-
-    state.verificationPage = Math.min(
-        state.verificationPage,
-        totalPages-1
-    );
-
-    const start = state.verificationPage*PAGE_SIZE;
-    const end = Math.min(start+PAGE_SIZE,rows.length);
-    const pageRows = rows.slice(start,end);
-
-    document.getElementById("verificationInfo").textContent =
-        (source === "client" ? "Client" : "5C") +
-        " | Total records: " + rows.length +
-        " | Showing records " + (start+1) + " to " + end;
-
-    renderTable(
-        document.getElementById("verificationTable"),
-        obj.headers,
-        pageRows.map(row =>
-            obj.headers.map(header => cleanText(row[header]))
-        )
-    );
-
-    document.getElementById("verificationPageInfo").textContent =
-        "Page " + (state.verificationPage+1) +
-        " of " + totalPages +
-        " | " + rows.length + " total records";
-
-    document.getElementById("prevPageBtn").disabled =
-        state.verificationPage === 0;
-
-    document.getElementById("nextPageBtn").disabled =
-        state.verificationPage >= totalPages-1;
-}
-
-function renderResults() {
-    if (!state.results) return;
-
-    const type = document.getElementById("resultType").value;
-    const rows = state.results[type] || [];
-
-    document.getElementById("resultInfo").textContent =
-        rows.length + " records | Showing up to 500 rows";
-
-    if (!rows.length) {
-        document.getElementById("resultTable").innerHTML =
-            '<div class="empty">No records found for this result.</div>';
-        return;
-    }
+    throw new Error("Unsupported file type.");
+  }
+
+  async function parseSpreadsheet(file) {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array", cellDates: false });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
+    if (!rows.length) throw new Error("No data rows found in the first worksheet.");
 
     const headers = Object.keys(rows[0]);
-
-    renderTable(
-        document.getElementById("resultTable"),
-        headers,
-        rows.slice(0,500).map(row => headers.map(h => row[h] ?? ""))
+    const cleaned = rows.filter(row =>
+      headers.some(h => String(row[h] ?? "").trim() !== "")
     );
-}
 
-function renderTable(container,headers,rows) {
-    if (!headers.length) {
-        container.innerHTML = '<div class="empty">No columns available.</div>';
-        return;
+    return { headers, rows: cleaned, message: "Spreadsheet loaded successfully." };
+  }
+
+  /*
+    Medicover PDF parser:
+    - Uses text positions to reconstruct lines.
+    - Finds transaction rows beginning with a 10-character Order Id.
+    - Extracts Patient Id, Patient Name, Modality, Study Date, Reports and Cost.
+    - Repeated page headings are ignored.
+  */
+  async function parseTransactionPdf(file) {
+    const buffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+
+    let allRows = [];
+    let pagesWithText = 0;
+
+    for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+      const page = await pdf.getPage(pageNo);
+      const content = await page.getTextContent();
+
+      const items = content.items
+        .filter(item => item.str && item.str.trim())
+        .map(item => ({
+          text: item.str.trim(),
+          x: item.transform[4],
+          y: item.transform[5]
+        }));
+
+      if (items.length) pagesWithText++;
+
+      const lines = groupItemsIntoLines(items);
+      const pageRows = parseMedicoverLines(lines);
+      allRows = allRows.concat(pageRows);
     }
 
-    let html = "<table><thead><tr>";
+    if (!allRows.length) {
+      throw new Error(
+        "No transaction rows could be extracted. The PDF may be scanned or its layout may differ from the Medicover transaction report."
+      );
+    }
 
-    headers.forEach(header => {
-        html += "<th>" + escapeHtml(header) + "</th>";
-    });
-
-    html += "</tr></thead><tbody>";
-
-    rows.forEach(row => {
-        html += "<tr>";
-
-        row.forEach(value => {
-            html += "<td>" + escapeHtml(value) + "</td>";
-        });
-
-        html += "</tr>";
-    });
-
-    html += "</tbody></table>";
-    container.innerHTML = html;
-}
-
-function escapeHtml(value) {
-    return String(value ?? "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
-}
-
-/* EXCEL EXPORT */
-
-function exportCurrent() {
-    if (!state.results) return;
-
-    const type = document.getElementById("resultType").value;
-    const rows = state.results[type] || [];
-
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    XLSX.utils.book_append_sheet(
-        workbook,
-        worksheet,
-        safeSheetName(type)
-    );
-
-    XLSX.writeFile(
-        workbook,
-        "Jay_Prabha_" + type + "_Reconciliation.xlsx"
-    );
-}
-
-function exportAll() {
-    if (!state.results) return;
-
-    const workbook = XLSX.utils.book_new();
-
-    const summary = [
-        {Metric:"Client Records",Count:state.sourceRows.client.length},
-        {Metric:"5C Records",Count:state.sourceRows.fiveC.length},
-        {Metric:"Matched",Count:state.results.matched.length},
-        {Metric:"Missing from 5C",Count:state.results.missing5C.length},
-        {Metric:"Missing from Client",Count:state.results.missingClient.length},
-        {Metric:"Duplicate IDs",Count:state.results.duplicates.length},
-        {Metric:"Blank IDs",Count:state.results.blank.length},
-        {Metric:"Client Identifier",Count:state.client.idColumn},
-        {Metric:"5C Identifier",Count:state.fiveC.idColumn}
+    const headers = [
+      "Order Id",
+      "Patient Id",
+      "Patient Name",
+      "Modality",
+      "Study Date",
+      "Num of Reports",
+      "Cost (Rs)"
     ];
 
-    addSheet(workbook,summary,"Summary");
-    addSheet(workbook,state.results.matched,"Matched");
-    addSheet(workbook,state.results.missing5C,"Missing from 5C");
-    addSheet(workbook,state.results.missingClient,"Missing from Client");
-    addSheet(workbook,state.results.duplicates,"Duplicates");
-    addSheet(workbook,state.results.blank,"Blank IDs");
+    const unique = new Map();
+    allRows.forEach(row => {
+      const key = [
+        row["Order Id"],
+        row["Patient Id"],
+        row["Study Date"],
+        row["Study Name"]
+      ].join("|");
+      unique.set(key, row);
+    });
 
-    XLSX.writeFile(
-        workbook,
-        "Jay_Prabha_Monthly_Reconciliation.xlsx"
+    const rows = Array.from(unique.values());
+
+    return {
+      headers,
+      rows,
+      message:
+        "PDF text extracted from " + pagesWithText + " pages. " +
+        rows.length.toLocaleString() +
+        " transaction rows detected. Please check the preview and confirm the Order Id column before comparing."
+    };
+  }
+
+  function groupItemsIntoLines(items) {
+    const sorted = items.slice().sort((a, b) => {
+      if (Math.abs(b.y - a.y) > 2.5) return b.y - a.y;
+      return a.x - b.x;
+    });
+
+    const lines = [];
+
+    sorted.forEach(item => {
+      let line = lines.find(l => Math.abs(l.y - item.y) <= 2.5);
+      if (!line) {
+        line = { y: item.y, items: [] };
+        lines.push(line);
+      }
+      line.items.push(item);
+    });
+
+    lines.sort((a, b) => b.y - a.y);
+
+    return lines.map(line => {
+      line.items.sort((a, b) => a.x - b.x);
+      return line.items.map(i => i.text).join(" ").replace(/\s+/g, " ").trim();
+    }).filter(Boolean);
+  }
+
+  function parseMedicoverLines(lines) {
+    const output = [];
+    let current = null;
+
+    const orderPattern = /^[A-Z0-9]{10}$/i;
+    const patientIdPattern = /^(?:[A-Z]{2,}\d{5,}|\d{8,})$/i;
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    const modalityPattern = /^(XRAY|X-RAY|CT|MRI|USG|ULTRASOUND)$/i;
+
+    function saveCurrent() {
+      if (!current) return;
+
+      const full = current.parts.join(" ").replace(/\s+/g, " ").trim();
+      const parsed = parseMedicoverRecord(current.orderId, full);
+
+      if (parsed) output.push(parsed);
+      current = null;
+    }
+
+    lines.forEach(line => {
+      const tokens = line.split(/\s+/).filter(Boolean);
+      if (!tokens.length) return;
+
+      const first = tokens[0].replace(/[^\w]/g, "");
+
+      if (orderPattern.test(first)) {
+        saveCurrent();
+        current = { orderId: first, parts: [tokens.slice(1).join(" ")] };
+        return;
+      }
+
+      if (current) {
+        // Ignore recurring page headings and invoice footers.
+        if (/^order\s+id$/i.test(line) || /^tax invoice$/i.test(line)) return;
+        current.parts.push(line);
+      }
+    });
+
+    saveCurrent();
+    return output;
+  }
+
+  function parseMedicoverRecord(orderId, text) {
+    const tokens = text.split(/\s+/).filter(Boolean);
+
+    const patientIndex = tokens.findIndex(token =>
+      /^(?:[A-Z]{2,}\d{5,}|\d{8,})$/i.test(token)
     );
-}
 
-function addSheet(workbook,rows,name) {
-    const worksheet = XLSX.utils.json_to_sheet(rows || []);
-    XLSX.utils.book_append_sheet(workbook,worksheet,name);
-}
+    if (patientIndex < 0) return null;
 
-function safeSheetName(name) {
-    return name.substring(0,31).replace(/[\\/?*[\]:]/g,"_");
-}
+    const patientId = tokens[patientIndex];
+    const remaining = tokens.slice(patientIndex + 1);
 
-function resetApp() {
-    if (!confirm("Clear uploaded files and reconciliation results?")) return;
+    const dateIndex = remaining.findIndex(token =>
+      /^\d{4}-\d{2}-\d{2}$/.test(token)
+    );
 
-    state.client = {
-        file:null,workbook:null,rows:[],headers:[],idColumn:""
+    if (dateIndex < 0) return null;
+
+    const beforeDate = remaining.slice(0, dateIndex);
+    const afterDate = remaining.slice(dateIndex + 1);
+
+    const modalityIndex = beforeDate.findIndex(token =>
+      /^(XRAY|X-RAY|CT|MRI|USG|ULTRASOUND)$/i.test(token)
+    );
+
+    if (modalityIndex < 0) return null;
+
+    const patientName = beforeDate.slice(0, modalityIndex).join(" ").trim();
+    const modality = beforeDate[modalityIndex].toUpperCase();
+    const studyName = beforeDate.slice(modalityIndex + 1).join(" ").trim();
+
+    const reportCount = afterDate.find(token => /^\d+$/.test(token)) || "";
+    const costToken = afterDate.find(token => /^\d+(?:\.\d+)?$/.test(token) && token !== reportCount) || "";
+
+    if (!patientName) return null;
+
+    return {
+      "Order Id": orderId,
+      "Patient Id": patientId,
+      "Patient Name": patientName,
+      "Modality": modality,
+      "Study Name": studyName,
+      "Study Date": remaining[dateIndex],
+      "Num of Reports": reportCount,
+      "Cost (Rs)": costToken
+    };
+  }
+
+  function normalizeId(value) {
+    return String(value ?? "")
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, "");
+  }
+
+  function getDuplicateRows(rows, key) {
+    const counts = new Map();
+
+    rows.forEach(row => {
+      const id = normalizeId(row[key]);
+      if (!id) return;
+      counts.set(id, (counts.get(id) || 0) + 1);
+    });
+
+    return rows.filter(row => {
+      const id = normalizeId(row[key]);
+      return id && counts.get(id) > 1;
+    });
+  }
+
+  function reconcileData() {
+    const clientKey = document.getElementById("clientKey").value;
+    const fiveCKey = document.getElementById("fiveCKey").value;
+
+    if (!clientData.length || !fiveCData.length) {
+      setStatus("Please upload both the Client and 5C documents.");
+      return;
+    }
+
+    if (!clientKey || !fiveCKey) {
+      setStatus("Please select the identifier column for both files.");
+      return;
+    }
+
+    const clientIds = new Set(
+      clientData.map(row => normalizeId(row[clientKey])).filter(Boolean)
+    );
+
+    const fiveCIds = new Set(
+      fiveCData.map(row => normalizeId(row[fiveCKey])).filter(Boolean)
+    );
+
+    const missing5C = clientData.filter(row => {
+      const id = normalizeId(row[clientKey]);
+      return id && !fiveCIds.has(id);
+    });
+
+    const missingClient = fiveCData.filter(row => {
+      const id = normalizeId(row[fiveCKey]);
+      return id && !clientIds.has(id);
+    });
+
+    const blankClient = clientData.filter(row => !normalizeId(row[clientKey]));
+    const blank5C = fiveCData.filter(row => !normalizeId(row[fiveCKey]));
+
+    const duplicatesClient = getDuplicateRows(clientData, clientKey);
+    const duplicates5C = getDuplicateRows(fiveCData, fiveCKey);
+
+    results = {
+      missing5C,
+      missingClient,
+      duplicatesClient,
+      duplicates5C,
+      blankClient,
+      blank5C
     };
 
-    state.fiveC = {
-        file:null,workbook:null,rows:[],headers:[],idColumn:""
+    exportData = {
+      "Missing in 5C": missing5C,
+      "Missing in Client": missingClient,
+      "Duplicate Client IDs": duplicatesClient,
+      "Duplicate 5C IDs": duplicates5C,
+      "Blank Client IDs": blankClient,
+      "Blank 5C IDs": blank5C
     };
 
-    state.results = null;
-    state.sourceRows = {client:[],fiveC:[]};
-    state.verificationPage = 0;
+    document.getElementById("clientCount").textContent = clientData.length.toLocaleString();
+    document.getElementById("fiveCCount").textContent = fiveCData.length.toLocaleString();
+    document.getElementById("missing5CCount").textContent = missing5C.length.toLocaleString();
+    document.getElementById("missingClientCount").textContent = missingClient.length.toLocaleString();
+
+    document.getElementById("resultsArea").classList.remove("hidden");
+    document.getElementById("exportBtn").classList.remove("hidden");
+
+    document.getElementById("resultSource").value = "all";
+    currentPage = 1;
+    renderPage();
+
+    setStatus(
+      "Reconciliation completed. Exact matches were ignored. " +
+      "Please review the unmatched and duplicate records before finalizing."
+    );
+  }
+
+  function getVisibleRows() {
+    const selected = document.getElementById("resultSource").value;
+
+    if (selected === "all") {
+      return [
+        ...results.missing5C.map(row => ({ source: "Missing in 5C", row })),
+        ...results.missingClient.map(row => ({ source: "Missing in Client", row }))
+      ];
+    }
+
+    const map = {
+      missing5C: ["Missing in 5C", results.missing5C],
+      missingClient: ["Missing in Client", results.missingClient],
+      duplicatesClient: ["Duplicate Client ID", results.duplicatesClient],
+      duplicates5C: ["Duplicate 5C ID", results.duplicates5C],
+      blankClient: ["Blank Client ID", results.blankClient],
+      blank5C: ["Blank 5C ID", results.blank5C]
+    };
+
+    const [source, rows] = map[selected];
+    return rows.map(row => ({ source, row }));
+  }
+
+  function renderPage() {
+    const visible = getVisibleRows();
+    const total = visible.length;
+    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+    currentPage = Math.min(Math.max(1, currentPage), pages);
+
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageRows = visible.slice(start, start + PAGE_SIZE);
+
+    const headers = ["Discrepancy Source", ...new Set(
+      pageRows.flatMap(item => Object.keys(item.row))
+    )];
+
+    const thead = document.getElementById("resultHead");
+    const tbody = document.getElementById("resultBody");
+
+    thead.innerHTML = "<tr>" + headers.map(h => "<th>" + escapeHtml(h) + "</th>").join("") + "</tr>";
+    tbody.innerHTML = "";
+
+    pageRows.forEach(item => {
+      const tr = document.createElement("tr");
+      const values = [item.source, ...headers.slice(1).map(h => item.row[h] ?? "")];
+
+      tr.innerHTML = values.map(value =>
+        "<td>" + escapeHtml(value) + "</td>"
+      ).join("");
+
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById("resultInfo").textContent =
+      total.toLocaleString() + " record(s) in this view.";
+
+    document.getElementById("pageInfo").textContent =
+      "Page " + currentPage + " of " + pages +
+      " — showing " + (total ? start + 1 : 0) + " to " +
+      Math.min(start + PAGE_SIZE, total) + " of " + total;
+  }
+
+  function changePage(direction) {
+    currentPage += direction;
+    renderPage();
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function exportExcel() {
+    const workbook = XLSX.utils.book_new();
+
+    Object.entries(exportData).forEach(([sheetName, rows]) => {
+      const safeRows = rows.length ? rows : [{ Result: "No records" }];
+      const worksheet = XLSX.utils.json_to_sheet(safeRows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName.slice(0, 31));
+    });
+
+    const summary = [
+      { Metric: "Client records", Count: clientData.length },
+      { Metric: "5C records", Count: fiveCData.length },
+      { Metric: "Missing in 5C", Count: results.missing5C.length },
+      { Metric: "Missing in Client", Count: results.missingClient.length },
+      { Metric: "Duplicate IDs in Client", Count: results.duplicatesClient.length },
+      { Metric: "Duplicate IDs in 5C", Count: results.duplicates5C.length },
+      { Metric: "Blank IDs in Client", Count: results.blankClient.length },
+      { Metric: "Blank IDs in 5C", Count: results.blank5C.length }
+    ];
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.json_to_sheet(summary),
+      "Summary"
+    );
+
+    XLSX.writeFile(workbook, "Monthly_Reconciliation_Report.xlsx");
+  }
+
+  function resetApp() {
+    clientData = [];
+    fiveCData = [];
+    clientHeaders = [];
+    fiveCHeaders = [];
+    results = {};
+    exportData = {};
+    currentPage = 1;
 
     document.getElementById("clientFile").value = "";
     document.getElementById("fiveCFile").value = "";
-
-    document.getElementById("clientSheet").innerHTML =
-        '<option value="">Upload Client file first</option>';
-
-    document.getElementById("fiveCSheet").innerHTML =
-        '<option value="">Upload 5C file first</option>';
-
-    document.getElementById("clientId").innerHTML =
-        '<option value="">Select identifier</option>';
-
-    document.getElementById("fiveCId").innerHTML =
-        '<option value="">Select identifier</option>';
-
-    setStatus("client","No Client file uploaded.");
-    setStatus("fiveC","No 5C file uploaded.");
-
-    [
-        "clientCount",
-        "fiveCCount",
-        "matchedCount",
-        "missing5CCount",
-        "missingClientCount"
-    ].forEach(id => {
-        document.getElementById(id).textContent = "0";
-    });
-
-    document.getElementById("processBtn").disabled = true;
-    document.getElementById("exportCurrentBtn").disabled = true;
-    document.getElementById("exportAllBtn").disabled = true;
-
-    document.getElementById("verificationInfo").textContent =
-        "Upload and process files to view extracted data.";
-
-    document.getElementById("verificationTable").innerHTML =
-        '<div class="empty">No data available.</div>';
-
-    document.getElementById("verificationPageInfo").textContent =
-        "Page 0 of 0";
-
-    document.getElementById("prevPageBtn").disabled = true;
-    document.getElementById("nextPageBtn").disabled = true;
-
-    document.getElementById("resultInfo").textContent =
-        "Run reconciliation to view mismatch details.";
-
-    document.getElementById("resultTable").innerHTML =
-        '<div class="empty">No reconciliation results yet.</div>';
-}
+    document.getElementById("clientFileInfo").textContent = "No file selected.";
+    document.getElementById("fiveCFileInfo").textContent = "No file selected.";
+    document.getElementById("clientKey").innerHTML = "<option value=''>Upload client file first</option>";
+    document.getElementById("fiveCKey").innerHTML = "<option value=''>Upload 5C file first</option>";
+    document.getElementById("clientKey").disabled = true;
+    document.getElementById("fiveCKey").disabled = true;
+    document.getElementById("resultsArea").classList.add("hidden");
+    document.getElementById("exportBtn").classList.add("hidden");
+    setStatus("Upload both documents to begin.");
+  }
 </script>
-
 </body>
 </html>
