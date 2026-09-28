@@ -1,1304 +1,964 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Monthly Reconciliation Tool</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jay Prabha Medanta | Monthly Reconciliation</title>
 
-<!-- Excel -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-<!-- PDF text extraction -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
-<!-- Word DOCX extraction -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
-
-<!-- OCR for scanned documents -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 :root {
-  --primary: #2457d6;
-  --primary-dark: #1744b5;
-  --bg: #f4f7fb;
-  --card: #ffffff;
-  --text: #1e293b;
-  --muted: #64748b;
-  --border: #dce3ee;
-  --green: #15803d;
-  --red: #dc2626;
-  --orange: #c2410c;
+ --blue:#4268df;
+ --teal:#159b89;
+ --ink:#1b2940;
+ --muted:#718096;
+ --line:#e2e8f0;
+ --bg:#eff4fb;
 }
-
-* { box-sizing: border-box; }
-
+* {box-sizing:border-box}
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+ margin:0;
+ padding:25px 16px;
+ font-family:Arial,sans-serif;
+ color:var(--ink);
+ background:var(--bg);
 }
-
-header {
-  background: linear-gradient(120deg, #173e9b, #2c69e8);
-  color: white;
-  padding: 24px 30px;
+.container {max-width:1400px;margin:auto}
+.hero,.card {
+ background:#fff;
+ border:1px solid var(--line);
+ border-radius:16px;
+ padding:22px;
+ margin-bottom:18px;
+ box-shadow:0 8px 24px #1e293b0b;
 }
-
-header h1 {
-  margin: 0 0 8px;
-  font-size: 26px;
+.hero {
+ background:linear-gradient(120deg,#173e9b,#2c69e8);
+ color:white;
 }
-
-header p {
-  margin: 0;
-  opacity: .9;
+.hero h1 {font-size:25px;margin:0 0 8px}
+.hero p {margin:0;opacity:.9}
+.client {
+ font-size:21px;
+ font-weight:800;
+ color:#3155bd;
+ margin-bottom:10px;
 }
-
-.container {
-  max-width: 1500px;
-  margin: 24px auto;
-  padding: 0 20px;
+h2 {font-size:18px;margin:0 0 8px}
+.desc,.muted {
+ color:var(--muted);
+ font-size:13px;
+ line-height:1.6;
 }
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 3px 12px rgba(15, 23, 42, .04);
+.uploads {
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:15px;
 }
-
-h2 {
-  font-size: 19px;
-  margin: 0 0 16px;
+.drop {
+ border:2px dashed #bdcbea;
+ border-radius:12px;
+ padding:20px;
+ background:#f9fbff;
 }
-
-h3 {
-  font-size: 16px;
-  margin: 0 0 12px;
+.drop h3 {margin:0 0 8px}
+.drop input {width:100%;margin-top:12px}
+.fields {
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:14px;
+ margin-top:16px;
 }
-
-.upload-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+.field label {
+ display:block;
+ font-size:12px;
+ font-weight:bold;
+ margin-bottom:7px;
 }
-
-.upload-box {
-  border: 2px dashed #a9bce9;
-  background: #f8faff;
-  padding: 22px;
-  border-radius: 10px;
-  text-align: center;
+select,button {
+ padding:11px;
+ border-radius:8px;
+ border:1px solid #d5deeb;
+ background:white;
+ font:inherit;
 }
-
-.upload-box input {
-  width: 100%;
-  margin-top: 12px;
-}
-
-.upload-box strong {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--primary);
-}
-
-.file-status {
-  margin-top: 10px;
-  font-size: 13px;
-  color: var(--muted);
-  overflow-wrap: anywhere;
-}
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 12px;
-}
-
-.control {
-  min-width: 210px;
-  flex: 1;
-}
-
-label {
-  display: block;
-  font-size: 13px;
-  font-weight: bold;
-  margin-bottom: 7px;
-}
-
-select, input[type="text"], input[type="date"] {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  background: white;
-  font-size: 14px;
-}
-
+select {width:100%}
 button {
-  border: 0;
-  border-radius: 7px;
-  padding: 11px 16px;
-  background: var(--primary);
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
+ cursor:pointer;
+ font-weight:bold;
+ color:#3155bd;
 }
-
-button:hover { background: var(--primary-dark); }
-
-button.secondary {
-  background: #e8eefb;
-  color: #1e40af;
+.primary {
+ background:linear-gradient(110deg,var(--blue),var(--teal));
+ color:white;
+ border:0;
 }
-
-button.danger {
-  background: #fee2e2;
-  color: #991b1b;
+.buttons {
+ display:flex;
+ gap:9px;
+ flex-wrap:wrap;
+ margin-top:15px;
 }
-
-button.success {
-  background: #dcfce7;
-  color: #166534;
-}
-
-button:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.notice {
-  padding: 12px 14px;
-  border-radius: 8px;
-  background: #fff7ed;
-  color: #9a3412;
-  border: 1px solid #fed7aa;
-  font-size: 13px;
-  line-height: 1.6;
-  margin-bottom: 15px;
-}
-
-.progress {
-  display: none;
-  margin-top: 14px;
-  height: 9px;
-  background: #e2e8f0;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  width: 0%;
-  background: #2563eb;
-  transition: width .2s;
-}
-
-.status-message {
-  margin-top: 12px;
-  font-size: 13px;
-  color: var(--muted);
-  white-space: pre-wrap;
-}
-
 .stats {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(120px, 1fr));
-  gap: 12px;
+ display:grid;
+ grid-template-columns:repeat(6,1fr);
+ gap:12px;
 }
-
 .stat {
-  background: #f8faff;
-  border: 1px solid var(--border);
-  padding: 15px;
-  border-radius: 9px;
+ background:#f8faff;
+ border:1px solid var(--line);
+ border-radius:12px;
+ padding:15px;
 }
-
 .stat span {
-  color: var(--muted);
-  font-size: 12px;
+ font-size:12px;
+ color:var(--muted);
 }
-
 .stat strong {
-  display: block;
-  margin-top: 8px;
-  font-size: 25px;
+ display:block;
+ font-size:25px;
+ margin-top:7px;
 }
-
 .tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 15px;
+ display:flex;
+ gap:7px;
+ flex-wrap:wrap;
+ margin:15px 0;
 }
-
 .tab {
-  background: #e8eefb;
-  color: #1e40af;
+ background:#edf2fb;
+ border:0;
 }
-
 .tab.active {
-  background: var(--primary);
-  color: white;
+ background:#dfe8ff;
+ color:#2148b4;
 }
-
-.table-wrap {
-  width: 100%;
-  overflow: auto;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  max-height: 600px;
+.tablewrap {
+ overflow:auto;
+ max-height:560px;
+ border:1px solid var(--line);
+ border-radius:9px;
 }
-
 table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 900px;
-  font-size: 13px;
+ border-collapse:collapse;
+ width:100%;
+ font-size:12px;
+ white-space:nowrap;
 }
-
-th, td {
-  border-bottom: 1px solid #e5eaf2;
-  padding: 10px;
-  text-align: left;
-  white-space: nowrap;
+th,td {
+ padding:10px 12px;
+ border-bottom:1px solid #edf0f5;
+ text-align:left;
 }
-
 th {
-  background: #f1f5f9;
-  position: sticky;
-  top: 0;
-  z-index: 1;
+ position:sticky;
+ top:0;
+ background:#f4f7fb;
+ z-index:1;
 }
-
-tr:hover td { background: #f8faff; }
-
-.badge {
-  padding: 4px 8px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: bold;
-}
-
-.badge.match { background: #dcfce7; color: #166534; }
-.badge.mismatch { background: #fee2e2; color: #991b1b; }
-.badge.duplicate { background: #ffedd5; color: #9a3412; }
-.badge.pending { background: #fef3c7; color: #92400e; }
-.badge.reviewed { background: #dcfce7; color: #166534; }
-
 .empty {
-  text-align: center;
-  padding: 35px;
-  color: var(--muted);
+ text-align:center;
+ padding:30px;
+ color:var(--muted);
 }
-
+.notice {
+ background:#fff3dc;
+ color:#8b5c12;
+ padding:12px;
+ border-radius:9px;
+ font-size:13px;
+ line-height:1.5;
+ margin-top:12px;
+}
+.success {
+ background:#e8f8f2;
+ color:#147b67;
+}
+.hidden {display:none}
 .small {
-  color: var(--muted);
-  font-size: 12px;
+ font-size:12px;
+ color:var(--muted);
 }
-
-.hidden { display: none !important; }
-
-@media(max-width: 800px) {
-  .upload-grid { grid-template-columns: 1fr; }
-  .stats { grid-template-columns: repeat(2, 1fr); }
-  header { padding: 20px; }
+@media(max-width:750px) {
+ .uploads,.fields {grid-template-columns:1fr}
+ .stats {grid-template-columns:1fr 1fr}
+ .client {font-size:18px}
 }
 </style>
 </head>
 
 <body>
+<main class="container">
 
-<header>
-  <h1>Monthly Reconciliation Tool</h1>
-  <p>Client vs 5C case comparison | Multi-format document processing</p>
+<header class="hero">
+ <h1>Monthly Reconciliation</h1>
+ <p>Client vs 5C case comparison • Operations and data quality</p>
 </header>
 
-<div class="container">
+<section class="card">
+ <div class="client">
+  Jay Prabha Medanta Super Specialty Hospital, Patna
+ </div>
+ <h2>Monthly Case Reconciliation</h2>
+ <p class="desc">
+  Upload the hospital/client records and corresponding 5C records.
+  Compare using a common identifier and review cases that are missing
+  from either side.
+ </p>
+</section>
 
-  <div class="card">
-    <h2>1. Upload Documents</h2>
+<section class="card">
+ <h2>1. Upload documents</h2>
+ <p class="desc">
+  Supported: Excel (.xlsx/.xls), CSV, text-based PDF, Word (.docx),
+  and TXT. For PDF/Word files, the tool extracts text and attempts
+  to identify tabular rows. Check extracted records before comparing.
+ </p>
 
-    <div class="notice">
-      Supported: Excel, CSV, text-based PDF, DOCX and TXT.
-      Scanned PDFs can be processed using OCR, but extracted values must be checked.
-      All processing happens in this browser using the included libraries.
-    </div>
-
-    <div class="upload-grid">
-      <div class="upload-box">
-        <strong>CLIENT DOCUMENT</strong>
-        <p class="small">Upload hospital/client records</p>
-        <input type="file" id="clientFile"
-          accept=".xlsx,.xls,.csv,.pdf,.docx,.txt">
-        <div class="file-status" id="clientStatus">No file selected</div>
-      </div>
-
-      <div class="upload-box">
-        <strong>5C DOCUMENT</strong>
-        <p class="small">Upload 5C records</p>
-        <input type="file" id="fiveCFile"
-          accept=".xlsx,.xls,.csv,.pdf,.docx,.txt">
-        <div class="file-status" id="fiveCStatus">No file selected</div>
-      </div>
-    </div>
-
-    <div class="progress" id="progress">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div class="status-message" id="statusMessage"></div>
+ <div class="uploads">
+  <div class="drop">
+   <h3>Client Document</h3>
+   <p class="small">Hospital records</p>
+   <input id="clientFile" type="file"
+    accept=".xlsx,.xls,.csv,.pdf,.docx,.txt">
+   <div id="clientName" class="small">No file selected</div>
   </div>
 
-  <div class="card">
-    <h2>2. Configure Comparison</h2>
+  <div class="drop">
+   <h3>5C Document</h3>
+   <p class="small">5C records</p>
+   <input id="fiveFile" type="file"
+    accept=".xlsx,.xls,.csv,.pdf,.docx,.txt">
+   <div id="fiveName" class="small">No file selected</div>
+  </div>
+ </div>
 
-    <div class="controls">
-      <div class="control">
-        <label for="clientSheet">Client Sheet</label>
-        <select id="clientSheet" disabled></select>
-      </div>
+ <div id="status" class="notice">
+  Select both documents to begin.
+ </div>
+</section>
 
-      <div class="control">
-        <label for="fiveCSheet">5C Sheet</label>
-        <select id="fiveCSheet" disabled></select>
-      </div>
+<section class="card">
+ <h2>2. Configure comparison</h2>
 
-      <div class="control">
-        <label for="clientKey">Client Unique Identifier</label>
-        <select id="clientKey" disabled></select>
-      </div>
-
-      <div class="control">
-        <label for="fiveCKey">5C Unique Identifier</label>
-        <select id="fiveCKey" disabled></select>
-      </div>
-    </div>
-
-    <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap">
-      <button id="compareBtn" disabled>Compare Records</button>
-      <button class="secondary" id="resetBtn">Reset</button>
-    </div>
+ <div class="fields">
+  <div class="field">
+   <label>Client worksheet</label>
+   <select id="clientSheet" disabled></select>
   </div>
 
-  <div class="card">
-    <h2>3. Reconciliation Summary</h2>
-    <div class="stats">
-      <div class="stat"><span>Client Records</span><strong id="clientCount">0</strong></div>
-      <div class="stat"><span>5C Records</span><strong id="fiveCCount">0</strong></div>
-      <div class="stat"><span>Matched</span><strong id="matchedCount">0</strong></div>
-      <div class="stat"><span>Client Unmatched</span><strong id="clientUnmatchedCount">0</strong></div>
-      <div class="stat"><span>5C Unmatched</span><strong id="fiveCUnmatchedCount">0</strong></div>
-    </div>
+  <div class="field">
+   <label>5C worksheet</label>
+   <select id="fiveSheet" disabled></select>
   </div>
 
-  <div class="card">
-    <h2>4. Extracted Data Verification</h2>
-    <p class="small">
-      Review extracted document rows before relying on the comparison.
-      PDF table extraction may not preserve the original column structure.
-    </p>
-
-    <div class="tabs">
-      <button class="tab active" data-verify="client">Client Data</button>
-      <button class="tab" data-verify="fiveC">5C Data</button>
-    </div>
-
-    <div class="table-wrap" id="verificationTable">
-      <div class="empty">Upload documents to view extracted data.</div>
-    </div>
+  <div class="field">
+   <label>Client unique identifier</label>
+   <select id="clientKey" disabled></select>
   </div>
 
-  <div class="card">
-    <h2>5. Reconciliation Results</h2>
+  <div class="field">
+   <label>5C unique identifier</label>
+   <select id="fiveKey" disabled></select>
+  </div>
+ </div>
 
-    <div class="tabs" id="resultTabs">
-      <button class="tab active" data-tab="clientUnmatched">Client Unmatched</button>
-      <button class="tab" data-tab="fiveCUnmatched">5C Unmatched</button>
-      <button class="tab" data-tab="matched">Matched</button>
-      <button class="tab" data-tab="duplicates">Duplicates</button>
-      <button class="tab" data-tab="blank">Blank IDs</button>
-      <button class="tab" data-tab="saved">Saved Cases</button>
-    </div>
+ <div class="buttons">
+  <button class="primary" id="compare" disabled>
+   Compare Records
+  </button>
+  <button id="reset">Reset current upload</button>
+ </div>
+</section>
 
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">
-      <button id="exportCurrentBtn" class="secondary">Export Current View</button>
-      <button id="exportAllBtn">Export Full Reconciliation</button>
-      <button id="exportSavedBtn" class="success">Export Saved Cases</button>
-    </div>
+<section class="card">
+ <h2>3. Summary</h2>
 
-    <div class="table-wrap" id="resultTable">
-      <div class="empty">Upload files and compare records to see results.</div>
-    </div>
+ <div class="stats">
+  <div class="stat">
+   <span>Client Records</span>
+   <strong id="cc">—</strong>
   </div>
 
+  <div class="stat">
+   <span>5C Records</span>
+   <strong id="fc">—</strong>
+  </div>
+
+  <div class="stat">
+   <span>Matched Unique IDs</span>
+   <strong id="mc">—</strong>
+  </div>
+
+  <div class="stat">
+   <span>Matched Client Rows</span>
+   <strong id="mp">—</strong>
+  </div>
+
+  <div class="stat">
+   <span>Missing from 5C</span>
+   <strong id="m5">—</strong>
+  </div>
+
+  <div class="stat">
+   <span>Missing from Client</span>
+   <strong id="mh">—</strong>
+  </div>
+ </div>
+</section>
+
+<section class="card">
+ <h2>4. Extracted data verification</h2>
+ <p class="desc">
+  Review these rows and confirm the selected identifier column contains
+  the correct values. Complex PDF tables and scanned documents may need
+  manual correction or conversion to Excel first.
+ </p>
+
+ <div class="tabs">
+  <button class="tab active" data-verify="client">Client Data</button>
+  <button class="tab" data-verify="five">5C Data</button>
+ </div>
+
+ <div class="tablewrap" id="verifyTable">
+  <div class="empty">
+   Upload documents to preview extracted records.
+  </div>
+ </div>
+</section>
+
+<section class="card">
+ <h2>5. Mismatch details</h2>
+
+ <div class="tabs" id="resultTabs">
+  <button class="tab active" data-tab="missing5">
+   Missing from 5C
+  </button>
+
+  <button class="tab" data-tab="missingH">
+   Missing from Client
+  </button>
+
+  <button class="tab" data-tab="matched">
+   Matched Unique IDs (<span id="matchedCount">0</span>)
+  </button>
+
+  <button class="tab" data-tab="duplicates">
+   Duplicate IDs
+  </button>
+
+  <button class="tab" data-tab="blank">
+   Blank IDs
+  </button>
+ </div>
+
+ <div class="buttons">
+  <button id="exportCurrent">Export current view</button>
+  <button class="primary" id="exportAll">
+   Download full reconciliation Excel
+  </button>
+ </div>
+
+ <div class="tablewrap" id="results">
+  <div class="empty">
+   Compare documents to display results.
+  </div>
+ </div>
+</section>
+
+<div class="small" style="text-align:center">
+ Files are processed in this browser. Avoid using public/shared computers
+ for patient information. Exported reports should be stored only in
+ approved secure locations.
 </div>
+
+</main>
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-const state = {
-  client: { name:"", sheets:[], rows:[], headers:[] },
-  fiveC: { name:"", sheets:[], rows:[], headers:[] },
-  results: {
-    clientUnmatched: [],
-    fiveCUnmatched: [],
-    matched: [],
-    duplicates: [],
-    blank: []
-  },
-  currentTab: "clientUnmatched",
-  verificationTab: "client",
-  saved: []
-};
+ 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const $ = id => document.getElementById(id);
 
-function normalize(value) {
-  return String(value ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
-}
-
-function cleanCell(value) {
-  if (value === null || value === undefined) return "";
-  if (value instanceof Date) return value.toISOString().slice(0,10);
-  return String(value).trim();
-}
-
-function setStatus(message) {
-  $("statusMessage").textContent = message;
-}
-
-function setProgress(percent) {
-  $("progress").style.display = "block";
-  $("progressBar").style.width = percent + "%";
-}
-
-function detectHeader(headers, patterns) {
-  for (const pattern of patterns) {
-    const found = headers.find(h => pattern.test(String(h)));
-    if (found) return found;
-  }
-  return "";
-}
-
-const FIELD_PATTERNS = {
-  "Patient ID": [/patient\s*id/i, /patient\s*no/i, /mrn/i, /uhid/i],
-  "Patient Name": [/patient\s*name/i, /^name$/i],
-  "Order ID": [/order\s*id/i, /order\s*no/i, /accession/i],
-  "Study ID": [/study\s*id/i, /study\s*instance/i],
-  "Client ID": [/client\s*id/i, /hospital\s*id/i],
-  "Modality": [/modality/i],
-  "Study Name": [/study\s*name/i, /procedure/i, /exam\s*name/i],
-  "Date": [/^date$/i, /order\s*date/i, /created\s*date/i],
-  "Scan Date": [/scan\s*date/i, /study\s*date/i, /performed\s*date/i]
+const S = {
+ client:{sheets:[],rows:[],headers:[]},
+ five:{sheets:[],rows:[],headers:[]},
+ result:{},
+ tab:'missing5',
+ verify:'client'
 };
 
-function identifyColumns(headers) {
-  const map = {};
-  for (const [field, patterns] of Object.entries(FIELD_PATTERNS)) {
-    map[field] = detectHeader(headers, patterns);
-  }
-  return map;
+function norm(v) {
+ return String(v ?? '')
+  .trim()
+  .toLowerCase()
+  .replace(/\s+/g,' ');
 }
 
-function rowToObject(headers, row) {
-  const obj = {};
-  headers.forEach((h, i) => obj[h] = cleanCell(row[i]));
-  return obj;
+function obj(headers,row) {
+ return Object.fromEntries(
+  headers.map((h,i)=>[h,String(row[i]??'').trim()])
+ );
 }
 
-function rowsFromObjects(objects) {
-  if (!objects.length) return {headers:[], rows:[]};
-  const headers = [...new Set(objects.flatMap(o => Object.keys(o)))];
-  return {
-    headers,
-    rows: objects.map(o => headers.map(h => cleanCell(o[h])))
-  };
-}
-
-function parseDelimitedText(text) {
-  const lines = text.split(/\r?\n/).filter(line => line.trim());
-  if (!lines.length) return {headers:[], rows:[]};
-
-  const delimiter = lines[0].includes("\t") ? "\t" :
-                    lines[0].includes("|") ? "|" : ",";
-
-  const parsed = lines.map(line => {
-    const cells = [];
-    let current = "";
-    let quoted = false;
-
-    for (let i=0; i<line.length; i++) {
-      const ch = line[i];
-
-      if (ch === '"') {
-        if (quoted && line[i+1] === '"') {
-          current += '"';
-          i++;
-        } else {
-          quoted = !quoted;
-        }
-      } else if (ch === delimiter && !quoted) {
-        cells.push(current.trim());
-        current = "";
-      } else {
-        current += ch;
-      }
-    }
-
-    cells.push(current.trim());
-    return cells;
-  });
-
-  const maxColumns = Math.max(...parsed.map(r => r.length));
-  const headers = parsed[0].map((h,i) => h || `Column ${i+1}`);
-
-  while (headers.length < maxColumns) {
-    headers.push(`Column ${headers.length+1}`);
-  }
-
-  return {
-    headers,
-    rows: parsed.slice(1).map(row =>
-      headers.map((_,i) => row[i] || "")
-    )
-  };
-}
-
-async function readExcel(file) {
-  const buffer = await file.arrayBuffer();
-  const workbook = XLSX.read(buffer, {type:"array", cellDates:true});
-
-  const sheets = workbook.SheetNames.map(name => {
-    const sheet = workbook.Sheets[name];
-    const matrix = XLSX.utils.sheet_to_json(sheet, {
-      header:1,
-      defval:"",
-      raw:false
-    });
-
-    const headers = (matrix[0] || []).map((h,i) =>
-      cleanCell(h) || `Column ${i+1}`
-    );
-
-    return {
-      name,
-      headers,
-      rows: matrix.slice(1).map(row =>
-        headers.map((_,i) => cleanCell(row[i]))
-      )
-    };
-  });
-
-  return sheets;
-}
-
-async function readPDF(file) {
-  const buffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({data:buffer}).promise;
-
-  let text = "";
-
-  for (let pageNo=1; pageNo<=pdf.numPages; pageNo++) {
-    const page = await pdf.getPage(pageNo);
-    const content = await page.getTextContent();
-
-    const items = content.items.map(item => ({
-      text: item.str,
-      x: item.transform[4],
-      y: item.transform[5]
-    }));
-
-    const lines = new Map();
-
-    items.forEach(item => {
-      const key = Math.round(item.y / 3) * 3;
-      if (!lines.has(key)) lines.set(key, []);
-      lines.get(key).push(item);
-    });
-
-    const sortedLines = [...lines.entries()]
-      .sort((a,b) => b[0]-a[0]);
-
-    text += "\n--- Page " + pageNo + " ---\n";
-
-    sortedLines.forEach(([y, lineItems]) => {
-      lineItems.sort((a,b) => a.x-b.x);
-      text += lineItems.map(x => x.text).join(" ") + "\n";
-    });
-  }
-
-  if (!text.replace(/--- Page \d+ ---/g,"").trim()) {
-    throw new Error("This PDF appears to be scanned or image-only. OCR is required.");
-  }
-
-  return parseDocumentText(text);
-}
-
-async function readDOCX(file) {
-  const buffer = await file.arrayBuffer();
-  const result = await mammoth.extractRawText({arrayBuffer:buffer});
-  return parseDocumentText(result.value);
-}
-
-function parseDocumentText(text) {
-  const lines = text.split(/\r?\n/)
-    .map(line => line.trim())
-    .filter(Boolean);
-
-  if (!lines.length) return {headers:[], rows:[]};
-
-  // Detect tabular text when columns are separated by tabs or pipes.
-  if (lines.some(line => line.includes("\t") || line.includes("|"))) {
-    return parseDelimitedText(lines.join("\n"));
-  }
-
-  // For ordinary PDF/Word text, preserve each line as a record.
-  return {
-    headers:["Extracted Text"],
-    rows:lines.map(line => [line])
-  };
-}
-
-async function readTXT(file) {
-  const text = await file.text();
-  return parseDocumentText(text);
-}
-
-async function readFile(file) {
-  const ext = file.name.split(".").pop().toLowerCase();
-
-  if (["xlsx","xls"].includes(ext)) {
-    return await readExcel(file);
-  }
-
-  if (ext === "csv") {
-    const text = await file.text();
-    const parsed = parseDelimitedText(text);
-    return [{name:"CSV Data", ...parsed}];
-  }
-
-  if (ext === "pdf") {
-    const parsed = await readPDF(file);
-    return [{name:"PDF Extract", ...parsed}];
-  }
-
-  if (ext === "docx") {
-    const parsed = await readDOCX(file);
-    return [{name:"Word Extract", ...parsed}];
-  }
-
-  if (ext === "txt") {
-    const parsed = await readTXT(file);
-    return [{name:"Text Extract", ...parsed}];
-  }
-
-  throw new Error("Unsupported file format: " + ext);
-}
-
-function setSheetOptions(side) {
-  const data = state[side];
-  const select = $(side === "client" ? "clientSheet" : "fiveCSheet");
-
-  select.innerHTML = "";
-
-  data.sheets.forEach((sheet,i) => {
-    const option = document.createElement("option");
-    option.value = i;
-    option.textContent = sheet.name;
-    select.appendChild(option);
-  });
-
-  select.disabled = data.sheets.length === 0;
-  select.value = "0";
-
-  updateSelectedSheet(side);
-}
-
-function updateSelectedSheet(side) {
-  const data = state[side];
-  const select = $(side === "client" ? "clientSheet" : "fiveCSheet");
-  const index = Number(select.value || 0);
-  const sheet = data.sheets[index];
-
-  if (!sheet) return;
-
-  data.headers = sheet.headers;
-  data.rows = sheet.rows;
-
-  const keySelect = $(side === "client" ? "clientKey" : "fiveCKey");
-  keySelect.innerHTML = "";
-
-  sheet.headers.forEach(header => {
-    const option = document.createElement("option");
-    option.value = header;
-    option.textContent = header;
-    keySelect.appendChild(option);
-  });
-
-  const suggested = identifyColumns(sheet.headers);
-  const preferred = suggested["Patient ID"] ||
-                    suggested["Order ID"] ||
-                    suggested["Study ID"] ||
-                    sheet.headers[0];
-
-  keySelect.value = preferred;
-  keySelect.disabled = sheet.headers.length === 0;
-
-  $("compareBtn").disabled =
-    !state.client.rows.length || !state.fiveC.rows.length;
-
-  renderVerification();
-}
-
-async function handleUpload(side, file) {
-  if (!file) return;
-
-  const status = $(side === "client" ? "clientStatus" : "fiveCStatus");
-  status.textContent = "Processing " + file.name + "...";
-  setStatus("Reading " + file.name);
-  setProgress(15);
-
-  try {
-    const sheets = await readFile(file);
-
-    if (!sheets.length || !sheets[0].headers.length) {
-      throw new Error("No readable rows or columns were found.");
-    }
-
-    state[side].name = file.name;
-    state[side].sheets = sheets;
-
-    setSheetOptions(side);
-
-    status.textContent =
-      file.name + " | " +
-      sheets.reduce((sum,s) => sum+s.rows.length,0) +
-      " extracted rows";
-
-    setProgress(100);
-    setStatus("Successfully processed " + file.name);
-    renderVerification();
-
-  } catch (error) {
-    status.textContent = "Could not process file.";
-    setStatus("Error: " + error.message);
-    console.error(error);
-  }
-}
-
-$("clientFile").addEventListener("change", e =>
-  handleUpload("client", e.target.files[0])
-);
-
-$("fiveCFile").addEventListener("change", e =>
-  handleUpload("fiveC", e.target.files[0])
-);
-
-$("clientSheet").addEventListener("change", () =>
-  updateSelectedSheet("client")
-);
-
-$("fiveCSheet").addEventListener("change", () =>
-  updateSelectedSheet("fiveC")
-);
-
-function getIdentifier(row, headers, key) {
-  const index = headers.indexOf(key);
-  return index < 0 ? "" : cleanCell(row[index]);
-}
-
-function compareRecords() {
-  const clientKey = $("clientKey").value;
-  const fiveCKey = $("fiveCKey").value;
-
-  if (!clientKey || !fiveCKey) {
-    alert("Please select an identifier for both documents.");
-    return;
-  }
-
-  const client = state.client;
-  const fiveC = state.fiveC;
-
-  const clientMap = new Map();
-  const fiveCMap = new Map();
-
-  const blank = [];
-  const duplicates = [];
-
-  client.rows.forEach((row,index) => {
-    const id = getIdentifier(row, client.headers, clientKey);
-    const key = normalize(id);
-
-    if (!key) {
-      blank.push({
-        Source:"Client",
-        "Source Row":index+2,
-        Identifier:id,
-        ...rowToObject(client.headers,row)
-      });
-      return;
-    }
-
-    if (!clientMap.has(key)) clientMap.set(key,[]);
-    clientMap.get(key).push({row,index,id});
-  });
-
-  fiveC.rows.forEach((row,index) => {
-    const id = getIdentifier(row, fiveC.headers, fiveCKey);
-    const key = normalize(id);
-
-    if (!key) {
-      blank.push({
-        Source:"5C",
-        "Source Row":index+2,
-        Identifier:id,
-        ...rowToObject(fiveC.headers,row)
-      });
-      return;
-    }
-
-    if (!fiveCMap.has(key)) fiveCMap.set(key,[]);
-    fiveCMap.get(key).push({row,index,id});
-  });
-
-  for (const [key,items] of clientMap) {
-    if (items.length > 1) {
-      items.forEach(item => duplicates.push({
-        Source:"Client",
-        Identifier:item.id,
-        "Source Row":item.index+2,
-        ...rowToObject(client.headers,item.row)
-      }));
-    }
-  }
-
-  for (const [key,items] of fiveCMap) {
-    if (items.length > 1) {
-      items.forEach(item => duplicates.push({
-        Source:"5C",
-        Identifier:item.id,
-        "Source Row":item.index+2,
-        ...rowToObject(fiveC.headers,item.row)
-      }));
-    }
-  }
-
-  const clientUnmatched = [];
-  const fiveCUnmatched = [];
-  const matched = [];
-
-  for (const [key,items] of clientMap) {
-    if (!fiveCMap.has(key)) {
-      items.forEach(item => clientUnmatched.push({
-        "Source Row":item.index+2,
-        Identifier:item.id,
-        ...rowToObject(client.headers,item.row)
-      }));
+function parseDelimited(text) {
+ let lines = text.split(/\r?\n/).filter(x=>x.trim());
+
+ if(!lines.length) {
+  return {headers:[],rows:[]};
+ }
+
+ let delim = lines[0].includes('\t')
+  ? '\t'
+  : lines[0].includes('|')
+   ? '|'
+   : ',';
+
+ let data = lines.map(line=>{
+  let a=[],v='',q=false;
+
+  for(let i=0;i<line.length;i++) {
+   let c=line[i];
+
+   if(c==='"') {
+    if(q && line[i+1]==='"') {
+     v+='"';
+     i++;
     } else {
-      const other = fiveCMap.get(key);
-
-      items.forEach(item => {
-        matched.push({
-          Identifier:item.id,
-          "Client Source Row":item.index+2,
-          "5C Source Row":other[0].index+2,
-          "Client Data":JSON.stringify(
-            rowToObject(client.headers,item.row)
-          ),
-          "5C Data":JSON.stringify(
-            rowToObject(fiveC.headers,other[0].row)
-          )
-        });
-      });
+     q=!q;
     }
+   } else if(c===delim && !q) {
+    a.push(v.trim());
+    v='';
+   } else {
+    v+=c;
+   }
   }
 
-  for (const [key,items] of fiveCMap) {
-    if (!clientMap.has(key)) {
-      items.forEach(item => fiveCUnmatched.push({
-        "Source Row":item.index+2,
-        Identifier:item.id,
-        ...rowToObject(fiveC.headers,item.row)
-      }));
-    }
-  }
+  a.push(v.trim());
+  return a;
+ });
 
-  state.results = {
-    clientUnmatched,
-    fiveCUnmatched,
-    matched,
-    duplicates,
-    blank
-  };
+ let n=Math.max(...data.map(x=>x.length));
 
-  $("clientCount").textContent = client.rows.length;
-  $("fiveCCount").textContent = fiveC.rows.length;
-  $("matchedCount").textContent = matched.length;
-  $("clientUnmatchedCount").textContent = clientUnmatched.length;
-  $("fiveCUnmatchedCount").textContent = fiveCUnmatched.length;
+ let headers=data[0].map(
+  (x,i)=>x||`Column ${i+1}`
+ );
 
-  renderResults();
-  setStatus("Comparison completed.");
+ while(headers.length<n) {
+  headers.push(`Column ${headers.length+1}`);
+ }
+
+ return {
+  headers,
+  rows:data.slice(1).map(
+   r=>headers.map((_,i)=>r[i]||'')
+  )
+ };
 }
 
-$("compareBtn").addEventListener("click", compareRecords);
+function parseText(text) {
+ let lines=text.split(/\r?\n/)
+  .map(x=>x.trim())
+  .filter(Boolean);
 
-function getPriorityColumns(headers) {
-  const map = identifyColumns(headers);
-  const preferred = [
-    "Patient ID","Patient Name","Order ID","Study ID",
-    "Client ID","Modality","Study Name","Date","Scan Date"
-  ];
+ if(!lines.length) {
+  return {headers:[],rows:[]};
+ }
 
-  const found = preferred.map(field => map[field]).filter(Boolean);
-  return [...new Set([...found,...headers])];
+ let tableLines=lines.filter(
+  x=>x.includes('\t')||x.includes('|')
+ );
+
+ if(tableLines.length>=2) {
+  return parseDelimited(tableLines.join('\n'));
+ }
+
+ return {
+  headers:['Extracted Text'],
+  rows:lines.map(x=>[x])
+ };
 }
 
-function renderTable(container, rows, headers) {
-  if (!rows.length) {
-    container.innerHTML = '<div class="empty">No records to display.</div>';
-    return;
-  }
+async function pdfText(file) {
+ let pdf=await pdfjsLib.getDocument({
+  data:await file.arrayBuffer()
+ }).promise;
 
-  const table = document.createElement("table");
-  const thead = document.createElement("thead");
-  const headerRow = document.createElement("tr");
+ let text='';
 
-  headers.forEach(header => {
-    const th = document.createElement("th");
-    th.textContent = header;
-    headerRow.appendChild(th);
+ for(let p=1;p<=pdf.numPages;p++) {
+  let page=await pdf.getPage(p);
+  let content=await page.getTextContent();
+  let lines=new Map();
+
+  content.items.forEach(it=>{
+   let y=Math.round(it.transform[5]/3)*3;
+
+   if(!lines.has(y)) {
+    lines.set(y,[]);
+   }
+
+   lines.get(y).push(it);
   });
 
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
+  text+='\n';
 
-  const tbody = document.createElement("tbody");
+  [...lines.entries()]
+   .sort((a,b)=>b[0]-a[0])
+   .forEach(([y,items])=>{
+    items.sort((a,b)=>a.transform[4]-b.transform[4]);
+    text+=items.map(x=>x.str).join('\t')+'\n';
+   });
+ }
 
-  rows.forEach(row => {
-    const tr = document.createElement("tr");
-
-    headers.forEach(header => {
-      const td = document.createElement("td");
-      td.textContent = row[header] ?? "";
-      tr.appendChild(td);
-    });
-
-    tbody.appendChild(tr);
-  });
-
-  table.appendChild(tbody);
-  container.innerHTML = "";
-  container.appendChild(table);
-}
-
-function renderVerification() {
-  const side = state.verificationTab;
-  const data = state[side];
-
-  if (!data.rows.length) {
-    $("verificationTable").innerHTML =
-      '<div class="empty">Upload a document to view extracted data.</div>';
-    return;
-  }
-
-  const rows = data.rows.map((row,index) => ({
-    "Source Row":index+2,
-    ...rowToObject(data.headers,row)
-  }));
-
-  renderTable(
-    $("verificationTable"),
-    rows,
-    ["Source Row",...data.headers]
+ if(!text.trim()) {
+  throw Error(
+   'No selectable text found in PDF. It may be scanned; convert using OCR or Excel.'
   );
+ }
+
+ return parseText(text);
 }
+
+async function loadFile(file) {
+ let ext=file.name.split('.').pop().toLowerCase();
+
+ if(['xlsx','xls','csv'].includes(ext)) {
+  if(ext==='csv') {
+   return [{
+    name:'CSV',
+    ...parseDelimited(await file.text())
+   }];
+  }
+
+  let wb=XLSX.read(
+   await file.arrayBuffer(),
+   {type:'array',cellDates:true}
+  );
+
+  return wb.SheetNames.map(name=>{
+   let m=XLSX.utils.sheet_to_json(
+    wb.Sheets[name],
+    {header:1,defval:'',raw:false}
+   );
+
+   return {
+    name,
+    headers:(m[0]||[]).map(
+     (h,i)=>String(h||`Column ${i+1}`).trim()
+    ),
+    rows:m.slice(1).map(
+     r=>(m[0]||[]).map((_,i)=>String(r[i]??''))
+    )
+   };
+  });
+ }
+
+ if(ext==='pdf') {
+  return [{
+   name:'PDF Extract',
+   ...await pdfText(file)
+  }];
+ }
+
+ if(ext==='docx') {
+  let r=await mammoth.extractRawText({
+   arrayBuffer:await file.arrayBuffer()
+  });
+
+  return [{
+   name:'Word Extract',
+   ...parseText(r.value)
+  }];
+ }
+
+ if(ext==='txt') {
+  return [{
+   name:'Text Extract',
+   ...parseText(await file.text())
+  }];
+ }
+
+ throw Error(
+  'Unsupported format. Use .xlsx, .xls, .csv, .pdf, .docx, or .txt.'
+ );
+}
+
+function guess(headers) {
+ for(let p of [
+  /study\s*id|case\s*id|accession/i,
+  /order\s*id|order\s*no/i,
+  /patient\s*id|mrn|uhid/i
+ ]) {
+  let h=headers.find(x=>p.test(x));
+  if(h)return h;
+ }
+
+ return headers[0]||'';
+}
+
+function configure(side) {
+ let d=S[side];
+
+ let sheetSel=$(
+  side==='client'?'clientSheet':'fiveSheet'
+ );
+
+ let keySel=$(
+  side==='client'?'clientKey':'fiveKey'
+ );
+
+ let sheet=d.sheets[+sheetSel.value];
+
+ if(!sheet)return;
+
+ d.headers=sheet.headers;
+ d.rows=sheet.rows;
+
+ keySel.innerHTML='';
+
+ sheet.headers.forEach(h=>{
+  let o=document.createElement('option');
+  o.value=h;
+  o.textContent=h;
+  keySel.append(o);
+ });
+
+ keySel.value=guess(sheet.headers);
+ keySel.disabled=!sheet.headers.length;
+
+ renderVerify();
+
+ $('compare').disabled=!(
+  S.client.rows.length && S.five.rows.length
+ );
+}
+
+async function upload(side,file) {
+ if(!file)return;
+
+ try {
+  $('status').textContent='Processing '+file.name+'…';
+
+  let sheets=await loadFile(file);
+
+  if(!sheets[0]?.headers.length) {
+   throw Error('No usable rows or columns found.');
+  }
+
+  S[side].sheets=sheets;
+
+  let sel=$(
+   side==='client'?'clientSheet':'fiveSheet'
+  );
+
+  sel.innerHTML='';
+
+  sheets.forEach((s,i)=>{
+   let o=document.createElement('option');
+   o.value=i;
+   o.textContent=s.name;
+   sel.append(o);
+  });
+
+  sel.disabled=false;
+
+  $(
+   side==='client'?'clientName':'fiveName'
+  ).textContent=file.name;
+
+  configure(side);
+
+  $('status').textContent=
+   `Loaded ${file.name}. Please verify the extracted data and selected identifier before comparing.`;
+
+  $('status').className='notice success';
+
+ } catch(e) {
+  $('status').textContent='Could not process file: '+e.message;
+  $('status').className='notice';
+ }
+}
+
+$('clientFile').onchange=e=>
+ upload('client',e.target.files[0]);
+
+$('fiveFile').onchange=e=>
+ upload('five',e.target.files[0]);
+
+$('clientSheet').onchange=()=>configure('client');
+$('fiveSheet').onchange=()=>configure('five');
+
+function renderTable(el,rows,headers) {
+ if(!rows.length) {
+  el.innerHTML='<div class="empty">No records in this category.</div>';
+  return;
+ }
+
+ let t=document.createElement('table');
+ let thead=document.createElement('thead');
+ let tr=document.createElement('tr');
+
+ headers.forEach(h=>{
+  let th=document.createElement('th');
+  th.textContent=h;
+  tr.append(th);
+ });
+
+ thead.append(tr);
+ t.append(thead);
+
+ let tb=document.createElement('tbody');
+
+ rows.slice(0,1000).forEach(r=>{
+  let tr=document.createElement('tr');
+
+  headers.forEach(h=>{
+   let td=document.createElement('td');
+   td.textContent=r[h]??'';
+   tr.append(td);
+  });
+
+  tb.append(tr);
+ });
+
+ t.append(tb);
+ el.innerHTML='';
+ el.append(t);
+
+ if(rows.length>1000) {
+  el.insertAdjacentHTML(
+   'beforeend',
+   `<div class="empty">Showing 1,000 of ${rows.length}. Export to see all records.</div>`
+  );
+ }
+}
+
+function renderVerify() {
+ let d=S[S.verify];
+
+ if(!d.rows.length) {
+  $('verifyTable').innerHTML=
+   '<div class="empty">No data loaded.</div>';
+  return;
+ }
+
+ let rows=d.rows.map((r,i)=>({
+  'Source Row':i+2,
+  ...obj(d.headers,r)
+ }));
+
+ renderTable(
+  $('verifyTable'),
+  rows,
+  ['Source Row',...d.headers]
+ );
+}
+
+document.querySelectorAll('[data-verify]').forEach(b=>{
+ b.onclick=()=>{
+  S.verify=b.dataset.verify;
+
+  document.querySelectorAll('[data-verify]')
+   .forEach(x=>x.classList.toggle('active',x===b));
+
+  renderVerify();
+ };
+});
+
+function compare() {
+ let c=S.client;
+ let f=S.five;
+
+ let ck=$('clientKey').value;
+ let fk=$('fiveKey').value;
+
+ if(!ck||!fk) {
+  alert('Select identifiers for both files.');
+  return;
+ }
+
+ let maps=[new Map(),new Map()];
+ let blank=[];
+ let dups=[];
+
+ [[c,ck,'Client'],[f,fk,'5C']].forEach(
+  ([d,key,source],side)=>{
+   d.rows.forEach((row,i)=>{
+    let id=String(
+     row[d.headers.indexOf(key)]??''
+    ).trim();
+
+    let k=norm(id);
+
+    let entry={
+     source,
+     'Source Row':i+2,
+     Identifier:id,
+     ...obj(d.headers,row)
+    };
+
+    if(!k) {
+     blank.push(entry);
+     return;
+    }
+
+    if(!maps[side].has(k)) {
+     maps[side].set(k,[]);
+    }
+
+    maps[side].get(k).push(entry);
+   });
+  }
+ );
+
+ maps.forEach(map=>{
+  map.forEach((entries,id)=>{
+   if(entries.length>1) {
+    entries.forEach(e=>{
+     dups.push({
+      ...e,
+      DuplicateIdentifier:id
+     });
+    });
+   }
+  });
+ });
+
+ let missing5=[];
+ let missingH=[];
+ let matched=[];
+
+ maps[0].forEach((arr,id)=>{
+  if(!maps[1].has(id)) {
+   missing5.push(...arr);
+  } else {
+   arr.forEach(a=>{
+    matched.push({
+     'Identifier':a.Identifier,
+     'Client Row':a['Source Row'],
+     '5C Row':maps[1].get(id)[0]['Source Row'],
+     'Client Record':JSON.stringify(a),
+     '5C Record':JSON.stringify(
+      maps[1].get(id)[0]
+     )
+    });
+   });
+  }
+ });
+
+ maps[1].forEach((arr,id)=>{
+  if(!maps[0].has(id)) {
+   missingH.push(...arr);
+  }
+ });
+
+ S.result={
+  missing5,
+  missingH,
+  matched,
+  duplicates:dups,
+  blank
+ };
+
+ $('cc').textContent=c.rows.length;
+ $('fc').textContent=f.rows.length;
+
+ const matchedUnique=new Set(
+  matched.map(x=>norm(x.Identifier))
+ ).size;
+
+ $('mc').textContent=matchedUnique;
+ $('mp').textContent=matched.length;
+ $('matchedCount').textContent=matchedUnique;
+ $('m5').textContent=missing5.length;
+ $('mh').textContent=missingH.length;
+
+ renderResults();
+
+ $('status').textContent=
+  'Comparison completed. Review mismatches and verify source data before finalizing.';
+
+ $('status').className='notice success';
+}
+
+$('compare').onclick=compare;
 
 function renderResults() {
-  const tab = state.currentTab;
-  const rows = state.results[tab] || [];
+ let rows=S.result[S.tab]||[];
 
-  if (tab === "saved") {
-    renderSaved();
-    return;
-  }
-
-  if (!rows.length) {
-    $("resultTable").innerHTML =
-      '<div class="empty">No records found in this category.</div>';
-    return;
-  }
-
-  const headers = [...new Set(rows.flatMap(row => Object.keys(row)))];
-  renderTable($("resultTable"),rows,headers);
+ renderTable(
+  $('results'),
+  rows,
+  rows.length?Object.keys(rows[0]):[]
+ );
 }
 
-function saveCase(caseData) {
-  const id = String(caseData.Identifier || "");
-  const sourceRow = caseData["Source Row"] || "";
-  const source = caseData.Source || state.currentTab;
+document.querySelectorAll('[data-tab]').forEach(b=>{
+ b.onclick=()=>{
+  S.tab=b.dataset.tab;
 
-  const unique = source + "|" + id + "|" + sourceRow;
-
-  if (state.saved.some(item => item._key === unique)) {
-    alert("This case is already saved.");
-    return;
-  }
-
-  state.saved.push({
-    ...caseData,
-    _key:unique,
-    Status:"Pending",
-    SavedAt:new Date().toLocaleString()
-  });
-
-  persistSaved();
-  renderSaved();
-}
-
-function persistSaved() {
-  try {
-    localStorage.setItem(
-      "monthlyReconciliationSavedCases",
-      JSON.stringify(state.saved)
-    );
-  } catch (error) {
-    alert("Could not save cases in browser storage.");
-  }
-}
-
-function loadSaved() {
-  try {
-    state.saved = JSON.parse(
-      localStorage.getItem("monthlyReconciliationSavedCases") || "[]"
-    );
-  } catch {
-    state.saved = [];
-  }
-}
-
-function renderSaved() {
-  const container = $("resultTable");
-
-  if (!state.saved.length) {
-    container.innerHTML =
-      '<div class="empty">No saved cases yet.</div>';
-    return;
-  }
-
-  const headers = [...new Set([
-    "Action",
-    ...state.saved.flatMap(item => Object.keys(item))
-  ])];
-
-  const table = document.createElement("table");
-  const thead = document.createElement("thead");
-  const trHead = document.createElement("tr");
-
-  headers.forEach(h => {
-    const th = document.createElement("th");
-    th.textContent = h;
-    trHead.appendChild(th);
-  });
-
-  thead.appendChild(trHead);
-  table.appendChild(thead);
-
-  const tbody = document.createElement("tbody");
-
-  state.saved.forEach((item,index) => {
-    const tr = document.createElement("tr");
-
-    headers.forEach(header => {
-      const td = document.createElement("td");
-
-      if (header === "Action") {
-        const review = document.createElement("button");
-        review.textContent =
-          item.Status === "Reviewed" ? "Mark Pending" : "Mark Reviewed";
-        review.className = "secondary";
-        review.onclick = () => {
-          item.Status =
-            item.Status === "Reviewed" ? "Pending" : "Reviewed";
-          persistSaved();
-          renderSaved();
-        };
-
-        const remove = document.createElement("button");
-        remove.textContent = "Delete";
-        remove.className = "danger";
-        remove.style.marginLeft = "5px";
-        remove.onclick = () => {
-          state.saved.splice(index,1);
-          persistSaved();
-          renderSaved();
-        };
-
-        td.append(review,remove);
-      } else {
-        td.textContent = item[header] ?? "";
-      }
-
-      tr.appendChild(td);
-    });
-
-    tbody.appendChild(tr);
-  });
-
-  table.appendChild(tbody);
-  container.innerHTML = "";
-  container.appendChild(table);
-}
-
-function addSaveButtons() {
-  if (state.currentTab === "saved") return;
-
-  const rows = state.results[state.currentTab] || [];
-  if (!rows.length) return;
-
-  const container = $("resultTable");
-  const table = container.querySelector("table");
-  if (!table) return;
-
-  const headerRow = table.querySelector("thead tr");
-  const th = document.createElement("th");
-  th.textContent = "Save";
-  headerRow.appendChild(th);
-
-  table.querySelectorAll("tbody tr").forEach((tr,index) => {
-    const td = document.createElement("td");
-    const btn = document.createElement("button");
-    btn.textContent = "Save Case";
-    btn.className = "secondary";
-    btn.onclick = () => saveCase(rows[index]);
-    td.appendChild(btn);
-    tr.appendChild(td);
-  });
-}
-
-function showResultTab(tab) {
-  state.currentTab = tab;
-
-  document.querySelectorAll("#resultTabs .tab").forEach(button => {
-    button.classList.toggle("active",button.dataset.tab === tab);
-  });
+  document.querySelectorAll('[data-tab]')
+   .forEach(x=>x.classList.toggle('active',x===b));
 
   renderResults();
-  addSaveButtons();
-}
+ };
+});
 
-document.querySelectorAll("#resultTabs .tab").forEach(button => {
-  button.addEventListener("click",() =>
-    showResultTab(button.dataset.tab)
+function exportWorkbook(sheets,filename) {
+ let wb=XLSX.utils.book_new();
+
+ sheets.forEach(([name,rows])=>{
+  let safe=rows.length?rows:[{Note:'No records'}];
+
+  XLSX.utils.book_append_sheet(
+   wb,
+   XLSX.utils.json_to_sheet(safe),
+   name.slice(0,31)
   );
-});
+ });
 
-document.querySelectorAll("[data-verify]").forEach(button => {
-  button.addEventListener("click",() => {
-    state.verificationTab = button.dataset.verify;
-
-    document.querySelectorAll("[data-verify]").forEach(b =>
-      b.classList.toggle("active",b === button)
-    );
-
-    renderVerification();
-  });
-});
-
-function exportRows(rows, filename) {
-  if (!rows.length) {
-    alert("No records available to export.");
-    return;
-  }
-
-  const worksheet = XLSX.utils.json_to_sheet(rows);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook,worksheet,"Reconciliation");
-  XLSX.writeFile(workbook,filename);
+ XLSX.writeFile(wb,filename);
 }
 
-$("exportCurrentBtn").addEventListener("click",() => {
-  if (state.currentTab === "saved") {
-    exportRows(state.saved,"Saved_Cases.xlsx");
-  } else {
-    exportRows(
-      state.results[state.currentTab],
-      state.currentTab + ".xlsx"
-    );
-  }
-});
+$('exportCurrent').onclick=()=>{
+ exportWorkbook(
+  [[S.tab,S.result[S.tab]||[]]],
+  S.tab+'_Jay_Prabha.xlsx'
+ );
+};
 
-$("exportSavedBtn").addEventListener("click",() =>
-  exportRows(state.saved,"Saved_Cases.xlsx")
-);
+$('exportAll').onclick=()=>{
+ let summary=[{
+  Client:'Jay Prabha Medanta Super Specialty Hospital, Patna',
+  ClientRecords:S.client.rows.length,
+  '5CRecords':S.five.rows.length,
+  MatchedUniqueIDs:$('mc').textContent,
+  MatchedRecords:$('mp').textContent,
+  MissingFrom5C:S.result.missing5.length,
+  MissingFromClient:S.result.missingH.length,
+  ClientIdentifier:$('clientKey').value,
+  '5CIdentifier':$('fiveKey').value
+ }];
 
-$("exportAllBtn").addEventListener("click",() => {
-  const workbook = XLSX.utils.book_new();
+ exportWorkbook([
+  ['Summary',summary],
+  ['Missing from 5C',S.result.missing5],
+  ['Missing from Client',S.result.missingH],
+  ['Matched',S.result.matched],
+  ['Duplicates',S.result.duplicates],
+  ['Blank IDs',S.result.blank]
+ ],'Jay_Prabha_Medanta_Full_Reconciliation.xlsx');
+};
 
-  Object.entries(state.results).forEach(([name,rows]) => {
-    const safeRows = rows.length ? rows : [{Message:"No records"}];
-    const sheet = XLSX.utils.json_to_sheet(safeRows);
-    XLSX.utils.book_append_sheet(
-      workbook,
-      sheet,
-      name.slice(0,31)
-    );
-  });
-
-  XLSX.writeFile(workbook,"Full_Reconciliation_Report.xlsx");
-});
-
-$("resetBtn").addEventListener("click",() => {
-  if (!confirm("Clear the current uploaded records and results? Saved cases will remain.")) {
-    return;
-  }
-
-  state.client = {name:"",sheets:[],rows:[],headers:[]};
-  state.fiveC = {name:"",sheets:[],rows:[],headers:[]};
-  state.results = {
-    clientUnmatched:[],
-    fiveCUnmatched:[],
-    matched:[],
-    duplicates:[],
-    blank:[]
-  };
-
-  $("clientFile").value = "";
-  $("fiveCFile").value = "";
-  $("clientStatus").textContent = "No file selected";
-  $("fiveCStatus").textContent = "No file selected";
-  $("clientSheet").innerHTML = "";
-  $("fiveCSheet").innerHTML = "";
-  $("clientKey").innerHTML = "";
-  $("fiveCKey").innerHTML = "";
-  $("compareBtn").disabled = true;
-
-  ["clientCount","fiveCCount","matchedCount",
-   "clientUnmatchedCount","fiveCUnmatchedCount"]
-    .forEach(id => $(id).textContent = "0");
-
-  $("verificationTable").innerHTML =
-    '<div class="empty">Upload documents to view extracted data.</div>';
-
-  $("resultTable").innerHTML =
-    '<div class="empty">Upload files and compare records to see results.</div>';
-
-  setStatus("Current reconciliation reset.");
-});
-
-loadSaved();
+$('reset').onclick=()=>{
+ if(!confirm('Clear uploaded data and comparison?'))return;
+ location.reload();
+};
 </script>
-
 </body>
 </html>
