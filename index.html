@@ -68,7 +68,7 @@ body {
 }
 
 .card {
-  background: rgba(255,255,255,.88);
+  background: rgba(255,255,255,.92);
   border: 1px solid white;
   border-radius: 20px;
   padding: 24px;
@@ -127,9 +127,7 @@ h2 {
   margin: 0 0 16px;
 }
 
-.file-input {
-  display: none;
-}
+.file-input { display: none; }
 
 .upload-button {
   display: inline-block;
@@ -174,10 +172,7 @@ select, input[type="text"] {
   font-size: 13px;
 }
 
-button {
-  cursor: pointer;
-  font: inherit;
-}
+button { cursor: pointer; font: inherit; }
 
 .primary {
   border: 0;
@@ -190,7 +185,8 @@ button {
   width: 100%;
 }
 
-.primary:disabled {
+.primary:disabled,
+.secondary:disabled {
   opacity: .45;
   cursor: not-allowed;
 }
@@ -278,6 +274,12 @@ th {
   z-index: 1;
 }
 
+td input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
 .empty {
   text-align: center;
   padding: 35px;
@@ -299,11 +301,6 @@ th {
   font-size: 12px;
   font-weight: 700;
   color: #3155bd;
-}
-
-.secondary:disabled {
-  opacity: .45;
-  cursor: not-allowed;
 }
 
 .notice {
@@ -330,6 +327,16 @@ th {
   font-size: 11px;
   margin-top: 22px;
   line-height: 1.6;
+}
+
+.status-pending {
+  color: #b7791f;
+  font-weight: 700;
+}
+
+.status-reviewed {
+  color: #14836f;
+  font-weight: 700;
 }
 
 @media(max-width:750px) {
@@ -381,9 +388,7 @@ th {
         <input class="file-input" type="file" id="clientFile"
           accept=".xlsx,.xls,.csv">
       </label>
-      <div class="file-name" id="clientFileName">
-        No file selected
-      </div>
+      <div class="file-name" id="clientFileName">No file selected</div>
     </div>
 
     <div class="upload-box" id="internalDrop">
@@ -394,9 +399,7 @@ th {
         <input class="file-input" type="file" id="internalFile"
           accept=".xlsx,.xls,.csv">
       </label>
-      <div class="file-name" id="internalFileName">
-        No file selected
-      </div>
+      <div class="file-name" id="internalFileName">No file selected</div>
     </div>
   </div>
 
@@ -459,23 +462,16 @@ th {
 <section class="card">
   <h2>2. Missing Cases Details</h2>
   <p class="description">
-    Review the unmatched records below. Download the complete
-    mismatch report to investigate the differences.
+    Review the unmatched records below. Patient and study details are
+    shown when available in the original Excel sheets. Select cases
+    to save them for further investigation.
   </p>
 
   <div class="tabs">
-    <button class="tab active" data-tab="missing5c">
-      Missing from 5C
-    </button>
-    <button class="tab" data-tab="missingClient">
-      Missing from Client
-    </button>
-    <button class="tab" data-tab="duplicates">
-      Duplicate IDs
-    </button>
-    <button class="tab" data-tab="blank">
-      Blank IDs
-    </button>
+    <button class="tab active" data-tab="missing5c">Missing from 5C</button>
+    <button class="tab" data-tab="missingClient">Missing from Client</button>
+    <button class="tab" data-tab="duplicates">Duplicate IDs</button>
+    <button class="tab" data-tab="blank">Blank IDs</button>
   </div>
 
   <div class="table-wrap">
@@ -495,14 +491,66 @@ th {
     <button class="secondary" id="exportButton" disabled>
       Download Mismatched Data.xlsx
     </button>
+
+    <button class="secondary" id="saveSelectedButton" disabled>
+      Save Selected Cases
+    </button>
+  </div>
+</section>
+
+<section class="card" id="savedCasesSection">
+  <h2>3. Saved Cases for Follow-up</h2>
+  <p class="description">
+    Saved cases remain available in this browser. You can review them
+    again, update their status, or export them for follow-up.
+  </p>
+
+  <div class="stats">
+    <div class="stat">
+      <span>Total Saved Cases</span>
+      <strong id="savedCount">0</strong>
+    </div>
+    <div class="stat">
+      <span>Pending Review</span>
+      <strong id="pendingCount">0</strong>
+    </div>
+    <div class="stat">
+      <span>Reviewed</span>
+      <strong id="reviewedCount">0</strong>
+    </div>
+    <div class="stat">
+      <span> </span>
+      <strong> </strong>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead id="savedTableHead"></thead>
+      <tbody id="savedTableBody">
+        <tr>
+          <td class="empty">No saved cases yet.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="actions">
+    <button class="secondary" id="exportSavedButton">
+      Download Saved Cases.xlsx
+    </button>
+
+    <button class="secondary" id="clearSavedButton">
+      Clear Saved Cases
+    </button>
   </div>
 </section>
 
 <div class="footer">
   Your files are processed locally in your browser. They are not
   uploaded to a server by this application.<br>
-  Always verify the exported report against the original files
-  before using it for billing or operational decisions.
+  Saved cases remain in this browser's local storage. Export them
+  regularly as a backup.
 </div>
 
 </div>
@@ -514,12 +562,45 @@ const $ = id => document.getElementById(id);
 
 let clientWorkbook = null;
 let internalWorkbook = null;
+
 let clientRows = [];
 let internalRows = [];
+
 let clientHeaders = [];
 let internalHeaders = [];
+
 let result = null;
 let activeTab = "missing5c";
+
+let selectedCases = new Set();
+
+const STORAGE_KEY = "monthlyReconciliationSavedCases";
+
+let savedCases = loadSavedCases();
+
+function loadSavedCases() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error("Could not read saved cases:", error);
+    return [];
+  }
+}
+
+function persistSavedCases() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedCases));
+    return true;
+  } catch (error) {
+    alert(
+      "Unable to save cases in browser storage. " +
+      "Please export your saved cases and check available browser storage."
+    );
+    console.error(error);
+    return false;
+  }
+}
 
 function normalize(value) {
   return String(value ?? "").trim().toLowerCase();
@@ -541,10 +622,12 @@ function clearNotice() {
 }
 
 function getRows(sheet) {
-  return XLSX.utils.sheet_to_json(sheet, {
+  const data = XLSX.utils.sheet_to_json(sheet, {
     defval: "",
     raw: false
   });
+
+  return data;
 }
 
 function getHeaders(sheet) {
@@ -554,7 +637,45 @@ function getHeaders(sheet) {
     raw: false
   });
 
-  return data.length ? data[0].map(v => String(v ?? "").trim()) : [];
+  return data.length
+    ? data[0].map(v => String(v ?? "").trim())
+    : [];
+}
+
+// Put commonly requested patient and study columns first.
+// All other original columns are retained after these.
+function getPriorityHeaders(headers) {
+  const priorities = [
+    /patient.?id|mrn|uhid/i,
+    /patient.?name|patient.?fullname/i,
+    /order.?id|order.?no|order.?number/i,
+    /study.?id|accession.?number|accession.?no/i,
+    /client.?id|client.?code/i,
+    /modality/i,
+    /study.?name|exam.?name|procedure.?name/i,
+    /^(date|order.?date|created.?date)$/i,
+    /scan.?date|study.?date|examination.?date/i
+  ];
+
+  const ordered = [];
+
+  priorities.forEach(pattern => {
+    const match = headers.find(header =>
+      pattern.test(String(header).trim())
+    );
+
+    if (match && !ordered.includes(match)) {
+      ordered.push(match);
+    }
+  });
+
+  headers.forEach(header => {
+    if (!ordered.includes(header)) {
+      ordered.push(header);
+    }
+  });
+
+  return ordered;
 }
 
 async function readWorkbook(file) {
@@ -601,11 +722,13 @@ function populateIdentifierSelect(selectId, headers) {
 
   select.disabled = select.options.length === 0;
 
-  const preferred = headers.find(h =>
-    /study.?id|case.?id|accession|order.?id|patient.?id/i.test(h)
+  const preferred = headers.find(header =>
+    /study.?id|case.?id|accession|order.?id|patient.?id/i.test(header)
   );
 
-  if (preferred) select.value = preferred;
+  if (preferred) {
+    select.value = preferred;
+  }
 }
 
 function loadSelectedSheet(side) {
@@ -614,7 +737,10 @@ function loadSelectedSheet(side) {
 
   if (!workbook) return;
 
-  const sheetName = $(isClient ? "clientSheet" : "internalSheet").value;
+  const sheetName = $(
+    isClient ? "clientSheet" : "internalSheet"
+  ).value;
+
   const sheet = workbook.Sheets[sheetName];
 
   const rows = getRows(sheet);
@@ -631,14 +757,26 @@ function loadSelectedSheet(side) {
   }
 
   result = null;
+  selectedCases.clear();
+
   $("exportButton").disabled = true;
-  $("compareButton").disabled = !(clientWorkbook && internalWorkbook);
+  $("saveSelectedButton").disabled = true;
+
+  $("compareButton").disabled =
+    !(clientWorkbook && internalWorkbook);
+
   resetResults();
 }
 
 function resetResults() {
-  ["matchedCount", "clientCount", "missing5cCount",
-   "missingClientCount"].forEach(id => $(id).textContent = "—");
+  [
+    "matchedCount",
+    "clientCount",
+    "missing5cCount",
+    "missingClientCount"
+  ].forEach(id => {
+    $(id).textContent = "—";
+  });
 
   $("tableHead").innerHTML = "";
   $("tableBody").innerHTML =
@@ -667,19 +805,23 @@ async function handleUpload(side, file) {
 
     if (clientWorkbook && internalWorkbook) {
       $("compareButton").disabled = false;
-      showNotice("Both files are loaded. Confirm the worksheet and identifier columns, then compare.", true);
+
+      showNotice(
+        "Both files are loaded. Confirm the worksheet and identifier columns, then compare.",
+        true
+      );
     }
   } catch (error) {
     showNotice("Unable to read file: " + error.message);
   }
 }
 
-$("clientFile").addEventListener("change", e =>
-  handleUpload("client", e.target.files[0])
+$("clientFile").addEventListener("change", event =>
+  handleUpload("client", event.target.files[0])
 );
 
-$("internalFile").addEventListener("change", e =>
-  handleUpload("internal", e.target.files[0])
+$("internalFile").addEventListener("change", event =>
+  handleUpload("internal", event.target.files[0])
 );
 
 $("clientSheet").addEventListener("change", () =>
@@ -698,7 +840,10 @@ function countIdentifiers(rows, key) {
 
     if (!id) return;
 
-    if (!counts.has(id)) counts.set(id, []);
+    if (!counts.has(id)) {
+      counts.set(id, []);
+    }
+
     counts.get(id).push({
       row,
       rowNumber: index + 2
@@ -764,27 +909,31 @@ function compareFiles() {
   // Identify duplicates on either side.
   clientMap.forEach((entries, id) => {
     if (entries.length > 1) {
-      entries.forEach(entry => duplicates.push({
-        source: "Client",
-        id,
-        row: entry.row,
-        rowNumber: entry.rowNumber
-      }));
+      entries.forEach(entry => {
+        duplicates.push({
+          source: "Client",
+          id,
+          row: entry.row,
+          rowNumber: entry.rowNumber
+        });
+      });
     }
   });
 
   internalMap.forEach((entries, id) => {
     if (entries.length > 1) {
-      entries.forEach(entry => duplicates.push({
-        source: "5C",
-        id,
-        row: entry.row,
-        rowNumber: entry.rowNumber
-      }));
+      entries.forEach(entry => {
+        duplicates.push({
+          source: "5C",
+          id,
+          row: entry.row,
+          rowNumber: entry.rowNumber
+        });
+      });
     }
   });
 
-  // Blank identifier records are not silently ignored.
+  // Blank identifier records.
   clientRows.forEach((row, index) => {
     if (!identifier(row[clientKey])) {
       blankIds.push({
@@ -808,7 +957,9 @@ function compareFiles() {
   let matched = 0;
 
   clientIds.forEach(id => {
-    if (internalIds.has(id)) matched++;
+    if (internalIds.has(id)) {
+      matched++;
+    }
   });
 
   result = {
@@ -827,11 +978,12 @@ function compareFiles() {
   $("missingClientCount").textContent = missingClient.length;
 
   $("exportButton").disabled = false;
+  $("saveSelectedButton").disabled = true;
 
   renderTable();
 
   showNotice(
-    "Comparison completed. Please review the mismatch and data-quality tabs before exporting.",
+    "Comparison completed. Review the mismatch and data-quality tabs before exporting.",
     true
   );
 }
@@ -840,12 +992,13 @@ $("compareButton").addEventListener("click", compareFiles);
 
 document.querySelectorAll(".tab").forEach(button => {
   button.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach(b =>
-      b.classList.remove("active")
+    document.querySelectorAll(".tab").forEach(tab =>
+      tab.classList.remove("active")
     );
 
     button.classList.add("active");
     activeTab = button.dataset.tab;
+
     renderTable();
   });
 });
@@ -861,16 +1014,13 @@ function renderTable() {
 
   let rows = [];
   let headers = [];
-  let sourceName = "";
 
   if (activeTab === "missing5c") {
     rows = result.missing5c;
-    headers = clientHeaders;
-    sourceName = "Client";
+    headers = getPriorityHeaders(clientHeaders);
   } else if (activeTab === "missingClient") {
     rows = result.missingClient;
-    headers = internalHeaders;
-    sourceName = "5C";
+    headers = getPriorityHeaders(internalHeaders);
   } else if (activeTab === "duplicates") {
     rows = result.duplicates;
     headers = ["Source", "Identifier", "Original Excel Row"];
@@ -881,7 +1031,14 @@ function renderTable() {
 
   const headerRow = document.createElement("tr");
 
-  if (activeTab === "missing5c" || activeTab === "missingClient") {
+  if (
+    activeTab === "missing5c" ||
+    activeTab === "missingClient"
+  ) {
+    const selectHeader = document.createElement("th");
+    selectHeader.textContent = "Select";
+    headerRow.appendChild(selectHeader);
+
     ["Original Excel Row", ...headers].forEach(name => {
       const th = document.createElement("th");
       th.textContent = name;
@@ -900,9 +1057,11 @@ function renderTable() {
   if (!rows.length) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
+
     td.className = "empty";
     td.colSpan = headers.length + 1;
     td.textContent = "No records found in this category.";
+
     tr.appendChild(td);
     body.appendChild(tr);
     return;
@@ -911,7 +1070,23 @@ function renderTable() {
   rows.slice(0, 500).forEach(item => {
     const tr = document.createElement("tr");
 
-    if (activeTab === "missing5c" || activeTab === "missingClient") {
+    if (
+      activeTab === "missing5c" ||
+      activeTab === "missingClient"
+    ) {
+      const caseKey = activeTab + "|" + item.rowNumber;
+
+      const selectCell = document.createElement("td");
+      const checkbox = document.createElement("input");
+
+      checkbox.type = "checkbox";
+      checkbox.className = "case-select";
+      checkbox.dataset.caseKey = caseKey;
+      checkbox.checked = selectedCases.has(caseKey);
+
+      selectCell.appendChild(checkbox);
+      tr.appendChild(selectCell);
+
       const rowNumberCell = document.createElement("td");
       rowNumberCell.textContent = item.rowNumber;
       tr.appendChild(rowNumberCell);
@@ -928,7 +1103,7 @@ function renderTable() {
 
       values.forEach(value => {
         const td = document.createElement("td");
-        td.textContent = value;
+        td.textContent = value ?? "";
         tr.appendChild(td);
       });
     }
@@ -939,15 +1114,33 @@ function renderTable() {
   if (rows.length > 500) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
+
     td.colSpan = headers.length + 1;
     td.className = "empty";
     td.textContent =
       "Showing first 500 records. Export the workbook to view all " +
       rows.length + " records.";
+
     tr.appendChild(td);
     body.appendChild(tr);
   }
 }
+
+// Keep checkbox selection state updated.
+$("tableBody").addEventListener("change", event => {
+  if (!event.target.matches(".case-select")) return;
+
+  const key = event.target.dataset.caseKey;
+
+  if (event.target.checked) {
+    selectedCases.add(key);
+  } else {
+    selectedCases.delete(key);
+  }
+
+  $("saveSelectedButton").disabled =
+    selectedCases.size === 0;
+});
 
 function exportSheet(workbook, name, rows, headers) {
   const data = [
@@ -967,7 +1160,6 @@ $("exportButton").addEventListener("click", () => {
 
   const workbook = XLSX.utils.book_new();
 
-  // Complete mismatch records, preserving all source columns.
   exportSheet(
     workbook,
     "Missing from 5C",
@@ -982,7 +1174,6 @@ $("exportButton").addEventListener("click", () => {
     internalHeaders
   );
 
-  // Duplicate identifiers.
   const duplicateData = [
     ["Source", "Identifier", "Original Excel Row"],
     ...result.duplicates.map(item => [
@@ -998,7 +1189,6 @@ $("exportButton").addEventListener("click", () => {
     "Duplicate IDs"
   );
 
-  // Blank identifiers.
   const blankData = [
     ["Source", "Original Excel Row"],
     ...result.blankIds.map(item => [
@@ -1013,7 +1203,6 @@ $("exportButton").addEventListener("click", () => {
     "Blank IDs"
   );
 
-  // Summary.
   const summary = [
     ["Monthly Reconciliation Summary", ""],
     ["Client", "Jay Prabha Medanta Super Specialty Hospital, Patna"],
@@ -1044,7 +1233,274 @@ $("exportButton").addEventListener("click", () => {
   );
 });
 
-// Drag and drop support.
+// Save selected mismatches.
+function saveSelectedCases() {
+  if (!result) return;
+
+  const selected = [];
+
+  [
+    {
+      tab: "missing5c",
+      records: result.missing5c,
+      source: "Missing from 5C"
+    },
+    {
+      tab: "missingClient",
+      records: result.missingClient,
+      source: "Missing from Client"
+    }
+  ].forEach(group => {
+    group.records.forEach(item => {
+      const key = group.tab + "|" + item.rowNumber;
+
+      if (!selectedCases.has(key)) return;
+
+      selected.push({
+        id:
+          group.tab + "|" + item.rowNumber + "|" +
+          Date.now() + "|" + Math.random().toString(36).slice(2),
+        source: group.source,
+        originalRow: item.rowNumber,
+        identifier: item.id,
+        record: item.row,
+        status: "Pending",
+        savedAt: new Date().toLocaleString()
+      });
+    });
+  });
+
+  if (!selected.length) {
+    alert("Please select at least one case to save.");
+    return;
+  }
+
+  const existingKeys = new Set(
+    savedCases.map(item =>
+      item.source + "|" + item.originalRow + "|" + item.identifier
+    )
+  );
+
+  let added = 0;
+
+  selected.forEach(item => {
+    const key =
+      item.source + "|" + item.originalRow + "|" + item.identifier;
+
+    if (!existingKeys.has(key)) {
+      savedCases.push(item);
+      existingKeys.add(key);
+      added++;
+    }
+  });
+
+  if (persistSavedCases()) {
+    selectedCases.clear();
+    renderTable();
+    renderSavedCases();
+
+    alert(
+      added
+        ? added + " case(s) saved successfully."
+        : "The selected cases are already saved."
+    );
+  }
+}
+
+$("saveSelectedButton").addEventListener(
+  "click",
+  saveSelectedCases
+);
+
+// Display saved cases.
+function renderSavedCases() {
+  const head = $("savedTableHead");
+  const body = $("savedTableBody");
+
+  head.innerHTML = "";
+  body.innerHTML = "";
+
+  $("savedCount").textContent = savedCases.length;
+
+  $("pendingCount").textContent =
+    savedCases.filter(item => item.status === "Pending").length;
+
+  $("reviewedCount").textContent =
+    savedCases.filter(item => item.status === "Reviewed").length;
+
+  if (!savedCases.length) {
+    body.innerHTML =
+      '<tr><td class="empty">No saved cases yet.</td></tr>';
+    return;
+  }
+
+  const allHeaders = [];
+
+  savedCases.forEach(item => {
+    Object.keys(item.record || {}).forEach(header => {
+      if (!allHeaders.includes(header)) {
+        allHeaders.push(header);
+      }
+    });
+  });
+
+  const headers = getPriorityHeaders(allHeaders);
+
+  const headerRow = document.createElement("tr");
+
+  [
+    "Status",
+    "Source",
+    "Original Excel Row",
+    "Saved Date",
+    ...headers,
+    "Action"
+  ].forEach(name => {
+    const th = document.createElement("th");
+    th.textContent = name;
+    headerRow.appendChild(th);
+  });
+
+  head.appendChild(headerRow);
+
+  savedCases.forEach(item => {
+    const tr = document.createElement("tr");
+
+    const statusCell = document.createElement("td");
+    statusCell.textContent = item.status;
+    statusCell.className =
+      item.status === "Reviewed"
+        ? "status-reviewed"
+        : "status-pending";
+
+    tr.appendChild(statusCell);
+
+    [
+      item.source,
+      item.originalRow,
+      item.savedAt
+    ].forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value ?? "";
+      tr.appendChild(td);
+    });
+
+    headers.forEach(header => {
+      const td = document.createElement("td");
+      td.textContent = item.record?.[header] ?? "";
+      tr.appendChild(td);
+    });
+
+    const actionCell = document.createElement("td");
+
+    const reviewButton = document.createElement("button");
+    reviewButton.className = "secondary";
+    reviewButton.textContent =
+      item.status === "Reviewed"
+        ? "Mark Pending"
+        : "Mark Reviewed";
+
+    reviewButton.addEventListener("click", () => {
+      item.status =
+        item.status === "Reviewed" ? "Pending" : "Reviewed";
+
+      if (persistSavedCases()) {
+        renderSavedCases();
+      }
+    });
+
+    actionCell.appendChild(reviewButton);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "secondary";
+    deleteButton.textContent = "Delete";
+    deleteButton.style.marginLeft = "6px";
+
+    deleteButton.addEventListener("click", () => {
+      if (!confirm("Delete this saved case?")) return;
+
+      savedCases = savedCases.filter(
+        saved => saved.id !== item.id
+      );
+
+      if (persistSavedCases()) {
+        renderSavedCases();
+      }
+    });
+
+    actionCell.appendChild(deleteButton);
+    tr.appendChild(actionCell);
+
+    body.appendChild(tr);
+  });
+}
+
+// Export saved cases to a separate Excel file.
+$("exportSavedButton").addEventListener("click", () => {
+  if (!savedCases.length) {
+    alert("There are no saved cases to export.");
+    return;
+  }
+
+  const allHeaders = [];
+
+  savedCases.forEach(item => {
+    Object.keys(item.record || {}).forEach(header => {
+      if (!allHeaders.includes(header)) {
+        allHeaders.push(header);
+      }
+    });
+  });
+
+  const headers = getPriorityHeaders(allHeaders);
+
+  const data = [
+    [
+      "Status",
+      "Source",
+      "Original Excel Row",
+      "Saved Date",
+      ...headers
+    ],
+    ...savedCases.map(item => [
+      item.status,
+      item.source,
+      item.originalRow,
+      item.savedAt,
+      ...headers.map(header => item.record?.[header] ?? "")
+    ])
+  ];
+
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.aoa_to_sheet(data),
+    "Saved Cases"
+  );
+
+  XLSX.writeFile(
+    workbook,
+    "Saved_Reconciliation_Cases.xlsx"
+  );
+});
+
+// Clear all saved records.
+$("clearSavedButton").addEventListener("click", () => {
+  if (!savedCases.length) return;
+
+  if (!confirm("Are you sure you want to delete all saved cases?")) {
+    return;
+  }
+
+  savedCases = [];
+
+  if (persistSavedCases()) {
+    renderSavedCases();
+  }
+});
+
+// Drag-and-drop support.
 [
   ["clientDrop", "client"],
   ["internalDrop", "internal"]
@@ -1071,6 +1527,9 @@ $("exportButton").addEventListener("click", () => {
     }
   });
 });
+
+// Load previously saved records when the page opens.
+renderSavedCases();
 
 </script>
 </body>
