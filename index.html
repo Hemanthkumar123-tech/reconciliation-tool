@@ -628,7 +628,154 @@ function rowsToObjects(matrix) {
     }
   }
 
+
+function rowsToObjects(matrix) {
+  const cleaned = matrix
+    .map(row => Array.isArray(row) ? row.map(cleanText) : [])
+    .filter(row => row.some(value => value !== ""));
+
+  if (!cleaned.length) {
+    return { headers: [], rows: [] };
+  }
+
+  // Find the most likely header row near the top.
+  let headerIndex = 0;
+  let bestScore = -1;
+
+  const scanLimit = Math.min(cleaned.length, 15);
+
+  const headerWords = [
+    "study", "order", "patient", "client",
+    "accession", "modality", "date", "id",
+    "name", "description"
+  ];
+
+  for (let i = 0; i < scanLimit; i++) {
+    const row = cleaned[i];
+    const filled = row.filter(Boolean).length;
+    const words = row.map(normalizeKey);
+
+    const score = words.reduce((sum, word) =>
+      sum + (
+        headerWords.some(term => word.includes(term)) ? 2 : 0
+      ), 0) + Math.min(filled, 10) * 0.15;
+
+    if (score > bestScore) {
+      bestScore = score;
+      headerIndex = i;
+    }
+  }
+
+  let headers = uniqueHeaders(cleaned[headerIndex]);
+  const rows = [];
+
+  // Convert source rows into objects.
+  for (let i = headerIndex + 1; i < cleaned.length; i++) {
+    const values = cleaned[i];
+    const obj = {};
+
+    headers.forEach((header, index) => {
+      obj[header] = values[index] ?? "";
+    });
+
+    if (Object.values(obj).some(value => cleanText(value) !== "")) {
+      rows.push(obj);
+    }
+  }
+
+  /*
+   * AUTOMATICALLY SPLIT COMBINED 5C ORDER ID COLUMN
+   *
+   * Example:
+   * L3E4G6CN38 MPU0166217 AMARNATH SURPARAJU
+   *
+   * Becomes:
+   * Order ID     = L3E4G6CN38
+   * Patient ID   = MPU0166217
+   * Patient Name = AMARNATH SURPARAJU
+   */
+
+  const combinedColumn = headers.find(header => {
+    const normalized = normalizeKey(header);
+
+    return [
+      "orderid",
+      "orderidpatientidpatientname",
+      "orderidpatientidname"
+    ].includes(normalized);
+  });
+
+  if (combinedColumn) {
+    const orderHeader = "Order ID";
+    const patientIdHeader = "Patient ID";
+    const patientNameHeader = "Patient Name";
+
+    // Check whether separate columns already exist.
+    const existingOrder = headers.find(
+      h => normalizeKey(h) === "orderid" && h !== combinedColumn
+    );
+
+    const existingPatientId = headers.find(
+      h => normalizeKey(h) === "patientid"
+    );
+
+    const existingPatientName = headers.find(
+      h => normalizeKey(h) === "patientname"
+    );
+
+    // Keep all original columns except the combined field.
+    const newHeaders = headers.filter(
+      header => header !== combinedColumn
+    );
+
+    // Add standardized fields if not already present.
+    if (!existingOrder) {
+      newHeaders.push(orderHeader);
+    }
+
+    if (!existingPatientId) {
+      newHeaders.push(patientIdHeader);
+    }
+
+    if (!existingPatientName) {
+      newHeaders.push(patientNameHeader);
+    }
+
+    rows.forEach(row => {
+      const combinedValue = cleanText(row[combinedColumn]);
+
+      if (!combinedValue) {
+        return;
+      }
+
+      /*
+       * Split only at the first two whitespace boundaries.
+       * The remaining text is retained as the full patient name.
+       */
+      const match = combinedValue.match(
+        /^(\S+)\s+(\S+)\s+(.+)$/
+      );
+
+      if (match) {
+        row[orderHeader] = match[1].trim();
+        row[patientIdHeader] = match[2].trim();
+        row[patientNameHeader] = match[3].trim();
+      } else {
+        // Preserve unrecognized values rather than discarding them.
+        row[orderHeader] = combinedValue;
+        row[patientIdHeader] = row[patientIdHeader] || "";
+        row[patientNameHeader] = row[patientNameHeader] || "";
+      }
+
+      // Remove the original combined column from comparison data.
+      delete row[combinedColumn];
+    });
+
+    headers = newHeaders;
+  }
+
   return { headers, rows };
+};
 }
 
 function parseDelimitedText(text) {
