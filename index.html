@@ -2,812 +2,1356 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>5C vs Client Reconciliation</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jayaprdha Medanta | Case Reconciliation</title>
 
-  <!-- Excel and PDF readers -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- Excel and PDF libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-  <style>
-    * { box-sizing: border-box; }
+<style>
+:root {
+  --bg1: #0b1024;
+  --bg2: #172554;
+  --glass: rgba(255,255,255,.085);
+  --glass-border: rgba(255,255,255,.16);
+  --text: #f8fafc;
+  --muted: #aab8d0;
+  --blue: #60a5fa;
+  --cyan: #67e8f9;
+  --green: #86efac;
+  --red: #fca5a5;
+  --yellow: #fde68a;
+  --purple: #c4b5fd;
+}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      padding: 24px;
-      font-family: "Segoe UI", Arial, sans-serif;
-      color: #f8fafc;
-      background:
-        radial-gradient(circle at 15% 10%, #4776b9 0, transparent 35%),
-        linear-gradient(135deg, #101d3a, #183d63 55%, #176b78);
-    }
+* { box-sizing: border-box; }
 
-    .container {
-      max-width: 1250px;
-      margin: auto;
-      padding: 28px;
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: 22px;
-      background: rgba(255,255,255,.13);
-      box-shadow: 0 18px 55px rgba(0,0,0,.22);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 28px 18px 50px;
+  color: var(--text);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(59,130,246,.25), transparent 32%),
+    radial-gradient(circle at 90% 15%, rgba(139,92,246,.22), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(6,182,212,.15), transparent 35%),
+    linear-gradient(135deg, var(--bg1), var(--bg2));
+  background-attachment: fixed;
+}
 
-    h1 { text-align: center; margin: 0 0 8px; }
-    .subtitle { text-align: center; color: #dbeafe; margin-bottom: 28px; }
+.container { max-width: 1500px; margin: auto; }
 
-    .upload-grid, .key-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-      margin-bottom: 20px;
-    }
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  box-shadow: 0 18px 55px rgba(0,0,0,.22);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
 
-    .panel {
-      padding: 20px;
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: 15px;
-      background: rgba(255,255,255,.10);
-    }
+header {
+  text-align: center;
+  padding: 32px 20px 28px;
+  margin-bottom: 22px;
+  position: relative;
+  overflow: hidden;
+}
 
-    .panel h3 { margin: 0 0 14px; }
-    .panel p { color: #dbeafe; font-size: 13px; }
+header::before {
+  content: "";
+  position: absolute;
+  width: 340px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgba(96,165,250,.15);
+  filter: blur(55px);
+  top: -90px;
+  left: calc(50% - 170px);
+  pointer-events: none;
+}
 
-    input[type="file"], select {
-      width: 100%;
-      padding: 11px;
-      border-radius: 9px;
-      border: 1px solid rgba(255,255,255,.35);
-      background: rgba(255,255,255,.92);
-      color: #172033;
-    }
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 30px;
+  border: 1px solid rgba(103,232,249,.3);
+  background: rgba(103,232,249,.09);
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  position: relative;
+}
 
-    label { display: block; margin-bottom: 8px; font-weight: 600; }
+h1 {
+  font-size: clamp(28px, 5vw, 46px);
+  margin: 16px 0 8px;
+  letter-spacing: -.8px;
+  background: linear-gradient(90deg, #fff, #bfdbfe, #a5f3fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  position: relative;
+}
 
-    .actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin: 20px 0;
-    }
+.subtitle { color: var(--muted); margin: 0; font-size: 14px; }
 
-    button {
-      padding: 12px 18px;
-      border: 0;
-      border-radius: 9px;
-      font-weight: 700;
-      cursor: pointer;
-      color: white;
-      background: #167dce;
-    }
+.section { padding: 22px; margin-bottom: 20px; }
 
-    button:hover { filter: brightness(1.1); }
-    button:disabled { opacity: .55; cursor: not-allowed; }
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 750;
+  margin: 0 0 18px;
+}
 
-    .primary { background: #159b71; }
-    .secondary { background: #52647c; }
-    .export { background: #2476d2; }
+.section-title .icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: rgba(96,165,250,.14);
+  color: #93c5fd;
+}
 
-    #status {
-      padding: 13px;
-      margin: 14px 0;
-      border-radius: 9px;
-      background: rgba(0,0,0,.2);
-      line-height: 1.5;
-      overflow-wrap: anywhere;
-    }
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 16px;
+}
 
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin: 18px 0;
-    }
+.upload-card {
+  min-height: 215px;
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px dashed rgba(255,255,255,.27);
+  background: rgba(255,255,255,.045);
+  transition: .2s ease;
+  display: flex;
+  flex-direction: column;
+}
 
-    .stat {
-      padding: 16px;
-      border-radius: 12px;
-      background: rgba(255,255,255,.14);
-      text-align: center;
-    }
+.upload-card:hover, .upload-card.dragover {
+  border-color: var(--cyan);
+  background: rgba(103,232,249,.07);
+  transform: translateY(-2px);
+}
 
-    .stat strong { display: block; font-size: 25px; margin-top: 5px; }
+.upload-top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
 
-    details {
-      margin-top: 20px;
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: 12px;
-      background: rgba(0,0,0,.13);
-    }
+.upload-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 14px;
+  display:grid;
+  place-items:center;
+  background: rgba(96,165,250,.15);
+  color:#93c5fd;
+  font-size:22px;
+}
 
-    summary {
-      padding: 15px;
-      cursor: pointer;
-      font-weight: 700;
-    }
+.pill {
+  border-radius: 30px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255,255,255,.09);
+  color: var(--muted);
+}
 
-    .details-content { padding: 0 15px 15px; }
+.pill.ready { background:rgba(134,239,172,.12); color:var(--green); }
 
-    .table-wrap {
-      width: 100%;
-      max-height: 460px;
-      overflow: auto;
-      border-radius: 10px;
-      background: rgba(7,18,35,.55);
-    }
+.upload-card h3 { margin: 16px 0 5px; font-size: 16px; }
+.upload-card p { margin:0 0 15px; color:var(--muted); font-size:13px; line-height:1.5; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 750px;
-      font-size: 13px;
-    }
+.file-name {
+  color: var(--green);
+  font-size: 12px;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
 
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid rgba(255,255,255,.12);
-      vertical-align: top;
-      white-space: nowrap;
-    }
+input[type=file] { display:none; }
 
-    th {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background: #173c60;
-    }
+.file-btn {
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  padding: 11px 15px;
+  width: fit-content;
+  border-radius: 11px;
+  background: rgba(96,165,250,.17);
+  color:#bfdbfe;
+  border:1px solid rgba(96,165,250,.3);
+  cursor:pointer;
+  font-size:13px;
+  font-weight:700;
+  transition:.2s;
+}
+.file-btn:hover { background:rgba(96,165,250,.28); }
 
-    .muted { color: #dbeafe; font-size: 13px; }
-    .pagination { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-    .pagination button { padding: 8px 12px; }
-    .hidden { display: none !important; }
+.options {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+  margin-top:18px;
+}
 
-    @media (max-width: 760px) {
-      body { padding: 10px; }
-      .container { padding: 16px; }
-      .upload-grid, .key-grid { grid-template-columns: 1fr; }
-      .summary-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-  </style>
+.field label {
+  display:block;
+  color:#dbeafe;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+select, input[type=text] {
+  width:100%;
+  border:1px solid rgba(255,255,255,.17);
+  border-radius:12px;
+  background:rgba(15,23,42,.72);
+  color:#f8fafc;
+  padding:13px 14px;
+  outline:none;
+  font-size:14px;
+}
+select:focus, input:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(103,232,249,.1); }
+select option { background:#172554; color:white; }
+
+.action-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:center;
+  margin-top:20px;
+}
+
+button {
+  border:0;
+  border-radius:12px;
+  padding:13px 19px;
+  color:white;
+  font-weight:750;
+  font-size:13px;
+  cursor:pointer;
+  transition:transform .15s, opacity .15s, filter .15s;
+}
+button:hover { transform:translateY(-1px); filter:brightness(1.08); }
+button:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+.primary {
+  background:linear-gradient(110deg,#2563eb,#0891b2);
+  box-shadow:0 8px 24px rgba(37,99,235,.22);
+}
+.secondary { background:rgba(255,255,255,.11); border:1px solid rgba(255,255,255,.15); }
+.success { background:linear-gradient(110deg,#047857,#059669); }
+.danger { background:rgba(239,68,68,.16); color:#fecaca; border:1px solid rgba(239,68,68,.28); }
+
+.hint { color:var(--muted); font-size:12px; line-height:1.6; margin:14px 0 0; }
+
+#message {
+  display:none;
+  margin-top:16px;
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:13px;
+  line-height:1.5;
+  background:rgba(96,165,250,.12);
+  border:1px solid rgba(96,165,250,.25);
+  color:#dbeafe;
+}
+#message.error { background:rgba(239,68,68,.12); border-color:rgba(239,68,68,.3); color:#fecaca; }
+#message.warning { background:rgba(234,179,8,.1); border-color:rgba(234,179,8,.25); color:#fef08a; }
+
+#results { display:none; }
+
+.stats {
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.stat {
+  padding:17px;
+  border-radius:16px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  min-width:0;
+}
+.stat-label { color:var(--muted); font-size:12px; margin-bottom:9px; }
+.stat-value { font-size:clamp(22px,3vw,30px); font-weight:800; letter-spacing:-.5px; }
+.stat-note { color:var(--muted); font-size:11px; margin-top:5px; }
+.stat.blue .stat-value { color:#93c5fd; }
+.stat.green .stat-value { color:var(--green); }
+.stat.red .stat-value { color:var(--red); }
+.stat.yellow .stat-value { color:var(--yellow); }
+.stat.purple .stat-value { color:var(--purple); }
+
+.tabs {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  padding-bottom:14px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+  margin-bottom:15px;
+}
+
+.tab {
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  color:#cbd5e1;
+  padding:10px 13px;
+  border-radius:10px;
+  font-size:12px;
+}
+.tab.active { background:rgba(96,165,250,.2); color:#bfdbfe; border-color:rgba(96,165,250,.35); }
+
+.table-toolbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:12px;
+}
+.table-toolbar input { max-width:320px; }
+.table-info { font-size:12px; color:var(--muted); }
+
+.table-wrap {
+  overflow:auto;
+  max-height:570px;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:13px;
+  background:rgba(2,6,23,.25);
+}
+
+table { border-collapse:collapse; width:100%; min-width:700px; font-size:12px; }
+th {
+  position:sticky;
+  top:0;
+  z-index:1;
+  background:#1e3158;
+  color:#dbeafe;
+  text-align:left;
+  padding:12px 13px;
+  white-space:nowrap;
+  border-bottom:1px solid rgba(255,255,255,.14);
+}
+td {
+  padding:11px 13px;
+  color:#e2e8f0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  max-width:300px;
+  overflow-wrap:anywhere;
+}
+tbody tr:hover { background:rgba(255,255,255,.045); }
+.empty { text-align:center; color:var(--muted); padding:35px; }
+
+.pagination {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-top:14px;
+  color:var(--muted);
+  font-size:12px;
+}
+.page-actions { display:flex; gap:8px; }
+.page-actions button { padding:8px 12px; }
+
+.footer-note { color:var(--muted); font-size:11px; text-align:center; padding:12px; }
+
+@media(max-width:850px) {
+  .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:650px) {
+  body { padding:14px 10px 30px; }
+  .upload-grid,.options { grid-template-columns:1fr; }
+  .section { padding:16px; }
+  header { padding:25px 12px; }
+  .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .action-row button { flex:1; }
+}
+</style>
 </head>
 
 <body>
 <div class="container">
-  <h1>Monthly Reconciliation</h1>
-  <p class="subtitle">5C Network vs Client Records</p>
+
+<header class="glass">
+  <div class="eyebrow">✦ CASE RECONCILIATION SYSTEM</div>
+  <h1>Jayaprdha Medanta</h1>
+  <p class="subtitle">Monthly Case Reconciliation Dashboard</p>
+</header>
+
+<section class="glass section">
+  <h2 class="section-title"><span class="icon">⇧</span> Upload Documents</h2>
 
   <div class="upload-grid">
-    <section class="panel">
-      <h3>1. Client Document</h3>
-      <p>Upload the client transaction PDF, Excel, or CSV file.</p>
-      <input type="file" id="clientFile" accept=".pdf,.xlsx,.xls,.csv">
-      <p id="clientFileInfo">No file selected.</p>
-    </section>
-
-    <section class="panel">
-      <h3>2. 5C Document</h3>
-      <p>Upload the 5C Excel or CSV file.</p>
-      <input type="file" id="fiveCFile" accept=".xlsx,.xls,.csv">
-      <p id="fiveCFileInfo">No file selected.</p>
-    </section>
-  </div>
-
-  <section class="panel">
-    <h3>3. Matching Identifier</h3>
-    <p>Select the column used to compare the two files. For Medicover, the client PDF contains an <b>Order Id</b> column. Select the corresponding identifier from the 5C file.</p>
-
-    <div class="key-grid">
-      <div>
-        <label for="clientKey">Client identifier</label>
-        <select id="clientKey" disabled>
-          <option value="">Upload client file first</option>
-        </select>
+    <div class="upload-card" id="clientDrop">
+      <div class="upload-top">
+        <div class="upload-icon">▤</div>
+        <span class="pill" id="clientStatus">Awaiting file</span>
       </div>
-      <div>
-        <label for="fiveCKey">5C identifier</label>
-        <select id="fiveCKey" disabled>
-          <option value="">Upload 5C file first</option>
-        </select>
-      </div>
-    </div>
-  </section>
-
-  <div class="actions">
-    <button class="primary" id="compareBtn" onclick="reconcileData()">Cross Check & Compare</button>
-    <button class="export hidden" id="exportBtn" onclick="exportExcel()">Download Excel Report</button>
-    <button class="secondary" onclick="resetApp()">Reset</button>
-  </div>
-
-  <div id="status">Upload both documents to begin.</div>
-
-  <div id="resultsArea" class="hidden">
-    <div class="summary-grid">
-      <div class="stat">Client records<strong id="clientCount">0</strong></div>
-      <div class="stat">5C records<strong id="fiveCCount">0</strong></div>
-      <div class="stat">Missing in 5C<strong id="missing5CCount">0</strong></div>
-      <div class="stat">Missing in Client<strong id="missingClientCount">0</strong></div>
+      <h3>Client Document</h3>
+      <p>Upload the client's transaction report. Supported formats: Excel, CSV, PDF, and TXT.</p>
+      <label class="file-btn" for="clientFile">＋ Choose Client File</label>
+      <input id="clientFile" type="file" accept=".xlsx,.xls,.csv,.pdf,.txt">
+      <div class="file-name" id="clientFileName">No file selected</div>
     </div>
 
-    <details open>
-      <summary>Step 4 — Reconciliation Results</summary>
-      <div class="details-content">
-        <label for="resultSource">Select records to view</label>
-        <select id="resultSource" onchange="renderPage()">
-          <option value="all">All unmatched records</option>
-          <option value="missing5C">Present in Client, missing in 5C</option>
-          <option value="missingClient">Present in 5C, missing in Client</option>
-          <option value="duplicatesClient">Duplicate IDs in Client</option>
-          <option value="duplicates5C">Duplicate IDs in 5C</option>
-          <option value="blankClient">Blank IDs in Client</option>
-          <option value="blank5C">Blank IDs in 5C</option>
-        </select>
-
-        <p class="muted" id="resultInfo"></p>
-        <div class="table-wrap">
-          <table>
-            <thead id="resultHead"></thead>
-            <tbody id="resultBody"></tbody>
-          </table>
-        </div>
-
-        <div class="pagination">
-          <button class="secondary" onclick="changePage(-1)">Previous</button>
-          <span id="pageInfo">Page 1</span>
-          <button class="secondary" onclick="changePage(1)">Next</button>
-        </div>
+    <div class="upload-card" id="fivecDrop">
+      <div class="upload-top">
+        <div class="upload-icon">▧</div>
+        <span class="pill" id="fivecStatus">Awaiting file</span>
       </div>
-    </details>
+      <h3>5C Document</h3>
+      <p>Upload the 5C report or case export to compare against the client data.</p>
+      <label class="file-btn" for="fivecFile">＋ Choose 5C File</label>
+      <input id="fivecFile" type="file" accept=".xlsx,.xls,.csv,.pdf,.txt">
+      <div class="file-name" id="fivecFileName">No file selected</div>
+    </div>
   </div>
+
+  <div class="options">
+    <div class="field">
+      <label for="clientSheet">Client Worksheet</label>
+      <select id="clientSheet" disabled><option>Upload client document first</option></select>
+    </div>
+    <div class="field">
+      <label for="fivecSheet">5C Worksheet</label>
+      <select id="fivecSheet" disabled><option>Upload 5C document first</option></select>
+    </div>
+    <div class="field">
+      <label for="clientKey">Client Identifier Column</label>
+      <select id="clientKey" disabled><option>Upload documents first</option></select>
+    </div>
+    <div class="field">
+      <label for="fivecKey">5C Identifier Column</label>
+      <select id="fivecKey" disabled><option>Upload documents first</option></select>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button class="primary" id="compareBtn" disabled>⇄ Compare Documents</button>
+    <button class="secondary" id="resetBtn">↻ Reset</button>
+  </div>
+
+  <p class="hint">
+    Select the identifier field that exists in both reports, such as Study ID, Order ID,
+    Accession Number, or Patient ID. You can select different column names on each side
+    if they contain the same identifier values.
+  </p>
+
+  <div id="message"></div>
+</section>
+
+<!-- Results are intentionally hidden until Compare is clicked -->
+<section id="results" class="glass section">
+  <h2 class="section-title"><span class="icon">▦</span> Comparison Results</h2>
+
+  <div class="stats">
+    <div class="stat blue">
+      <div class="stat-label">Client Records</div>
+      <div class="stat-value" id="clientCount">0</div>
+      <div class="stat-note">Uploaded client rows</div>
+    </div>
+    <div class="stat blue">
+      <div class="stat-label">5C Records</div>
+      <div class="stat-value" id="fivecCount">0</div>
+      <div class="stat-note">Uploaded 5C rows</div>
+    </div>
+    <div class="stat green">
+      <div class="stat-label">Matched Cases</div>
+      <div class="stat-value" id="matchedCount">0</div>
+      <div class="stat-note">Found in both files</div>
+    </div>
+    <div class="stat red">
+      <div class="stat-label">Missing Cases</div>
+      <div class="stat-value" id="missingCount">0</div>
+      <div class="stat-note">Across both reports</div>
+    </div>
+    <div class="stat yellow">
+      <div class="stat-label">Duplicate IDs</div>
+      <div class="stat-value" id="duplicateCount">0</div>
+      <div class="stat-note">Repeated identifier rows</div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="summary">Summary</button>
+    <button class="tab" data-tab="matched">Matched Cases</button>
+    <button class="tab" data-tab="clientMissing">Missing from 5C</button>
+    <button class="tab" data-tab="fivecMissing">Missing from Client</button>
+    <button class="tab" data-tab="duplicates">Duplicates</button>
+    <button class="tab" data-tab="blanks">Blank Identifiers</button>
+  </div>
+
+  <div class="table-toolbar">
+    <div class="table-info" id="tableInfo">Comparison summary</div>
+    <input type="text" id="searchBox" placeholder="Search displayed results...">
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead id="tableHead"></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <span id="pageInfo">Page 1</span>
+    <div class="page-actions">
+      <button class="secondary" id="prevPage">← Previous</button>
+      <button class="secondary" id="nextPage">Next →</button>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button class="success" id="exportBtn">⇩ Export Full Excel Report</button>
+    <button class="secondary" id="exportCurrentBtn">⇩ Export Current Tab</button>
+  </div>
+</section>
+
+<p class="footer-note">Files are processed in your browser. Verify extracted PDF rows before using them for reconciliation.</p>
 </div>
 
 <script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-  const PAGE_SIZE = 100;
+const PAGE_SIZE = 100;
 
-  let clientData = [];
-  let fiveCData = [];
-  let clientHeaders = [];
-  let fiveCHeaders = [];
-  let results = {};
-  let currentPage = 1;
-  let exportData = {};
+const state = {
+  client: null,
+  fivec: null,
+  results: null,
+  activeTab: "summary",
+  page: 1
+};
 
-  document.getElementById("clientFile").addEventListener("change", async function () {
-    const file = this.files[0];
-    if (!file) return;
+const $ = id => document.getElementById(id);
 
-    document.getElementById("clientFileInfo").textContent = "Reading " + file.name + "...";
+function showMessage(message, type = "") {
+  const el = $("message");
+  el.textContent = message;
+  el.className = type;
+  el.style.display = "block";
+}
 
-    try {
-      const parsed = await parseAnyFile(file, true);
-      clientData = parsed.rows;
-      clientHeaders = parsed.headers;
-      populateSelect("clientKey", clientHeaders, true);
+function clearMessage() {
+  $("message").style.display = "none";
+}
 
-      document.getElementById("clientFileInfo").textContent =
-        file.name + " — " + clientData.length.toLocaleString() + " records detected.";
+function cleanText(value) {
+  return String(value ?? "").replace(/\u00a0/g, " ").trim();
+}
 
-      setStatus(parsed.message || "Client file loaded. Please verify the identifier.");
-    } catch (err) {
-      console.error(err);
-      setStatus("Client file could not be read: " + err.message);
-      document.getElementById("clientFileInfo").textContent = "Error reading file.";
+function normalizeKey(value) {
+  return cleanText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function uniqueHeaders(headers) {
+  const used = {};
+  return headers.map((header, i) => {
+    let name = cleanText(header) || `Column ${i + 1}`;
+    if (used[name]) {
+      used[name]++;
+      name = `${name}_${used[name]}`;
+    } else {
+      used[name] = 1;
     }
+    return name;
+  });
+}
+
+function rowsToObjects(matrix) {
+  const cleaned = matrix
+    .map(row => Array.isArray(row) ? row.map(cleanText) : [])
+    .filter(row => row.some(value => value !== ""));
+
+  if (!cleaned.length) return { headers: [], rows: [] };
+
+  // Find the most likely header row near the top.
+  let headerIndex = 0;
+  let bestScore = -1;
+  const scanLimit = Math.min(cleaned.length, 15);
+  const headerWords = [
+    "study", "order", "patient", "client", "accession",
+    "modality", "date", "id", "name", "description"
+  ];
+
+  for (let i = 0; i < scanLimit; i++) {
+    const row = cleaned[i];
+    const filled = row.filter(Boolean).length;
+    const words = row.map(normalizeKey);
+    const score = words.reduce((sum, word) =>
+      sum + (headerWords.some(term => word.includes(term)) ? 2 : 0), 0
+    ) + Math.min(filled, 10) * 0.15;
+
+    if (score > bestScore) {
+      bestScore = score;
+      headerIndex = i;
+    }
+  }
+
+  const headers = uniqueHeaders(cleaned[headerIndex]);
+  const rows = [];
+
+  for (let i = headerIndex + 1; i < cleaned.length; i++) {
+    const values = cleaned[i];
+    const obj = {};
+    headers.forEach((header, index) => {
+      obj[header] = values[index] ?? "";
+    });
+    if (Object.values(obj).some(value => cleanText(value) !== "")) {
+      rows.push(obj);
+    }
+  }
+
+  return { headers, rows };
+}
+
+function parseDelimitedText(text) {
+  const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  if (!lines.length) return { headers: [], rows: [] };
+
+  const first = lines.slice(0, 10);
+  const delimiters = [",", "\t", "|", ";"];
+  let delimiter = ",";
+  let best = -1;
+
+  for (const candidate of delimiters) {
+    const counts = first.map(line => line.split(candidate).length);
+    const score = counts.filter(count => count > 1).length * 10 +
+      Math.max(...counts);
+    if (score > best) {
+      best = score;
+      delimiter = candidate;
+    }
+  }
+
+  const matrix = lines.map(line => {
+    if (delimiter === ",") {
+      return line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+        .map(value => value.replace(/^"|"$/g, "").replace(/""/g, '"').trim());
+    }
+    return line.split(delimiter).map(cleanText);
   });
 
-  document.getElementById("fiveCFile").addEventListener("change", async function () {
-    const file = this.files[0];
-    if (!file) return;
+  return rowsToObjects(matrix);
+}
 
-    document.getElementById("fiveCFileInfo").textContent = "Reading " + file.name + "...";
+function groupPdfItems(items) {
+  const positioned = items
+    .filter(item => item.str && item.str.trim())
+    .map(item => ({
+      text: item.str.trim(),
+      x: item.transform[4],
+      y: item.transform[5],
+      width: item.width || 0
+    }))
+    .sort((a, b) => b.y - a.y || a.x - b.x);
 
-    try {
-      const parsed = await parseAnyFile(file, false);
-      fiveCData = parsed.rows;
-      fiveCHeaders = parsed.headers;
-      populateSelect("fiveCKey", fiveCHeaders, false);
+  const lines = [];
+  const tolerance = 3;
 
-      document.getElementById("fiveCFileInfo").textContent =
-        file.name + " — " + fiveCData.length.toLocaleString() + " records detected.";
-
-      setStatus(parsed.message || "5C file loaded. Please verify the identifier.");
-    } catch (err) {
-      console.error(err);
-      setStatus("5C file could not be read: " + err.message);
-      document.getElementById("fiveCFileInfo").textContent = "Error reading file.";
+  for (const item of positioned) {
+    let line = lines.find(entry => Math.abs(entry.y - item.y) <= tolerance);
+    if (!line) {
+      line = { y: item.y, items: [] };
+      lines.push(line);
     }
-  });
-
-  function setStatus(message) {
-    document.getElementById("status").textContent = message;
+    line.items.push(item);
   }
 
-  function normalizeHeader(value) {
-    return String(value || "")
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, "");
-  }
+  return lines
+    .sort((a, b) => b.y - a.y)
+    .map(line => {
+      const parts = line.items.sort((a, b) => a.x - b.x);
+      let output = "";
+      let previousEnd = null;
 
-  function findPreferredHeader(headers, isClient) {
-    const preferred = isClient
-      ? ["Order Id", "Order ID", "Study Id", "Study ID", "Client Id", "Case Id", "Accession"]
-      : ["Study Id", "Study ID", "Order Id", "Order ID", "Client Id", "Case Id", "Accession"];
+      for (const part of parts) {
+        if (previousEnd !== null) {
+          const gap = part.x - previousEnd;
+          output += gap > 22 ? "   " : " ";
+        }
+        output += part.text;
+        previousEnd = part.x + part.width;
+      }
+      return output.trim();
+    })
+    .filter(Boolean);
+}
 
-    for (const name of preferred) {
-      const found = headers.find(h => normalizeHeader(h) === normalizeHeader(name));
-      if (found) return found;
+function parsePdfLines(lines) {
+  if (!lines.length) return { headers: [], rows: [] };
+
+  // Attempt to identify a table header.
+  const headerTerms = [
+    "study id", "studyid", "order id", "orderid", "patient id",
+    "patient name", "accession", "modality", "client id"
+  ];
+
+  let headerIndex = -1;
+  let bestScore = 0;
+
+  for (let i = 0; i < Math.min(lines.length, 50); i++) {
+    const normalized = normalizeKey(lines[i]);
+    const score = headerTerms.reduce((sum, term) =>
+      sum + (normalized.includes(normalizeKey(term)) ? 1 : 0), 0
+    );
+    if (score > bestScore) {
+      bestScore = score;
+      headerIndex = i;
     }
-    return headers[0] || "";
   }
 
-  function populateSelect(id, headers, isClient) {
-    const select = document.getElementById(id);
-    select.innerHTML = "";
+  if (headerIndex >= 0 && bestScore >= 2) {
+    const headerLine = lines[headerIndex];
+    let headers = headerLine.split(/\s{2,}|\t|\|/).map(cleanText).filter(Boolean);
 
-    headers.forEach(header => {
+    if (headers.length < 2) {
+      headers = headerLine.split(/\s{2,}/).map(cleanText).filter(Boolean);
+    }
+
+    if (headers.length >= 2) {
+      headers = uniqueHeaders(headers);
+      const rows = [];
+
+      for (let i = headerIndex + 1; i < lines.length; i++) {
+        const line = lines[i];
+        const values = line.split(/\s{2,}|\t|\|/).map(cleanText);
+        if (values.length < 2) continue;
+
+        const obj = {};
+        headers.forEach((header, index) => {
+          obj[header] = values[index] ?? "";
+        });
+
+        if (Object.values(obj).some(Boolean)) rows.push(obj);
+      }
+
+      if (rows.length) return { headers, rows };
+    }
+  }
+
+  // Fallback: preserve every extracted PDF line instead of discarding data.
+  return {
+    headers: ["PDF Extracted Text"],
+    rows: lines.map(line => ({ "PDF Extracted Text": line }))
+  };
+}
+
+async function readPdf(file) {
+  const buffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;
+  const allLines = [];
+
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const lines = groupPdfItems(content.items);
+    allLines.push(...lines);
+  }
+
+  return parsePdfLines(allLines);
+}
+
+async function readFile(file) {
+  const extension = file.name.split(".").pop().toLowerCase();
+
+  if (extension === "pdf") {
+    return await readPdf(file);
+  }
+
+  if (extension === "csv" || extension === "txt") {
+    const text = await file.text();
+    return parseDelimitedText(text);
+  }
+
+  if (extension === "xlsx" || extension === "xls") {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
+    const sheets = {};
+
+    workbook.SheetNames.forEach(sheetName => {
+      const matrix = XLSX.utils.sheet_to_json(
+        workbook.Sheets[sheetName],
+        { header: 1, defval: "", raw: false }
+      );
+      sheets[sheetName] = rowsToObjects(matrix);
+    });
+
+    return { sheets, sheetNames: workbook.SheetNames };
+  }
+
+  throw new Error("Unsupported file type. Please upload XLSX, XLS, CSV, PDF, or TXT.");
+}
+
+function autoSelectSheet(parsed) {
+  if (parsed.sheets) {
+    const name = parsed.sheetNames.find(sheet =>
+      parsed.sheets[sheet].rows.length > 0
+    ) || parsed.sheetNames[0];
+    return { name, ...parsed.sheets[name] };
+  }
+  return { name: "Document", headers: parsed.headers, rows: parsed.rows };
+}
+
+function getActiveData(side) {
+  const fileData = state[side];
+  if (!fileData) return null;
+
+  if (!fileData.sheets) return fileData;
+
+  const sheetName = $(side === "client" ? "clientSheet" : "fivecSheet").value;
+  return { name: sheetName, ...fileData.sheets[sheetName] };
+}
+
+function fillSheetDropdown(side, parsed) {
+  const select = $(side === "client" ? "clientSheet" : "fivecSheet");
+  select.innerHTML = "";
+
+  if (parsed.sheets) {
+    parsed.sheetNames.forEach(name => {
       const option = document.createElement("option");
-      option.value = header;
-      option.textContent = header;
+      option.value = name;
+      option.textContent = `${name} (${parsed.sheets[name].rows.length} rows)`;
       select.appendChild(option);
     });
+    select.disabled = false;
+  } else {
+    const option = document.createElement("option");
+    option.value = "Document";
+    option.textContent = `Document (${parsed.rows.length} rows)`;
+    select.appendChild(option);
+    select.disabled = true;
+  }
+}
 
-    select.disabled = headers.length === 0;
+function fillKeyDropdown(side) {
+  const data = getActiveData(side);
+  const select = $(side === "client" ? "clientKey" : "fivecKey");
+  select.innerHTML = "";
 
-    const preferred = findPreferredHeader(headers, isClient);
-    if (preferred) select.value = preferred;
+  if (!data || !data.headers.length) {
+    select.innerHTML = '<option value="">No columns found</option>';
+    select.disabled = true;
+    return;
   }
 
-  async function parseAnyFile(file, isClient) {
-    const ext = file.name.split(".").pop().toLowerCase();
+  data.headers.forEach(header => {
+    const option = document.createElement("option");
+    option.value = header;
+    option.textContent = header;
+    select.appendChild(option);
+  });
 
-    if (ext === "pdf") {
-      if (!isClient) {
-        throw new Error("PDF support is intended for the client transaction report. Please upload the 5C file as Excel or CSV.");
-      }
-      return await parseTransactionPdf(file);
-    }
+  select.disabled = false;
 
-    if (["xlsx", "xls", "csv"].includes(ext)) {
-      return await parseSpreadsheet(file);
-    }
+  const preferred = [
+    "studyid", "orderid", "accessionnumber", "accession",
+    "patientid", "caseid", "id"
+  ];
 
-    throw new Error("Unsupported file type.");
-  }
+  const best = data.headers.find(header =>
+    preferred.includes(normalizeKey(header))
+  );
+  if (best) select.value = best;
+}
 
-  async function parseSpreadsheet(file) {
-    const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: "array", cellDates: false });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
+function updateCompareButton() {
+  $("compareBtn").disabled = !(state.client && state.fivec);
+}
 
-    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
-    if (!rows.length) throw new Error("No data rows found in the first worksheet.");
+async function handleUpload(side, file) {
+  if (!file) return;
 
-    const headers = Object.keys(rows[0]);
-    const cleaned = rows.filter(row =>
-      headers.some(h => String(row[h] ?? "").trim() !== "")
+  clearMessage();
+  showMessage(`Reading ${file.name}...`);
+
+  try {
+    const parsed = await readFile(file);
+    state[side] = parsed;
+
+    const prefix = side === "client" ? "client" : "fivec";
+    $(prefix + "FileName").textContent = file.name;
+    $(prefix + "Status").textContent = "File loaded";
+    $(prefix + "Status").classList.add("ready");
+
+    fillSheetDropdown(side, parsed);
+    fillKeyDropdown(side);
+
+    if (side === "client" && state.fivec) fillKeyDropdown("fivec");
+    if (side === "fivec" && state.client) fillKeyDropdown("client");
+
+    updateCompareButton();
+
+    const data = getActiveData(side);
+    showMessage(
+      `${side === "client" ? "Client" : "5C"} document loaded: ` +
+      `${data.rows.length.toLocaleString()} data rows and ${data.headers.length} columns. ` +
+      `Please review the worksheet and identifier selection before comparing.`,
+      "warning"
     );
-
-    return { headers, rows: cleaned, message: "Spreadsheet loaded successfully." };
+  } catch (error) {
+    console.error(error);
+    state[side] = null;
+    updateCompareButton();
+    showMessage(`Unable to read the file: ${error.message}`, "error");
   }
+}
 
-  /*
-    Medicover PDF parser:
-    - Uses text positions to reconstruct lines.
-    - Finds transaction rows beginning with a 10-character Order Id.
-    - Extracts Patient Id, Patient Name, Modality, Study Date, Reports and Cost.
-    - Repeated page headings are ignored.
-  */
-  async function parseTransactionPdf(file) {
-    const buffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+$("clientFile").addEventListener("change", event =>
+  handleUpload("client", event.target.files[0])
+);
+$("fivecFile").addEventListener("change", event =>
+  handleUpload("fivec", event.target.files[0])
+);
 
-    let allRows = [];
-    let pagesWithText = 0;
+$("clientSheet").addEventListener("change", () => fillKeyDropdown("client"));
+$("fivecSheet").addEventListener("change", () => fillKeyDropdown("fivec"));
 
-    for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
-      const page = await pdf.getPage(pageNo);
-      const content = await page.getTextContent();
+function makeIndex(rows, key) {
+  const index = new Map();
+  const blanks = [];
 
-      const items = content.items
-        .filter(item => item.str && item.str.trim())
-        .map(item => ({
-          text: item.str.trim(),
-          x: item.transform[4],
-          y: item.transform[5]
-        }));
-
-      if (items.length) pagesWithText++;
-
-      const lines = groupItemsIntoLines(items);
-      const pageRows = parseMedicoverLines(lines);
-      allRows = allRows.concat(pageRows);
-    }
-
-    if (!allRows.length) {
-      throw new Error(
-        "No transaction rows could be extracted. The PDF may be scanned or its layout may differ from the Medicover transaction report."
-      );
-    }
-
-    const headers = [
-      "Order Id",
-      "Patient Id",
-      "Patient Name",
-      "Modality",
-      "Study Date",
-      "Num of Reports",
-      "Cost (Rs)"
-    ];
-
-    const unique = new Map();
-    allRows.forEach(row => {
-      const key = [
-        row["Order Id"],
-        row["Patient Id"],
-        row["Study Date"],
-        row["Study Name"]
-      ].join("|");
-      unique.set(key, row);
-    });
-
-    const rows = Array.from(unique.values());
-
-    return {
-      headers,
-      rows,
-      message:
-        "PDF text extracted from " + pagesWithText + " pages. " +
-        rows.length.toLocaleString() +
-        " transaction rows detected. Please check the preview and confirm the Order Id column before comparing."
-    };
-  }
-
-  function groupItemsIntoLines(items) {
-    const sorted = items.slice().sort((a, b) => {
-      if (Math.abs(b.y - a.y) > 2.5) return b.y - a.y;
-      return a.x - b.x;
-    });
-
-    const lines = [];
-
-    sorted.forEach(item => {
-      let line = lines.find(l => Math.abs(l.y - item.y) <= 2.5);
-      if (!line) {
-        line = { y: item.y, items: [] };
-        lines.push(line);
-      }
-      line.items.push(item);
-    });
-
-    lines.sort((a, b) => b.y - a.y);
-
-    return lines.map(line => {
-      line.items.sort((a, b) => a.x - b.x);
-      return line.items.map(i => i.text).join(" ").replace(/\s+/g, " ").trim();
-    }).filter(Boolean);
-  }
-
-  function parseMedicoverLines(lines) {
-    const output = [];
-    let current = null;
-
-    const orderPattern = /^[A-Z0-9]{10}$/i;
-    const patientIdPattern = /^(?:[A-Z]{2,}\d{5,}|\d{8,})$/i;
-    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-    const modalityPattern = /^(XRAY|X-RAY|CT|MRI|USG|ULTRASOUND)$/i;
-
-    function saveCurrent() {
-      if (!current) return;
-
-      const full = current.parts.join(" ").replace(/\s+/g, " ").trim();
-      const parsed = parseMedicoverRecord(current.orderId, full);
-
-      if (parsed) output.push(parsed);
-      current = null;
-    }
-
-    lines.forEach(line => {
-      const tokens = line.split(/\s+/).filter(Boolean);
-      if (!tokens.length) return;
-
-      const first = tokens[0].replace(/[^\w]/g, "");
-
-      if (orderPattern.test(first)) {
-        saveCurrent();
-        current = { orderId: first, parts: [tokens.slice(1).join(" ")] };
-        return;
-      }
-
-      if (current) {
-        // Ignore recurring page headings and invoice footers.
-        if (/^order\s+id$/i.test(line) || /^tax invoice$/i.test(line)) return;
-        current.parts.push(line);
-      }
-    });
-
-    saveCurrent();
-    return output;
-  }
-
-  function parseMedicoverRecord(orderId, text) {
-    const tokens = text.split(/\s+/).filter(Boolean);
-
-    const patientIndex = tokens.findIndex(token =>
-      /^(?:[A-Z]{2,}\d{5,}|\d{8,})$/i.test(token)
-    );
-
-    if (patientIndex < 0) return null;
-
-    const patientId = tokens[patientIndex];
-    const remaining = tokens.slice(patientIndex + 1);
-
-    const dateIndex = remaining.findIndex(token =>
-      /^\d{4}-\d{2}-\d{2}$/.test(token)
-    );
-
-    if (dateIndex < 0) return null;
-
-    const beforeDate = remaining.slice(0, dateIndex);
-    const afterDate = remaining.slice(dateIndex + 1);
-
-    const modalityIndex = beforeDate.findIndex(token =>
-      /^(XRAY|X-RAY|CT|MRI|USG|ULTRASOUND)$/i.test(token)
-    );
-
-    if (modalityIndex < 0) return null;
-
-    const patientName = beforeDate.slice(0, modalityIndex).join(" ").trim();
-    const modality = beforeDate[modalityIndex].toUpperCase();
-    const studyName = beforeDate.slice(modalityIndex + 1).join(" ").trim();
-
-    const reportCount = afterDate.find(token => /^\d+$/.test(token)) || "";
-    const costToken = afterDate.find(token => /^\d+(?:\.\d+)?$/.test(token) && token !== reportCount) || "";
-
-    if (!patientName) return null;
-
-    return {
-      "Order Id": orderId,
-      "Patient Id": patientId,
-      "Patient Name": patientName,
-      "Modality": modality,
-      "Study Name": studyName,
-      "Study Date": remaining[dateIndex],
-      "Num of Reports": reportCount,
-      "Cost (Rs)": costToken
-    };
-  }
-
-  function normalizeId(value) {
-    return String(value ?? "")
-      .trim()
-      .toUpperCase()
-      .replace(/\s+/g, "");
-  }
-
-  function getDuplicateRows(rows, key) {
-    const counts = new Map();
-
-    rows.forEach(row => {
-      const id = normalizeId(row[key]);
-      if (!id) return;
-      counts.set(id, (counts.get(id) || 0) + 1);
-    });
-
-    return rows.filter(row => {
-      const id = normalizeId(row[key]);
-      return id && counts.get(id) > 1;
-    });
-  }
-
-  function reconcileData() {
-    const clientKey = document.getElementById("clientKey").value;
-    const fiveCKey = document.getElementById("fiveCKey").value;
-
-    if (!clientData.length || !fiveCData.length) {
-      setStatus("Please upload both the Client and 5C documents.");
+  rows.forEach((row, rowIndex) => {
+    const raw = cleanText(row[key]);
+    if (!raw) {
+      blanks.push({ row, rowNumber: rowIndex + 1 });
       return;
     }
 
-    if (!clientKey || !fiveCKey) {
-      setStatus("Please select the identifier column for both files.");
-      return;
+    const normalized = raw.toLowerCase().replace(/\s+/g, "");
+    if (!index.has(normalized)) index.set(normalized, []);
+    index.get(normalized).push({ row, rowNumber: rowIndex + 1, raw });
+  });
+
+  return { index, blanks };
+}
+
+function combineMatched(clientRow, fivecRow, clientHeaders, fivecHeaders) {
+  const result = {};
+
+  clientHeaders.forEach(header => {
+    result[`Client - ${header}`] = clientRow[header] ?? "";
+  });
+
+  fivecHeaders.forEach(header => {
+    result[`5C - ${header}`] = fivecRow[header] ?? "";
+  });
+
+  return result;
+}
+
+function compareData() {
+  const clientData = getActiveData("client");
+  const fivecData = getActiveData("fivec");
+
+  if (!clientData || !fivecData) {
+    showMessage("Please upload both documents before comparing.", "error");
+    return;
+  }
+
+  const clientKey = $("clientKey").value;
+  const fivecKey = $("fivecKey").value;
+
+  if (!clientKey || !fivecKey) {
+    showMessage("Please select an identifier column for both documents.", "error");
+    return;
+  }
+
+  if (!clientData.rows.length || !fivecData.rows.length) {
+    showMessage("One or both documents contain no data rows. Please verify the files.", "error");
+    return;
+  }
+
+  const clientIndex = makeIndex(clientData.rows, clientKey);
+  const fivecIndex = makeIndex(fivecData.rows, fivecKey);
+
+  const matched = [];
+  const clientMissing = [];
+  const fivecMissing = [];
+  const duplicates = [];
+
+  for (const [id, entries] of clientIndex.index.entries()) {
+    const other = fivecIndex.index.get(id);
+
+    if (!other) {
+      entries.forEach(entry => {
+        clientMissing.push({
+          Identifier: entry.raw,
+          "Client Row Number": entry.rowNumber,
+          ...entry.row
+        });
+      });
+      continue;
     }
 
-    const clientIds = new Set(
-      clientData.map(row => normalizeId(row[clientKey])).filter(Boolean)
-    );
+    const count = Math.min(entries.length, other.length);
 
-    const fiveCIds = new Set(
-      fiveCData.map(row => normalizeId(row[fiveCKey])).filter(Boolean)
-    );
-
-    const missing5C = clientData.filter(row => {
-      const id = normalizeId(row[clientKey]);
-      return id && !fiveCIds.has(id);
-    });
-
-    const missingClient = fiveCData.filter(row => {
-      const id = normalizeId(row[fiveCKey]);
-      return id && !clientIds.has(id);
-    });
-
-    const blankClient = clientData.filter(row => !normalizeId(row[clientKey]));
-    const blank5C = fiveCData.filter(row => !normalizeId(row[fiveCKey]));
-
-    const duplicatesClient = getDuplicateRows(clientData, clientKey);
-    const duplicates5C = getDuplicateRows(fiveCData, fiveCKey);
-
-    results = {
-      missing5C,
-      missingClient,
-      duplicatesClient,
-      duplicates5C,
-      blankClient,
-      blank5C
-    };
-
-    exportData = {
-      "Missing in 5C": missing5C,
-      "Missing in Client": missingClient,
-      "Duplicate Client IDs": duplicatesClient,
-      "Duplicate 5C IDs": duplicates5C,
-      "Blank Client IDs": blankClient,
-      "Blank 5C IDs": blank5C
-    };
-
-    document.getElementById("clientCount").textContent = clientData.length.toLocaleString();
-    document.getElementById("fiveCCount").textContent = fiveCData.length.toLocaleString();
-    document.getElementById("missing5CCount").textContent = missing5C.length.toLocaleString();
-    document.getElementById("missingClientCount").textContent = missingClient.length.toLocaleString();
-
-    document.getElementById("resultsArea").classList.remove("hidden");
-    document.getElementById("exportBtn").classList.remove("hidden");
-
-    document.getElementById("resultSource").value = "all";
-    currentPage = 1;
-    renderPage();
-
-    setStatus(
-      "Reconciliation completed. Exact matches were ignored. " +
-      "Please review the unmatched and duplicate records before finalizing."
-    );
-  }
-
-  function getVisibleRows() {
-    const selected = document.getElementById("resultSource").value;
-
-    if (selected === "all") {
-      return [
-        ...results.missing5C.map(row => ({ source: "Missing in 5C", row })),
-        ...results.missingClient.map(row => ({ source: "Missing in Client", row }))
-      ];
+    for (let i = 0; i < count; i++) {
+      matched.push(combineMatched(
+        entries[i].row,
+        other[i].row,
+        clientData.headers,
+        fivecData.headers
+      ));
     }
 
-    const map = {
-      missing5C: ["Missing in 5C", results.missing5C],
-      missingClient: ["Missing in Client", results.missingClient],
-      duplicatesClient: ["Duplicate Client ID", results.duplicatesClient],
-      duplicates5C: ["Duplicate 5C ID", results.duplicates5C],
-      blankClient: ["Blank Client ID", results.blankClient],
-      blank5C: ["Blank 5C ID", results.blank5C]
-    };
+    if (entries.length > 1) {
+      entries.forEach(entry => duplicates.push({
+        Source: "Client",
+        Identifier: entry.raw,
+        "Row Number": entry.rowNumber,
+        "Duplicate Count": entries.length,
+        ...entry.row
+      }));
+    }
 
-    const [source, rows] = map[selected];
-    return rows.map(row => ({ source, row }));
+    if (other.length > 1) {
+      other.forEach(entry => duplicates.push({
+        Source: "5C",
+        Identifier: entry.raw,
+        "Row Number": entry.rowNumber,
+        "Duplicate Count": other.length,
+        ...entry.row
+      }));
+    }
   }
 
-  function renderPage() {
-    const visible = getVisibleRows();
-    const total = visible.length;
-    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-    currentPage = Math.min(Math.max(1, currentPage), pages);
-
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const pageRows = visible.slice(start, start + PAGE_SIZE);
-
-    const headers = ["Discrepancy Source", ...new Set(
-      pageRows.flatMap(item => Object.keys(item.row))
-    )];
-
-    const thead = document.getElementById("resultHead");
-    const tbody = document.getElementById("resultBody");
-
-    thead.innerHTML = "<tr>" + headers.map(h => "<th>" + escapeHtml(h) + "</th>").join("") + "</tr>";
-    tbody.innerHTML = "";
-
-    pageRows.forEach(item => {
-      const tr = document.createElement("tr");
-      const values = [item.source, ...headers.slice(1).map(h => item.row[h] ?? "")];
-
-      tr.innerHTML = values.map(value =>
-        "<td>" + escapeHtml(value) + "</td>"
-      ).join("");
-
-      tbody.appendChild(tr);
-    });
-
-    document.getElementById("resultInfo").textContent =
-      total.toLocaleString() + " record(s) in this view.";
-
-    document.getElementById("pageInfo").textContent =
-      "Page " + currentPage + " of " + pages +
-      " — showing " + (total ? start + 1 : 0) + " to " +
-      Math.min(start + PAGE_SIZE, total) + " of " + total;
+  for (const [id, entries] of fivecIndex.index.entries()) {
+    if (!clientIndex.index.has(id)) {
+      entries.forEach(entry => {
+        fivecMissing.push({
+          Identifier: entry.raw,
+          "5C Row Number": entry.rowNumber,
+          ...entry.row
+        });
+      });
+    }
   }
 
-  function changePage(direction) {
-    currentPage += direction;
-    renderPage();
+  const blanks = [
+    ...clientIndex.blanks.map(entry => ({
+      Source: "Client",
+      "Row Number": entry.rowNumber,
+      ...entry.row
+    })),
+    ...fivecIndex.blanks.map(entry => ({
+      Source: "5C",
+      "Row Number": entry.rowNumber,
+      ...entry.row
+    }))
+  ];
+
+  state.results = {
+    summary: [{
+      Metric: "Client records",
+      Value: clientData.rows.length
+    }, {
+      Metric: "5C records",
+      Value: fivecData.rows.length
+    }, {
+      Metric: "Matched cases",
+      Value: matched.length
+    }, {
+      Metric: "Missing from 5C",
+      Value: clientMissing.length
+    }, {
+      Metric: "Missing from Client",
+      Value: fivecMissing.length
+    }, {
+      Metric: "Duplicate rows",
+      Value: duplicates.length
+    }, {
+      Metric: "Blank identifier rows",
+      Value: blanks.length
+    }, {
+      Metric: "Client identifier column",
+      Value: clientKey
+    }, {
+      Metric: "5C identifier column",
+      Value: fivecKey
+    }],
+    matched,
+    clientMissing,
+    fivecMissing,
+    duplicates,
+    blanks,
+    clientHeaders: clientData.headers,
+    fivecHeaders: fivecData.headers,
+    clientRows: clientData.rows,
+    fivecRows: fivecData.rows
+  };
+
+  $("clientCount").textContent = clientData.rows.length.toLocaleString();
+  $("fivecCount").textContent = fivecData.rows.length.toLocaleString();
+  $("matchedCount").textContent = matched.length.toLocaleString();
+  $("missingCount").textContent =
+    (clientMissing.length + fivecMissing.length).toLocaleString();
+  $("duplicateCount").textContent = duplicates.length.toLocaleString();
+
+  $("results").style.display = "block";
+  state.activeTab = "summary";
+  state.page = 1;
+  $("searchBox").value = "";
+  updateTabs();
+  renderTable();
+
+  $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+
+  showMessage(
+    `Comparison completed. ${matched.length.toLocaleString()} matched rows, ` +
+    `${clientMissing.length.toLocaleString()} missing from 5C, and ` +
+    `${fivecMissing.length.toLocaleString()} missing from the client report.`,
+    ""
+  );
+}
+
+$("compareBtn").addEventListener("click", compareData);
+
+function getTabRows(tab) {
+  if (!state.results) return [];
+  return state.results[tab] || [];
+}
+
+function updateTabs() {
+  document.querySelectorAll(".tab").forEach(button => {
+    button.classList.toggle("active", button.dataset.tab === state.activeTab);
+  });
+}
+
+$("tabs").addEventListener("click", event => {
+  const button = event.target.closest(".tab");
+  if (!button) return;
+
+  state.activeTab = button.dataset.tab;
+  state.page = 1;
+  $("searchBox").value = "";
+  updateTabs();
+  renderTable();
+});
+
+$("searchBox").addEventListener("input", () => {
+  state.page = 1;
+  renderTable();
+});
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function renderTable() {
+  if (!state.results) return;
+
+  const rows = getTabRows(state.activeTab);
+  const query = $("searchBox").value.toLowerCase().trim();
+
+  const filtered = query
+    ? rows.filter(row => Object.values(row).some(value =>
+        String(value ?? "").toLowerCase().includes(query)
+      ))
+    : rows;
+
+  const headers = filtered.length
+    ? Object.keys(filtered[0])
+    : getHeadersForEmptyTab(state.activeTab);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  state.page = Math.min(state.page, totalPages);
+
+  const start = (state.page - 1) * PAGE_SIZE;
+  const visible = filtered.slice(start, start + PAGE_SIZE);
+
+  $("tableHead").innerHTML = headers.length
+    ? `<tr>${headers.map(header => `<th>${escapeHtml(header)}</th>`).join("")}</tr>`
+    : "";
+
+  if (!visible.length) {
+    $("tableBody").innerHTML =
+      `<tr><td class="empty" colspan="${Math.max(headers.length,1)}">No records found in this view.</td></tr>`;
+  } else {
+    $("tableBody").innerHTML = visible.map(row =>
+      `<tr>${headers.map(header =>
+        `<td>${escapeHtml(row[header] ?? "")}</td>`
+      ).join("")}</tr>`
+    ).join("");
   }
 
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
+  $("tableInfo").textContent =
+    `${filtered.length.toLocaleString()} records · ${state.activeTab === "summary" ? "Summary" : "Filtered view"}`;
 
-  function exportExcel() {
-    const workbook = XLSX.utils.book_new();
+  $("pageInfo").textContent =
+    `Page ${state.page} of ${totalPages} · Showing ${visible.length} rows`;
 
-    Object.entries(exportData).forEach(([sheetName, rows]) => {
-      const safeRows = rows.length ? rows : [{ Result: "No records" }];
-      const worksheet = XLSX.utils.json_to_sheet(safeRows);
-      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName.slice(0, 31));
-    });
+  $("prevPage").disabled = state.page <= 1;
+  $("nextPage").disabled = state.page >= totalPages;
+}
 
-    const summary = [
-      { Metric: "Client records", Count: clientData.length },
-      { Metric: "5C records", Count: fiveCData.length },
-      { Metric: "Missing in 5C", Count: results.missing5C.length },
-      { Metric: "Missing in Client", Count: results.missingClient.length },
-      { Metric: "Duplicate IDs in Client", Count: results.duplicatesClient.length },
-      { Metric: "Duplicate IDs in 5C", Count: results.duplicates5C.length },
-      { Metric: "Blank IDs in Client", Count: results.blankClient.length },
-      { Metric: "Blank IDs in 5C", Count: results.blank5C.length }
+function getHeadersForEmptyTab(tab) {
+  const r = state.results;
+  if (!r) return [];
+
+  if (tab === "matched") {
+    return [
+      ...r.clientHeaders.map(header => `Client - ${header}`),
+      ...r.fivecHeaders.map(header => `5C - ${header}`)
     ];
-
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.json_to_sheet(summary),
-      "Summary"
-    );
-
-    XLSX.writeFile(workbook, "Monthly_Reconciliation_Report.xlsx");
   }
 
-  function resetApp() {
-    clientData = [];
-    fiveCData = [];
-    clientHeaders = [];
-    fiveCHeaders = [];
-    results = {};
-    exportData = {};
-    currentPage = 1;
+  if (tab === "clientMissing") return ["Identifier", "Client Row Number", ...r.clientHeaders];
+  if (tab === "fivecMissing") return ["Identifier", "5C Row Number", ...r.fivecHeaders];
+  if (tab === "duplicates") return ["Source", "Identifier", "Row Number", "Duplicate Count"];
+  if (tab === "blanks") return ["Source", "Row Number"];
+  if (tab === "summary") return ["Metric", "Value"];
 
-    document.getElementById("clientFile").value = "";
-    document.getElementById("fiveCFile").value = "";
-    document.getElementById("clientFileInfo").textContent = "No file selected.";
-    document.getElementById("fiveCFileInfo").textContent = "No file selected.";
-    document.getElementById("clientKey").innerHTML = "<option value=''>Upload client file first</option>";
-    document.getElementById("fiveCKey").innerHTML = "<option value=''>Upload 5C file first</option>";
-    document.getElementById("clientKey").disabled = true;
-    document.getElementById("fiveCKey").disabled = true;
-    document.getElementById("resultsArea").classList.add("hidden");
-    document.getElementById("exportBtn").classList.add("hidden");
-    setStatus("Upload both documents to begin.");
+  return [];
+}
+
+$("prevPage").addEventListener("click", () => {
+  if (state.page > 1) {
+    state.page--;
+    renderTable();
   }
+});
+
+$("nextPage").addEventListener("click", () => {
+  state.page++;
+  renderTable();
+});
+
+function downloadWorkbook(sheets, filename) {
+  const workbook = XLSX.utils.book_new();
+
+  Object.entries(sheets).forEach(([name, rows]) => {
+    const safeName = name.slice(0, 31);
+    const worksheet = XLSX.utils.json_to_sheet(rows.length ? rows : [{ Status: "No records" }]);
+    XLSX.utils.book_append_sheet(workbook, worksheet, safeName);
+  });
+
+  XLSX.writeFile(workbook, filename);
+}
+
+$("exportBtn").addEventListener("click", () => {
+  if (!state.results) return;
+
+  const r = state.results;
+  downloadWorkbook({
+    "Summary": r.summary,
+    "Matched Cases": r.matched,
+    "Missing from 5C": r.clientMissing,
+    "Missing from Client": r.fivecMissing,
+    "Duplicates": r.duplicates,
+    "Blank Identifiers": r.blanks,
+    "Client Source Data": r.clientRows,
+    "5C Source Data": r.fivecRows
+  }, "Jayaprdha_Medanta_Reconciliation.xlsx");
+});
+
+$("exportCurrentBtn").addEventListener("click", () => {
+  if (!state.results) return;
+
+  const names = {
+    summary: "Summary",
+    matched: "Matched_Cases",
+    clientMissing: "Missing_from_5C",
+    fivecMissing: "Missing_from_Client",
+    duplicates: "Duplicates",
+    blanks: "Blank_Identifiers"
+  };
+
+  const rows = getTabRows(state.activeTab);
+  const title = names[state.activeTab] || "Results";
+
+  downloadWorkbook({ [title]: rows }, `Jayaprdha_${title}.xlsx`);
+});
+
+function resetApp() {
+  state.client = null;
+  state.fivec = null;
+  state.results = null;
+  state.activeTab = "summary";
+  state.page = 1;
+
+  $("clientFile").value = "";
+  $("fivecFile").value = "";
+  $("clientFileName").textContent = "No file selected";
+  $("fivecFileName").textContent = "No file selected";
+  $("clientStatus").textContent = "Awaiting file";
+  $("fivecStatus").textContent = "Awaiting file";
+  $("clientStatus").classList.remove("ready");
+  $("fivecStatus").classList.remove("ready");
+
+  ["clientSheet","fivecSheet","clientKey","fivecKey"].forEach(id => {
+    $(id).innerHTML = '<option>Upload documents first</option>';
+    $(id).disabled = true;
+  });
+
+  $("compareBtn").disabled = true;
+  $("results").style.display = "none";
+  clearMessage();
+}
+
+$("resetBtn").addEventListener("click", resetApp);
+
+// Drag-and-drop support
+function setupDropZone(zoneId, inputId) {
+  const zone = $(zoneId);
+  const input = $(inputId);
+
+  ["dragenter","dragover"].forEach(type => {
+    zone.addEventListener(type, event => {
+      event.preventDefault();
+      zone.classList.add("dragover");
+    });
+  });
+
+  ["dragleave","drop"].forEach(type => {
+    zone.addEventListener(type, event => {
+      event.preventDefault();
+      zone.classList.remove("dragover");
+    });
+  });
+
+  zone.addEventListener("drop", event => {
+    const file = event.dataTransfer.files[0];
+    if (!file) return;
+
+    // Assign the dropped file to the input where supported.
+    try {
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      input.files = transfer.files;
+    } catch (_) {}
+
+    handleUpload(inputId === "clientFile" ? "client" : "fivec", file);
+  });
+}
+
+setupDropZone("clientDrop", "clientFile");
+setupDropZone("fivecDrop", "fivecFile");
 </script>
 </body>
 </html>
