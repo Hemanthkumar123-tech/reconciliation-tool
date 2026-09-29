@@ -1,4 +1,203 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient ID Comparison Tool</title>
+
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991112.png" type="image/png">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+    min-height:100vh;
+    font-family:Arial,Helvetica,sans-serif;
+    background:
+    radial-gradient(circle at 10% 20%,rgba(99,102,241,.3),transparent 30%),
+    radial-gradient(circle at 90% 10%,rgba(14,165,233,.25),transparent 30%),
+    radial-gradient(circle at 50% 90%,rgba(168,85,247,.25),transparent 35%),
+    linear-gradient(135deg,#0f172a,#1e293b,#111827);
+    color:white;padding:25px
+}
+.container{max-width:1450px;width:100%;margin:auto}
+.header{text-align:center;margin-bottom:25px}
+.header h1{font-size:32px;margin-bottom:8px}
+.header p{color:#cbd5e1;font-size:14px}
+.glass{
+    background:rgba(255,255,255,.09);
+    border:1px solid rgba(255,255,255,.18);
+    backdrop-filter:blur(18px);
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
+    border-radius:18px
+}
+.hospital-card{text-align:center;padding:22px;margin-bottom:22px}
+.hospital-card h2{font-size:22px;margin-bottom:7px}
+.hospital-card span{font-size:13px;color:#cbd5e1}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:22px}
+.upload-card{padding:22px}
+.upload-card h3{margin-bottom:8px}
+.description{font-size:12px;color:#cbd5e1;margin-bottom:15px}
+.drop-zone{
+    min-height:170px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;
+    border:2px dashed rgba(255,255,255,.3);
+    border-radius:16px;background:rgba(255,255,255,.04);
+    cursor:pointer;padding:20px;transition:.2s
+}
+.drop-zone:hover,.drop-zone.dragover{background:rgba(255,255,255,.12);border-color:white}
+.upload-icon{font-size:40px;margin-bottom:10px}
+.drop-zone small{color:#cbd5e1;font-size:11px;margin-top:8px;line-height:1.5}
+input[type=file]{display:none}
+.file-name{margin-top:12px;padding:10px;background:rgba(255,255,255,.07);border-radius:10px;font-size:12px;display:none;word-break:break-word}
+.controls{padding:22px;margin-bottom:22px}
+.controls h3{margin-bottom:16px}
+.controls-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.control-group label{display:block;font-size:12px;color:#cbd5e1;margin-bottom:7px}
+select{
+    width:100%;padding:12px;color:white;background:#243247;
+    border:1px solid rgba(255,255,255,.2);border-radius:10px
+}
+select option{background:#1e293b;color:white}
+select:disabled{opacity:.5}
+.status-card{padding:17px 22px;margin-bottom:22px;display:flex;align-items:center;gap:12px}
+.status-dot{width:11px;height:11px;min-width:11px;border-radius:50%;background:#94a3b8}
+.status-dot.success{background:#22c55e}
+.status-dot.error{background:#ef4444}
+.status-dot.loading{background:#f59e0b}
+#statusText{font-size:13px;color:#e2e8f0}
+.button-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+button{border:1px solid rgba(255,255,255,.2);color:white;padding:12px 20px;border-radius:12px;background:rgba(255,255,255,.1);cursor:pointer;font-weight:600}
+button:hover{background:rgba(255,255,255,.2)}
+button.primary{background:rgba(99,102,241,.55)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:22px}
+.stat-card{padding:20px;text-align:center}
+.stat-card .number{font-size:28px;font-weight:700;margin-bottom:6px}
+.stat-card .label{font-size:12px;color:#cbd5e1}
+.results-card{padding:22px;overflow:hidden}
+.results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.table-container{width:100%;overflow:auto;max-height:550px;border:1px solid rgba(255,255,255,.12);border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:850px}
+th,td{padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-size:12px;white-space:nowrap}
+th{position:sticky;top:0;background:#172338;z-index:2}
+td{color:#e2e8f0}
+tr:hover td{background:rgba(255,255,255,.05)}
+.match{color:#4ade80;font-weight:bold}
+.missing{color:#f87171;font-weight:bold}
+.extra{color:#fbbf24;font-weight:bold}
+.duplicate{color:#facc15;font-weight:bold}
+.empty-results{padding:45px;text-align:center;color:#94a3b8}
+.footer{text-align:center;padding:25px 0 5px;color:#94a3b8;font-size:11px}
+@media(max-width:1000px){
+.controls-grid{grid-template-columns:repeat(2,1fr)}
+.stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:750px){
+body{padding:15px}
+.upload-grid{grid-template-columns:1fr}
+.controls-grid{grid-template-columns:1fr}
+.header h1{font-size:25px}
+}
+@media(max-width:480px){
+.stats-grid{grid-template-columns:1fr 1fr}
+.button-row{flex-direction:column}
+button{width:100%}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+<h1>Patient ID Comparison Tool</h1>
+<p>Compare identifiers across Client and 5C documents</p>
+</div>
+
+<div class="glass hospital-card">
+<h2>Jay Prabha Medanta Super Specialty Hospital, Patna</h2>
+<span>Document Comparison & Patient ID Cross-Check</span>
+</div>
+
+<div class="upload-grid">
+<div class="glass upload-card">
+<h3>Client Document</h3>
+<div class="description">Upload the original Client Excel or CSV file.</div>
+<div class="drop-zone" id="clientDrop">
+<div class="upload-icon">📁</div>
+<strong>Click to select Client file</strong>
+<small>Excel • XLS • XLSX • XLSM • CSV • JSON • TXT • HTML</small>
+<input type="file" id="clientFile" accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.json,.txt,.html,.htm">
+</div>
+<div class="file-name" id="clientFileName"></div>
+</div>
+
+<div class="glass upload-card">
+<h3>5C Document</h3>
+<div class="description">Upload the corresponding 5C Excel or CSV file.</div>
+<div class="drop-zone" id="fivecDrop">
+<div class="upload-icon">📄</div>
+<strong>Click to select 5C file</strong>
+<small>Excel • XLS • XLSX • XLSM • CSV • JSON • TXT • HTML</small>
+<input type="file" id="fivecFile" accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.json,.txt,.html,.htm">
+</div>
+<div class="file-name" id="fivecFileName"></div>
+</div>
+</div>
+
+<div class="glass controls">
+<h3>Document Selection</h3>
+<div class="controls-grid">
+<div class="control-group">
+<label for="clientSheet">Client Worksheet</label>
+<select id="clientSheet" disabled></select>
+</div>
+<div class="control-group">
+<label for="fivecSheet">5C Worksheet</label>
+<select id="fivecSheet" disabled></select>
+</div>
+<div class="control-group">
+<label for="clientKey">Client Patient ID Column</label>
+<select id="clientKey" disabled></select>
+</div>
+<div class="control-group">
+<label for="fivecKey">5C Patient ID Column</label>
+<select id="fivecKey" disabled></select>
+</div>
+</div>
+</div>
+
+<div class="glass status-card">
+<div class="status-dot" id="statusDot"></div>
+<div id="statusText">Please select both documents.</div>
+</div>
+
+<div class="button-row">
+<button class="primary" id="compareBtn" disabled>🔍 Compare Documents</button>
+<button id="exportBtn" disabled>📊 Export Results</button>
+<button id="resetBtn">🔄 Reset</button>
+</div>
+
+<div class="stats-grid">
+<div class="glass stat-card"><div class="number" id="clientCount">0</div><div class="label">Client Unique IDs</div></div>
+<div class="glass stat-card"><div class="number" id="fivecCount">0</div><div class="label">5C Unique IDs</div></div>
+<div class="glass stat-card"><div class="number" id="matchCount">0</div><div class="label">Matching IDs</div></div>
+<div class="glass stat-card"><div class="number" id="missingCount">0</div><div class="label">Missing in 5C</div></div>
+</div>
+
+<div class="glass results-card">
+<div class="results-header"><h3>Comparison Results</h3></div>
+<div class="table-container" id="tableContainer">
+<div class="empty-results">Select documents and click Compare Documents.</div>
+</div>
+</div>
+
+<div class="footer">Patient ID Document Comparison Tool</div>
+</div>
+
 <script>
 "use strict";
 
@@ -53,7 +252,7 @@ function detectHeaderRow(matrix) {
         const values = (matrix[i] || []).map(normalizeHeader);
         const nonEmpty = values.filter(Boolean).length;
 
-        if (nonEmpty === 0) continue;
+        if (!nonEmpty) continue;
 
         const knownMatches = values.reduce((total, value) =>
             total + (known.some(key =>
@@ -61,9 +260,7 @@ function detectHeaderRow(matrix) {
             ) ? 1 : 0), 0
         );
 
-        const score =
-            knownMatches * 10 +
-            Math.min(nonEmpty, 20) * 0.1;
+        const score = knownMatches * 10 + Math.min(nonEmpty, 20) * 0.1;
 
         if (score > bestScore) {
             bestScore = score;
@@ -105,7 +302,7 @@ async function parseFile(file) {
 
     if (["xlsx", "xls", "xlsm", "xlsb", "csv"].includes(ext)) {
         if (!window.XLSX) {
-            throw new Error("Excel library is unavailable.");
+            throw new Error("Excel library could not be loaded. Check your internet connection and refresh the page.");
         }
 
         const buffer = await file.arrayBuffer();
@@ -149,11 +346,7 @@ async function parseFile(file) {
 
         return {
             fileName: file.name,
-            sheets: [{
-                name: "JSON Data",
-                headers,
-                rows
-            }]
+            sheets: [{ name: "JSON Data", headers, rows }]
         };
     }
 
@@ -213,25 +406,17 @@ async function parseFile(file) {
 
     if (ext === "pdf") {
         throw new Error(
-            "PDF files are not supported by this version. " +
-            "Please convert the PDF to Excel or CSV before uploading. " +
-            "Scanned PDFs require OCR."
+            "PDF upload is not supported in this version. Convert the PDF to Excel or CSV first. Scanned PDFs require OCR."
         );
     }
 
-    throw new Error(
-        "Unsupported file type. Use Excel, CSV, JSON, TXT, or HTML."
-    );
+    throw new Error("Unsupported file type. Use Excel, CSV, JSON, TXT, or HTML.");
 }
 
 function suggestKey(headers) {
     const exact = [
-        "PATIENTID",
-        "PATIENTIDENTIFIER",
-        "PATIENTIDNO",
-        "UHID",
-        "MRN",
-        "MEDICALRECORDNUMBER"
+        "PATIENTID", "PATIENTIDENTIFIER", "PATIENTIDNO",
+        "UHID", "MRN", "MEDICALRECORDNUMBER"
     ];
 
     let index = headers.findIndex(h =>
@@ -242,9 +427,7 @@ function suggestKey(headers) {
 
     return headers.findIndex(h => {
         const n = normalizeHeader(h);
-        return n.includes("PATIENTID") ||
-            n === "UHID" ||
-            n === "MRN";
+        return n.includes("PATIENTID") || n === "UHID" || n === "MRN";
     });
 }
 
@@ -291,7 +474,6 @@ function populateSide(side) {
 
 function activeSheet(side) {
     const data = state[side];
-
     if (!data) return null;
 
     return data.sheets.find(s =>
@@ -355,10 +537,7 @@ async function handleUpload(side, file) {
         $("tableContainer").innerHTML =
             '<div class="empty-results">Select documents and click Compare Documents.</div>';
 
-        setStatus(
-            side.toUpperCase() + " file loaded: " + file.name,
-            "success"
-        );
+        setStatus(side.toUpperCase() + " file loaded: " + file.name, "success");
 
     } catch (error) {
         console.error(error);
@@ -371,10 +550,7 @@ async function handleUpload(side, file) {
 
         populateSide(side);
 
-        setStatus(
-            "Unable to read file: " + error.message,
-            "error"
-        );
+        setStatus("Unable to read file: " + error.message, "error");
     }
 }
 
@@ -462,35 +638,20 @@ function compareDocuments() {
     let fivecBlank = 0;
 
     clientSheet.rows.forEach(row => {
-        if (!normalizeId(row[clientKey])) {
-            clientBlank++;
-        }
+        if (!normalizeId(row[clientKey])) clientBlank++;
     });
 
     fivecSheet.rows.forEach(row => {
-        if (!normalizeId(row[fivecKey])) {
-            fivecBlank++;
-        }
+        if (!normalizeId(row[fivecKey])) fivecBlank++;
     });
 
     for (const id of allIds) {
         const cRows = clientMap.get(id) || [];
         const fRows = fivecMap.get(id) || [];
 
-        const commonCount = Math.min(
-            cRows.length,
-            fRows.length
-        );
-
-        const clientExcess = Math.max(
-            0,
-            cRows.length - fRows.length
-        );
-
-        const fivecExcess = Math.max(
-            0,
-            fRows.length - cRows.length
-        );
+        const commonCount = Math.min(cRows.length, fRows.length);
+        const clientExcess = Math.max(0, cRows.length - fRows.length);
+        const fivecExcess = Math.max(0, fRows.length - cRows.length);
 
         let status;
 
@@ -527,13 +688,9 @@ function compareDocuments() {
                 "Missing Occurrences": clientExcess,
                 "Client Occurrences": cRows.length,
                 "5C Occurrences": fRows.length,
-                "Client Excess Source Rows": cRows
-                    .slice(fRows.length)
-                    .map(r => r.__sourceRow)
-                    .join(", "),
-                "5C Source Rows": fRows
-                    .map(r => r.__sourceRow)
-                    .join(", ")
+                "Client Excess Source Rows": cRows.slice(fRows.length)
+                    .map(r => r.__sourceRow).join(", "),
+                "5C Source Rows": fRows.map(r => r.__sourceRow).join(", ")
             });
         }
 
@@ -544,13 +701,9 @@ function compareDocuments() {
                 "Extra Occurrences": fivecExcess,
                 "Client Occurrences": cRows.length,
                 "5C Occurrences": fRows.length,
-                "Client Source Rows": cRows
-                    .map(r => r.__sourceRow)
-                    .join(", "),
-                "5C Excess Source Rows": fRows
-                    .slice(cRows.length)
-                    .map(r => r.__sourceRow)
-                    .join(", ")
+                "Client Source Rows": cRows.map(r => r.__sourceRow).join(", "),
+                "5C Excess Source Rows": fRows.slice(cRows.length)
+                    .map(r => r.__sourceRow).join(", ")
             });
         }
 
@@ -561,12 +714,8 @@ function compareDocuments() {
                 "5C Occurrences": fRows.length,
                 "Client Duplicate": cRows.length > 1 ? "Yes" : "No",
                 "5C Duplicate": fRows.length > 1 ? "Yes" : "No",
-                "Client Source Rows": cRows
-                    .map(r => r.__sourceRow)
-                    .join(", "),
-                "5C Source Rows": fRows
-                    .map(r => r.__sourceRow)
-                    .join(", ")
+                "Client Source Rows": cRows.map(r => r.__sourceRow).join(", "),
+                "5C Source Rows": fRows.map(r => r.__sourceRow).join(", ")
             });
         }
 
@@ -604,6 +753,7 @@ function compareDocuments() {
     missing.sort(sortById);
     onlyFivec.sort(sortById);
     duplicates.sort(sortById);
+
     occurrenceDetails.sort((a, b) =>
         a["Patient ID"].localeCompare(b["Patient ID"]) ||
         a["Occurrence Number"] - b["Occurrence Number"]
@@ -662,31 +812,19 @@ function compareDocuments() {
         "Client Total Duplicate Occurrences": clientDuplicateOccurrences,
         "5C Total Duplicate Occurrences": fivecDuplicateOccurrences,
         "Client Reconciliation Check":
-            clientSheet.rows.length ===
-            matchedOccurrences + missingOccurrences + clientBlank
-                ? "PASS"
-                : "CHECK",
+            clientSheet.rows.length === matchedOccurrences + missingOccurrences + clientBlank
+                ? "PASS" : "CHECK",
         "5C Reconciliation Check":
-            fivecSheet.rows.length ===
-            matchedOccurrences + onlyFivecOccurrences + fivecBlank
-                ? "PASS"
-                : "CHECK"
+            fivecSheet.rows.length === matchedOccurrences + onlyFivecOccurrences + fivecBlank
+                ? "PASS" : "CHECK"
     };
 
-    $("clientCount").textContent =
-        clientUnique.toLocaleString();
-
-    $("fivecCount").textContent =
-        fivecUnique.toLocaleString();
-
-    $("matchCount").textContent =
-        matchingUnique.toLocaleString();
-
-    $("missingCount").textContent =
-        missingOccurrences.toLocaleString();
+    $("clientCount").textContent = clientUnique.toLocaleString();
+    $("fivecCount").textContent = fivecUnique.toLocaleString();
+    $("matchCount").textContent = matchingUnique.toLocaleString();
+    $("missingCount").textContent = missingOccurrences.toLocaleString();
 
     renderResults(results);
-
     $("exportBtn").disabled = false;
 
     setStatus(
@@ -775,10 +913,12 @@ function renderResults(rows) {
 
 function exportResults() {
     if (!state.results || !state.summary) {
-        setStatus(
-            "Please compare documents before exporting.",
-            "error"
-        );
+        setStatus("Please compare documents before exporting.", "error");
+        return;
+    }
+
+    if (!window.XLSX) {
+        setStatus("Excel export library is unavailable. Check your internet connection.", "error");
         return;
     }
 
@@ -818,10 +958,7 @@ function exportResults() {
         "Patient_ID_Comparison_" + stamp + ".xlsx"
     );
 
-    setStatus(
-        "Comparison workbook exported successfully.",
-        "success"
-    );
+    setStatus("Comparison workbook exported successfully.", "success");
 }
 
 function resetAll() {
@@ -843,8 +980,7 @@ function resetAll() {
         "fivecKey"
     ].forEach(id => {
         const select = $(id);
-        select.innerHTML =
-            '<option value="">Upload file first</option>';
+        select.innerHTML = '<option value="">Upload file first</option>';
         select.disabled = true;
     });
 
@@ -875,3 +1011,6 @@ $("resetBtn").addEventListener("click", resetAll);
 
 resetAll();
 </script>
+
+</body>
+</html>
