@@ -135,18 +135,28 @@ tbody tr:hover{background:rgba(255,255,255,.045)}
   <div class="stats">
     <div class="stat blue"><div class="stat-label">Client Records</div><div class="stat-value" id="clientCount">0</div><div class="stat-note">Uploaded client rows</div></div>
     <div class="stat blue"><div class="stat-label">5C Records</div><div class="stat-value" id="fivecCount">0</div><div class="stat-note">Uploaded 5C rows</div></div>
-    <div class="stat green"><div class="stat-label">Matched Cases</div><div class="stat-value" id="matchedCount">0</div><div class="stat-note">Paired one-to-one</div></div>
-    <div class="stat red"><div class="stat-label">Missing Cases</div><div class="stat-value" id="missingCount">0</div><div class="stat-note">Across both reports</div></div>
-    <div class="stat yellow"><div class="stat-label">Duplicate Rows</div><div class="stat-value" id="duplicateCount">0</div><div class="stat-note">Rows sharing a key</div></div>
+    <div class="stat green"><div class="stat-label">Matched Cases</div><div class="stat-value" id="matchedCount">0</div><div class="stat-note">Paired one-to-one (counts once per side)</div></div>
+    <div class="stat red"><div class="stat-label">Missing from 5C</div><div class="stat-value" id="clientMissingCount">0</div><div class="stat-note">Client rows with no 5C pair</div></div>
+    <div class="stat red"><div class="stat-label">Missing from Client</div><div class="stat-value" id="fivecMissingCount">0</div><div class="stat-note">5C rows with no client pair</div></div>
+    <div class="stat yellow"><div class="stat-label">Not Compared</div><div class="stat-value" id="blankCount">0</div><div class="stat-note">Blank identifier, excluded from matching</div></div>
+    <div class="stat yellow"><div class="stat-label">Duplicate Rows</div><div class="stat-value" id="duplicateCount">0</div><div class="stat-note">Informational — rows sharing a key. Already included in Matched/Missing above, not an extra bucket.</div></div>
   </div>
 
-  <div class="tabs" id="tabs">
-    <button class="tab active" data-tab="summary">Summary</button>
-    <button class="tab" data-tab="matched">Matched Cases</button>
-    <button class="tab" data-tab="clientMissing">Missing from 5C</button>
-    <button class="tab" data-tab="fivecMissing">Missing from Client</button>
-    <button class="tab" data-tab="duplicates">Duplicates</button>
-    <button class="tab" data-tab="blanks">Blank Identifiers</button>
+  <div id="balanceCheck" class="hint" style="margin-top:0 0 18px;padding:14px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)"></div>
+
+  <div class="table-toolbar" style="margin-bottom:6px">
+    <div class="field" style="max-width:320px;width:100%">
+      <label for="tabSelect" style="margin-bottom:4px">View</label>
+      <select id="tabSelect">
+        <option value="summary">Summary</option>
+        <option value="all">All Records (every row, tagged by category)</option>
+        <option value="matched">Matched Cases</option>
+        <option value="clientMissing">Missing from 5C</option>
+        <option value="fivecMissing">Missing from Client</option>
+        <option value="duplicates">Duplicates (informational)</option>
+        <option value="blanks">Not Compared (Blank Identifiers)</option>
+      </select>
+    </div>
   </div>
 
   <div class="table-toolbar">
@@ -573,14 +583,33 @@ function compareData(){
   const cKeys=[...ci.index.keys()],fKeys=[...fi.index.keys()];
   const common=cKeys.filter(k=>fi.index.has(k)).length;
 
+  // "All Records" view: every row from every bucket, tagged so nothing is hidden
+  // and so the person can filter/search across everything at once.
+  const all=[
+    ...matched.map(r=>({Category:"Matched",...r})),
+    ...clientMissing.map(r=>({Category:"Missing from 5C",...r})),
+    ...fivecMissing.map(r=>({Category:"Missing from Client",...r})),
+    ...blanks.map(r=>({Category:"Not Compared (Blank ID)",...r}))
+  ];
+
+  // Reconciliation check: every client row and every 5C row is in EXACTLY one
+  // bucket — matched (once per side), missing (unpaired), or blank (no ID).
+  // So Client+5C total must equal Matched×2 + Missing(both) + Blanks(both).
+  const totalBoth=cd.rows.length+fd.rows.length;
+  const accounted=matched.length*2+clientMissing.length+fivecMissing.length+blanks.length;
+  const diff=totalBoth-accounted;
+
   const summary=[
     {Metric:"Client records",Value:cd.rows.length},
     {Metric:"5C records",Value:fd.rows.length},
+    {Metric:"Total rows (both files)",Value:totalBoth},
     {Metric:"Matched cases (one-to-one)",Value:matched.length},
     {Metric:"Missing from 5C",Value:clientMissing.length},
     {Metric:"Missing from Client",Value:fivecMissing.length},
-    {Metric:"Duplicate rows (same key)",Value:duplicates.length},
-    {Metric:"Blank identifier rows",Value:blanks.length},
+    {Metric:"Not compared (blank identifier)",Value:blanks.length},
+    {Metric:"Accounted rows (Matched×2 + Missing + Blanks)",Value:accounted},
+    {Metric:"Difference (should be 0)",Value:diff},
+    {Metric:"Duplicate rows — informational only, already included above",Value:duplicates.length},
     {Metric:"Unique client keys",Value:cKeys.length},
     {Metric:"Unique 5C keys",Value:fKeys.length},
     {Metric:"Keys found in both",Value:common},
@@ -588,18 +617,31 @@ function compareData(){
     {Metric:"5C identifier column",Value:fk+(fe?` + ${fe}`:"")}
   ];
 
-  state.results={summary,matched,clientMissing,fivecMissing,duplicates,blanks,
+  state.results={summary,all,matched,clientMissing,fivecMissing,duplicates,blanks,
     clientHeaders:cd.headers,fivecHeaders:fd.headers,clientRows:cd.rows,fivecRows:fd.rows};
 
   $("clientCount").textContent=cd.rows.length.toLocaleString();
   $("fivecCount").textContent=fd.rows.length.toLocaleString();
   $("matchedCount").textContent=matched.length.toLocaleString();
-  $("missingCount").textContent=(clientMissing.length+fivecMissing.length).toLocaleString();
+  $("clientMissingCount").textContent=clientMissing.length.toLocaleString();
+  $("fivecMissingCount").textContent=fivecMissing.length.toLocaleString();
+  $("blankCount").textContent=blanks.length.toLocaleString();
   $("duplicateCount").textContent=duplicates.length.toLocaleString();
 
+  $("balanceCheck").innerHTML=
+    `<b>Balance check:</b> Client (${cd.rows.length.toLocaleString()}) + 5C (${fd.rows.length.toLocaleString()}) = `+
+    `<b>${totalBoth.toLocaleString()}</b> total rows. `+
+    `Matched×2 (${(matched.length*2).toLocaleString()}) + Missing from 5C (${clientMissing.length.toLocaleString()}) + `+
+    `Missing from Client (${fivecMissing.length.toLocaleString()}) + Not compared (${blanks.length.toLocaleString()}) = `+
+    `<b>${accounted.toLocaleString()}</b> accounted rows. `+
+    (diff===0
+      ? `<span style="color:var(--green)">Difference: 0 — every row is accounted for.</span>`
+      : `<span style="color:var(--red)">Difference: ${diff.toLocaleString()} — some rows are not accounted for; this points to a bug, please report it.</span>`)+
+    `<br>Duplicate Rows (${duplicates.length.toLocaleString()}) is a separate, informational count of rows that share a key with another row on the same side — those rows are already counted in Matched or Missing above, so do not add Duplicates into the balance check.`;
+
   $("results").style.display="block";
-  state.activeTab="summary";state.page=1;$("searchBox").value="";
-  updateTabs();renderTable();
+  state.activeTab="summary";state.page=1;$("searchBox").value="";$("tabSelect").value="summary";
+  renderTable();
   $("results").scrollIntoView({behavior:"smooth",block:"start"});
 
   const sampleC=cKeys.slice(0,3).join(", "),sampleF=fKeys.slice(0,3).join(", ");
@@ -609,11 +651,9 @@ function compareData(){
 $("compareBtn").addEventListener("click",compareData);
 
 function getTabRows(tab){return state.results?state.results[tab]||[]:[];}
-function updateTabs(){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===state.activeTab));}
-$("tabs").addEventListener("click",e=>{
-  const b=e.target.closest(".tab");if(!b)return;
-  state.activeTab=b.dataset.tab;state.page=1;$("searchBox").value="";
-  updateTabs();renderTable();
+$("tabSelect").addEventListener("change",()=>{
+  state.activeTab=$("tabSelect").value;state.page=1;$("searchBox").value="";
+  renderTable();
 });
 $("searchBox").addEventListener("input",()=>{state.page=1;renderTable();});
 
@@ -628,6 +668,7 @@ function emptyHeaders(tab){
   if(tab==="fivecMissing")return["Identifier","5C Row Number","Reason",...r.fivecHeaders];
   if(tab==="duplicates")return["Source","Identifier","Row Number","Rows With Same Key"];
   if(tab==="blanks")return["Source","Row Number"];
+  if(tab==="all")return["Category"];
   return["Metric","Value"];
 }
 
@@ -667,15 +708,15 @@ $("exportBtn").addEventListener("click",()=>{
   if(!state.results)return;
   const r=state.results;
   downloadWorkbook({
-    "Summary":r.summary,"Matched Cases":r.matched,"Missing from 5C":r.clientMissing,
-    "Missing from Client":r.fivecMissing,"Duplicates":r.duplicates,"Blank Identifiers":r.blanks,
+    "Summary":r.summary,"All Records":r.all,"Matched Cases":r.matched,"Missing from 5C":r.clientMissing,
+    "Missing from Client":r.fivecMissing,"Duplicates (info)":r.duplicates,"Not Compared":r.blanks,
     "Client Source Data":r.clientRows,"5C Source Data":r.fivecRows
   },"Jay_Prabha_Medanta_Patna_Reconciliation.xlsx");
 });
 
 $("exportCurrentBtn").addEventListener("click",()=>{
   if(!state.results)return;
-  const names={summary:"Summary",matched:"Matched_Cases",clientMissing:"Missing_from_5C",fivecMissing:"Missing_from_Client",duplicates:"Duplicates",blanks:"Blank_Identifiers"};
+  const names={summary:"Summary",all:"All_Records",matched:"Matched_Cases",clientMissing:"Missing_from_5C",fivecMissing:"Missing_from_Client",duplicates:"Duplicates",blanks:"Not_Compared"};
   const title=names[state.activeTab]||"Results";
   downloadWorkbook({[title]:getTabRows(state.activeTab)},`Jay_Prabha_Medanta_Patna_${title}.xlsx`);
 });
@@ -696,6 +737,9 @@ function resetApp(){
   $("results").style.display="none";
   $("preview").style.display="none";$("preview").innerHTML="";
   $("message").style.display="none";
+  $("balanceCheck").innerHTML="";
+  $("tabSelect").value="summary";
+  ["clientCount","fivecCount","matchedCount","clientMissingCount","fivecMissingCount","blankCount","duplicateCount"].forEach(id=>{$(id).textContent="0";});
 }
 $("resetBtn").addEventListener("click",resetApp);
 
