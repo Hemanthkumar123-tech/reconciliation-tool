@@ -6,7 +6,7 @@
 
 <title>Jay Prabha Medanta Patna | Patient Reconciliation</title>
 
-<link rel="icon"
+<link rel="icon" type="image/svg+xml"
 href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232563eb'/%3E%3Cpath d='M42 18h16v24h24v16H58v24H42V58H18V42h24z' fill='white'/%3E%3C/svg%3E">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -14,522 +14,526 @@ href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 
 <style>
+
 :root{
-    --bg1:#0b1024;
-    --bg2:#172554;
-    --glass:rgba(255,255,255,.085);
-    --border:rgba(255,255,255,.16);
-    --text:#f8fafc;
-    --muted:#aab8d0;
-    --blue:#60a5fa;
-    --cyan:#67e8f9;
-    --green:#86efac;
-    --red:#fca5a5;
-    --yellow:#fde68a
+--bg1:#0b1024;
+--bg2:#172554;
+--glass:rgba(255,255,255,.085);
+--border:rgba(255,255,255,.16);
+--text:#f8fafc;
+--muted:#aab8d0;
+--blue:#60a5fa;
+--cyan:#67e8f9;
+--green:#86efac;
+--red:#fca5a5;
+--yellow:#fde68a
 }
 
 *{
-    box-sizing:border-box
+box-sizing:border-box
 }
 
 body{
-    margin:0;
-    min-height:100vh;
-    padding:28px 18px 50px;
-    color:var(--text);
-    font-family:Inter,"Segoe UI",Arial,sans-serif;
-    background:
-        radial-gradient(circle at 10% 10%,rgba(59,130,246,.25),transparent 32%),
-        radial-gradient(circle at 90% 15%,rgba(139,92,246,.22),transparent 30%),
-        linear-gradient(135deg,var(--bg1),var(--bg2));
-    background-attachment:fixed
+margin:0;
+min-height:100vh;
+padding:28px 18px 50px;
+color:var(--text);
+font-family:Inter,"Segoe UI",Arial,sans-serif;
+background:
+radial-gradient(circle at 10% 10%,rgba(59,130,246,.25),transparent 32%),
+radial-gradient(circle at 90% 15%,rgba(139,92,246,.22),transparent 30%),
+linear-gradient(135deg,var(--bg1),var(--bg2));
+background-attachment:fixed
 }
 
 .container{
-    max-width:1500px;
-    margin:auto
+max-width:1500px;
+margin:auto
 }
 
 .glass{
-    background:var(--glass);
-    border:1px solid var(--border);
-    border-radius:22px;
-    box-shadow:0 18px 55px rgba(0,0,0,.22);
-    backdrop-filter:blur(20px)
+background:var(--glass);
+border:1px solid var(--border);
+border-radius:22px;
+box-shadow:0 18px 55px rgba(0,0,0,.22);
+backdrop-filter:blur(20px)
 }
 
 header{
-    text-align:center;
-    padding:32px 20px 28px;
-    margin-bottom:22px
+text-align:center;
+padding:32px 20px 28px;
+margin-bottom:22px
 }
 
 .eyebrow{
-    display:inline-block;
-    padding:8px 14px;
-    border-radius:30px;
-    border:1px solid rgba(103,232,249,.3);
-    background:rgba(103,232,249,.09);
-    color:var(--cyan);
-    font-size:11px;
-    font-weight:800;
-    letter-spacing:1.6px
+display:inline-block;
+padding:8px 14px;
+border-radius:30px;
+border:1px solid rgba(103,232,249,.3);
+background:rgba(103,232,249,.09);
+color:var(--cyan);
+font-size:11px;
+font-weight:800;
+letter-spacing:1.6px
 }
 
 h1{
-    font-size:clamp(28px,5vw,46px);
-    margin:16px 0 8px;
-    background:linear-gradient(90deg,#fff,#bfdbfe,#a5f3fc);
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent
+font-size:clamp(28px,5vw,46px);
+margin:16px 0 8px;
+background:linear-gradient(90deg,#fff,#bfdbfe,#a5f3fc);
+-webkit-background-clip:text;
+background-clip:text;
+color:transparent
 }
 
 .subtitle{
-    color:var(--muted);
-    margin:0;
-    font-size:14px
+color:var(--muted);
+margin:0;
+font-size:14px
 }
 
 .section{
-    padding:22px;
-    margin-bottom:20px
+padding:22px;
+margin-bottom:20px
 }
 
 .section-title{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-size:17px;
-    font-weight:750;
-    margin:0 0 18px
+display:flex;
+align-items:center;
+gap:10px;
+font-size:17px;
+font-weight:750;
+margin:0 0 18px
 }
 
 .section-title .icon{
-    width:34px;
-    height:34px;
-    display:grid;
-    place-items:center;
-    border-radius:11px;
-    background:rgba(96,165,250,.14);
-    color:#93c5fd
+width:34px;
+height:34px;
+display:grid;
+place-items:center;
+border-radius:11px;
+background:rgba(96,165,250,.14);
+color:#93c5fd
 }
 
 .upload-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:16px
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:16px
 }
 
 .upload-card{
-    min-height:215px;
-    padding:20px;
-    border-radius:18px;
-    border:1px dashed rgba(255,255,255,.27);
-    background:rgba(255,255,255,.045);
-    transition:.2s;
-    display:flex;
-    flex-direction:column
+min-height:215px;
+padding:20px;
+border-radius:18px;
+border:1px dashed rgba(255,255,255,.27);
+background:rgba(255,255,255,.045);
+transition:.2s;
+display:flex;
+flex-direction:column
 }
 
 .upload-card:hover,
 .upload-card.dragover{
-    border-color:var(--cyan);
-    background:rgba(103,232,249,.07);
-    transform:translateY(-2px)
+border-color:var(--cyan);
+background:rgba(103,232,249,.07);
+transform:translateY(-2px)
 }
 
 .upload-top{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px
 }
 
 .upload-icon{
-    width:45px;
-    height:45px;
-    border-radius:14px;
-    display:grid;
-    place-items:center;
-    background:rgba(96,165,250,.15);
-    color:#93c5fd;
-    font-size:22px
+width:45px;
+height:45px;
+border-radius:14px;
+display:grid;
+place-items:center;
+background:rgba(96,165,250,.15);
+color:#93c5fd;
+font-size:22px
 }
 
 .pill{
-    border-radius:30px;
-    padding:6px 10px;
-    font-size:11px;
-    font-weight:700;
-    background:rgba(255,255,255,.09);
-    color:var(--muted)
+border-radius:30px;
+padding:6px 10px;
+font-size:11px;
+font-weight:700;
+background:rgba(255,255,255,.09);
+color:var(--muted)
 }
 
 .pill.ready{
-    background:rgba(134,239,172,.12);
-    color:var(--green)
+background:rgba(134,239,172,.12);
+color:var(--green)
 }
 
 .upload-card h3{
-    margin:16px 0 5px;
-    font-size:16px
+margin:16px 0 5px;
+font-size:16px
 }
 
 .upload-card p{
-    margin:0 0 15px;
-    color:var(--muted);
-    font-size:13px;
-    line-height:1.5
+margin:0 0 15px;
+color:var(--muted);
+font-size:13px;
+line-height:1.5
 }
 
 .file-name{
-    color:var(--green);
-    font-size:12px;
-    margin-top:10px;
-    overflow-wrap:anywhere
+color:var(--green);
+font-size:12px;
+margin-top:10px;
+overflow-wrap:anywhere
 }
 
 input[type=file]{
-    display:none
+display:none
 }
 
 .file-btn{
-    display:inline-flex;
-    justify-content:center;
-    align-items:center;
-    gap:8px;
-    padding:11px 15px;
-    width:fit-content;
-    border-radius:11px;
-    background:rgba(96,165,250,.17);
-    color:#bfdbfe;
-    border:1px solid rgba(96,165,250,.3);
-    cursor:pointer;
-    font-size:13px;
-    font-weight:700
+display:inline-flex;
+justify-content:center;
+align-items:center;
+gap:8px;
+padding:11px 15px;
+width:fit-content;
+border-radius:11px;
+background:rgba(96,165,250,.17);
+color:#bfdbfe;
+border:1px solid rgba(96,165,250,.3);
+cursor:pointer;
+font-size:13px;
+font-weight:700
 }
 
 .file-btn:hover{
-    background:rgba(96,165,250,.28)
+background:rgba(96,165,250,.28)
 }
 
 .options{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:16px;
-    margin-top:18px
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+margin-top:18px
 }
 
 .field label{
-    display:block;
-    color:#dbeafe;
-    font-size:13px;
-    font-weight:700;
-    margin-bottom:8px
+display:block;
+color:#dbeafe;
+font-size:13px;
+font-weight:700;
+margin-bottom:8px
 }
 
 select,
 input[type=text]{
-    width:100%;
-    border:1px solid rgba(255,255,255,.17);
-    border-radius:12px;
-    background:#172554;
-    color:#f8fafc;
-    padding:13px 14px;
-    outline:none;
-    font-size:14px
+width:100%;
+border:1px solid rgba(255,255,255,.17);
+border-radius:12px;
+background:#172554;
+color:#f8fafc;
+padding:13px 14px;
+outline:none;
+font-size:14px
 }
 
 select:disabled{
-    opacity:.65;
-    cursor:not-allowed
+opacity:.65;
+cursor:not-allowed
 }
 
 select:focus,
 input:focus{
-    border-color:var(--cyan);
-    box-shadow:0 0 0 3px rgba(103,232,249,.1)
+border-color:var(--cyan);
+box-shadow:0 0 0 3px rgba(103,232,249,.1)
 }
 
 select option{
-    background:#172554;
-    color:white
+background:#172554;
+color:white
 }
 
 .action-row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-    align-items:center;
-    margin-top:20px
+display:flex;
+flex-wrap:wrap;
+gap:12px;
+align-items:center;
+margin-top:20px
 }
 
 button{
-    border:0;
-    border-radius:12px;
-    padding:13px 19px;
-    color:white;
-    font-weight:750;
-    font-size:13px;
-    cursor:pointer;
-    transition:transform .15s,opacity .15s
+border:0;
+border-radius:12px;
+padding:13px 19px;
+color:white;
+font-weight:750;
+font-size:13px;
+cursor:pointer;
+transition:transform .15s,opacity .15s
 }
 
 button:hover{
-    transform:translateY(-1px)
+transform:translateY(-1px)
 }
 
 button:disabled{
-    opacity:.4;
-    cursor:not-allowed;
-    transform:none
+opacity:.4;
+cursor:not-allowed;
+transform:none
 }
 
 .primary{
-    background:linear-gradient(110deg,#2563eb,#0891b2);
-    box-shadow:0 8px 24px rgba(37,99,235,.22)
+background:linear-gradient(110deg,#2563eb,#0891b2);
+box-shadow:0 8px 24px rgba(37,99,235,.22)
 }
 
 .secondary{
-    background:rgba(255,255,255,.11);
-    border:1px solid rgba(255,255,255,.15)
+background:rgba(255,255,255,.11);
+border:1px solid rgba(255,255,255,.15)
 }
 
 .success{
-    background:linear-gradient(110deg,#047857,#059669)
+background:linear-gradient(110deg,#047857,#059669)
 }
 
 .hint{
-    color:var(--muted);
-    font-size:12px;
-    line-height:1.6;
-    margin:14px 0 0
+color:var(--muted);
+font-size:12px;
+line-height:1.6;
+margin:14px 0 0
 }
 
 #message{
-    display:none;
-    margin-top:16px;
-    border-radius:12px;
-    padding:12px 14px;
-    font-size:13px;
-    line-height:1.5;
-    background:rgba(96,165,250,.12);
-    border:1px solid rgba(96,165,250,.25);
-    color:#dbeafe
+display:none;
+margin-top:16px;
+border-radius:12px;
+padding:12px 14px;
+font-size:13px;
+line-height:1.5;
+background:rgba(96,165,250,.12);
+border:1px solid rgba(96,165,250,.25);
+color:#dbeafe
 }
 
 #message.error{
-    background:rgba(239,68,68,.12);
-    border-color:rgba(239,68,68,.3);
-    color:#fecaca
+background:rgba(239,68,68,.12);
+border-color:rgba(239,68,68,.3);
+color:#fecaca
 }
 
 #message.warning{
-    background:rgba(234,179,8,.1);
-    border-color:rgba(234,179,8,.25);
-    color:#fef08a
+background:rgba(234,179,8,.1);
+border-color:rgba(234,179,8,.25);
+color:#fef08a
 }
 
 #results{
-    display:none
+display:none
 }
 
 .stats{
-    display:grid;
-    grid-template-columns:repeat(5,minmax(0,1fr));
-    gap:12px;
-    margin-bottom:18px
+display:grid;
+grid-template-columns:repeat(5,minmax(0,1fr));
+gap:12px;
+margin-bottom:18px
 }
 
 .stat{
-    padding:17px;
-    border-radius:16px;
-    background:rgba(255,255,255,.07);
-    border:1px solid rgba(255,255,255,.12);
-    min-width:0
+padding:17px;
+border-radius:16px;
+background:rgba(255,255,255,.07);
+border:1px solid rgba(255,255,255,.12);
+min-width:0
 }
 
 .stat-label{
-    color:var(--muted);
-    font-size:12px;
-    margin-bottom:9px
+color:var(--muted);
+font-size:12px;
+margin-bottom:9px
 }
 
 .stat-value{
-    font-size:clamp(22px,3vw,30px);
-    font-weight:800
+font-size:clamp(22px,3vw,30px);
+font-weight:800
 }
 
 .stat-note{
-    color:var(--muted);
-    font-size:11px;
-    margin-top:5px
+color:var(--muted);
+font-size:11px;
+margin-top:5px
 }
 
 .stat.blue .stat-value{
-    color:#93c5fd
+color:#93c5fd
 }
 
 .stat.green .stat-value{
-    color:var(--green)
+color:var(--green)
 }
 
 .stat.red .stat-value{
-    color:var(--red)
+color:var(--red)
 }
 
 .stat.yellow .stat-value{
-    color:var(--yellow)
+color:var(--yellow)
 }
 
 .tabs{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-    padding-bottom:14px;
-    border-bottom:1px solid rgba(255,255,255,.12);
-    margin-bottom:15px
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+padding-bottom:14px;
+border-bottom:1px solid rgba(255,255,255,.12);
+margin-bottom:15px
 }
 
 .tab{
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.1);
-    color:#cbd5e1;
-    padding:10px 13px;
-    border-radius:10px;
-    font-size:12px
+background:rgba(255,255,255,.06);
+border:1px solid rgba(255,255,255,.1);
+color:#cbd5e1;
+padding:10px 13px;
+border-radius:10px;
+font-size:12px
 }
 
 .tab.active{
-    background:rgba(96,165,250,.2);
-    color:#bfdbfe;
-    border-color:rgba(96,165,250,.35)
+background:rgba(96,165,250,.2);
+color:#bfdbfe;
+border-color:rgba(96,165,250,.35)
 }
 
 .table-toolbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:12px;
-    margin-bottom:12px
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:12px;
+margin-bottom:12px
 }
 
 .table-toolbar input{
-    max-width:320px
+max-width:320px
 }
 
 .table-info{
-    font-size:12px;
-    color:var(--muted)
+font-size:12px;
+color:var(--muted)
 }
 
 .table-wrap{
-    overflow:auto;
-    max-height:570px;
-    border:1px solid rgba(255,255,255,.11);
-    border-radius:13px;
-    background:rgba(2,6,23,.25)
+overflow:auto;
+max-height:570px;
+border:1px solid rgba(255,255,255,.11);
+border-radius:13px;
+background:rgba(2,6,23,.25)
 }
 
 table{
-    border-collapse:collapse;
-    width:100%;
-    min-width:700px;
-    font-size:12px
+border-collapse:collapse;
+width:100%;
+min-width:900px;
+font-size:12px
 }
 
 th{
-    position:sticky;
-    top:0;
-    z-index:1;
-    background:#1e3158;
-    color:#dbeafe;
-    text-align:left;
-    padding:12px 13px;
-    white-space:nowrap;
-    border-bottom:1px solid rgba(255,255,255,.14)
+position:sticky;
+top:0;
+z-index:1;
+background:#1e3158;
+color:#dbeafe;
+text-align:left;
+padding:12px 13px;
+white-space:nowrap;
+border-bottom:1px solid rgba(255,255,255,.14)
 }
 
 td{
-    padding:11px 13px;
-    color:#e2e8f0;
-    border-bottom:1px solid rgba(255,255,255,.07);
-    max-width:300px;
-    overflow-wrap:anywhere
+padding:11px 13px;
+color:#e2e8f0;
+border-bottom:1px solid rgba(255,255,255,.07);
+max-width:350px;
+overflow-wrap:anywhere
 }
 
 tbody tr:hover{
-    background:rgba(255,255,255,.045)
+background:rgba(255,255,255,.045)
 }
 
 .empty{
-    text-align:center;
-    color:var(--muted);
-    padding:35px
+text-align:center;
+color:var(--muted);
+padding:35px
 }
 
 .pagination{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:12px;
-    margin-top:14px;
-    color:var(--muted);
-    font-size:12px
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px;
+margin-top:14px;
+color:var(--muted);
+font-size:12px
 }
 
 .page-actions{
-    display:flex;
-    gap:8px
+display:flex;
+gap:8px
 }
 
 .page-actions button{
-    padding:8px 12px
+padding:8px 12px
 }
 
 .footer-note{
-    color:var(--muted);
-    font-size:11px;
-    text-align:center;
-    padding:12px
+color:var(--muted);
+font-size:11px;
+text-align:center;
+padding:12px
 }
 
 @media(max-width:850px){
 
-    .stats{
-        grid-template-columns:repeat(2,minmax(0,1fr))
-    }
+.stats{
+grid-template-columns:repeat(2,minmax(0,1fr))
+}
+
 }
 
 @media(max-width:650px){
 
-    body{
-        padding:14px 10px 30px
-    }
-
-    .upload-grid,
-    .options{
-        grid-template-columns:1fr
-    }
-
-    .section{
-        padding:16px
-    }
-
-    header{
-        padding:25px 12px
-    }
-
-    .stats{
-        grid-template-columns:repeat(2,minmax(0,1fr))
-    }
-
-    .action-row button{
-        flex:1
-    }
+body{
+padding:14px 10px 30px
 }
+
+.upload-grid,
+.options{
+grid-template-columns:1fr
+}
+
+.section{
+padding:16px
+}
+
+header{
+padding:25px 12px
+}
+
+.stats{
+grid-template-columns:repeat(2,minmax(0,1fr))
+}
+
+.action-row button{
+flex:1
+}
+
+}
+
 </style>
 </head>
 
@@ -561,15 +565,15 @@ Monthly Case Reconciliation Dashboard
 Upload Documents
 </h2>
 
-
 <div class="upload-grid">
-
 
 <div class="upload-card" id="clientDrop">
 
 <div class="upload-top">
 
-<div class="upload-icon">▤</div>
+<div class="upload-icon">
+▤
+</div>
 
 <span class="pill" id="clientStatus">
 Awaiting file
@@ -577,7 +581,9 @@ Awaiting file
 
 </div>
 
-<h3>Client Document</h3>
+<h3>
+Client Document
+</h3>
 
 <p>
 Excel, CSV, PDF, TXT, LOG, Word, HTML, or JSON.
@@ -601,12 +607,13 @@ No file selected
 </div>
 
 
-
 <div class="upload-card" id="fivecDrop">
 
 <div class="upload-top">
 
-<div class="upload-icon">▧</div>
+<div class="upload-icon">
+▧
+</div>
 
 <span class="pill" id="fivecStatus">
 Awaiting file
@@ -614,11 +621,12 @@ Awaiting file
 
 </div>
 
-<h3>5C Document</h3>
+<h3>
+5C Document
+</h3>
 
 <p>
-Upload one or more 5C reports in supported formats
-to compare with the client.
+Upload one or more 5C reports in supported formats to compare with the client.
 </p>
 
 <label class="file-btn" for="fivecFile">
@@ -641,7 +649,6 @@ No file selected
 
 
 <div class="options">
-
 
 <div class="field">
 
@@ -767,16 +774,11 @@ Optional
 
 <div class="action-row">
 
-<button
-class="primary"
-id="compareBtn"
-disabled>
+<button class="primary" id="compareBtn" disabled>
 ⇄ Compare Documents
 </button>
 
-<button
-class="secondary"
-id="resetBtn">
+<button class="secondary" id="resetBtn">
 ↻ Reset
 </button>
 
@@ -785,14 +787,15 @@ id="resetBtn">
 
 <p class="hint">
 
-Patient ID is the primary matching key.
+<strong>Patient ID is the primary matching key.</strong>
+
+For PDF reports, the application identifies the report headings and extracts:
+
+Order Id → Patient Id → Patient Name → Modality → Study → Date → Num of Reports → Cost (Rs).
+
+Headings and repeated PDF header rows are ignored.
 
 If Patient IDs match, they are counted as matched even when names differ.
-
-Study IDs and duplicate occurrences are checked separately.
-
-For PDF reports, the system also attempts to separate
-Order ID, Patient ID, Patient Name, Modality Study and Date.
 
 </p>
 
@@ -800,7 +803,6 @@ Order ID, Patient ID, Patient Name, Modality Study and Date.
 <div id="message"></div>
 
 </section>
-
 
 
 <section id="results" class="glass section">
@@ -813,144 +815,62 @@ Comparison Results
 
 <div class="stats">
 
-
 <div class="stat blue">
-
-<div class="stat-label">
-Client Records
-</div>
-
-<div class="stat-value" id="clientCount">
-0
-</div>
-
-<div class="stat-note">
-Rows in client data
-</div>
-
+<div class="stat-label">Client Records</div>
+<div class="stat-value" id="clientCount">0</div>
+<div class="stat-note">Patient data rows</div>
 </div>
 
 
 <div class="stat blue">
-
-<div class="stat-label">
-5C Records
-</div>
-
-<div class="stat-value" id="fivecCount">
-0
-</div>
-
-<div class="stat-note">
-Rows in 5C data
-</div>
-
+<div class="stat-label">5C Records</div>
+<div class="stat-value" id="fivecCount">0</div>
+<div class="stat-note">Patient data rows</div>
 </div>
 
 
 <div class="stat green">
-
-<div class="stat-label">
-Matched Patient IDs
-</div>
-
-<div class="stat-value" id="matchedCount">
-0
-</div>
-
-<div class="stat-note">
-Unique IDs in both files
-</div>
-
+<div class="stat-label">Matched Patient IDs</div>
+<div class="stat-value" id="matchedCount">0</div>
+<div class="stat-note">Unique IDs in both files</div>
 </div>
 
 
 <div class="stat red">
-
-<div class="stat-label">
-Missing Patient IDs
-</div>
-
-<div class="stat-value" id="missingCount">
-0
-</div>
-
-<div class="stat-note">
-Unique IDs missing either way
-</div>
-
+<div class="stat-label">Missing Patient IDs</div>
+<div class="stat-value" id="missingCount">0</div>
+<div class="stat-note">Unique IDs missing either way</div>
 </div>
 
 
 <div class="stat yellow">
-
-<div class="stat-label">
-Duplicate Patient IDs
-</div>
-
-<div class="stat-value" id="duplicateCount">
-0
-</div>
-
-<div class="stat-note">
-Repeated occurrences
-</div>
-
+<div class="stat-label">Duplicate Patient IDs</div>
+<div class="stat-value" id="duplicateCount">0</div>
+<div class="stat-note">Repeated patient rows</div>
 </div>
 
 
 <div class="stat yellow">
-
-<div class="stat-label">
-Duplicate Study IDs
-</div>
-
-<div class="stat-value" id="duplicateStudyCount">
-0
-</div>
-
-<div class="stat-note">
-Repeated study IDs
-</div>
-
+<div class="stat-label">Duplicate Study IDs</div>
+<div class="stat-value" id="duplicateStudyCount">0</div>
+<div class="stat-note">Repeated study IDs</div>
 </div>
 
 
 <div class="stat red">
-
-<div class="stat-label">
-Name Mismatches
-</div>
-
-<div class="stat-value" id="nameMismatchCount">
-0
-</div>
-
-<div class="stat-note">
-Same ID, different name
-</div>
-
+<div class="stat-label">Name Mismatches</div>
+<div class="stat-value" id="nameMismatchCount">0</div>
+<div class="stat-note">Same ID, different name</div>
 </div>
 
 
 <div class="stat red">
-
-<div class="stat-label">
-Study Count Mismatches
-</div>
-
-<div class="stat-value" id="studyMismatchCount">
-0
-</div>
-
-<div class="stat-note">
-Patient record totals differ
+<div class="stat-label">Study Count Mismatches</div>
+<div class="stat-value" id="studyMismatchCount">0</div>
+<div class="stat-note">Patient record totals differ</div>
 </div>
 
 </div>
-
-</div>
-
 
 
 <div class="tabs" id="tabs">
@@ -994,7 +914,6 @@ Blank Patient IDs
 </div>
 
 
-
 <div class="table-toolbar">
 
 <div class="table-info" id="tableInfo">
@@ -1030,15 +949,11 @@ Page 1
 
 <div class="page-actions">
 
-<button
-class="secondary"
-id="prevPage">
+<button class="secondary" id="prevPage">
 ← Previous
 </button>
 
-<button
-class="secondary"
-id="nextPage">
+<button class="secondary" id="nextPage">
 Next →
 </button>
 
@@ -1049,15 +964,11 @@ Next →
 
 <div class="action-row">
 
-<button
-class="success"
-id="exportBtn">
+<button class="success" id="exportBtn">
 ⇩ Export Full Excel Report
 </button>
 
-<button
-class="secondary"
-id="exportCurrentBtn">
+<button class="secondary" id="exportCurrentBtn">
 ⇩ Export Current Tab
 </button>
 
@@ -1069,10 +980,8 @@ id="exportCurrentBtn">
 <p class="footer-note">
 
 Files are processed locally in your browser.
-
-PDF text extraction works for text-based PDFs;
-scanned PDFs require OCR.
-
+PDF text extraction works for text-based PDFs.
+Scanned PDFs require OCR.
 Verify extracted data before using it for reconciliation.
 
 </p>
@@ -1080,215 +989,210 @@ Verify extracted data before using it for reconciliation.
 </div>
 
 
-
 <script>
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-
 const PAGE_SIZE = 100;
 
 const $ = id => document.getElementById(id);
 
-
 const state = {
-
-    client:null,
-
-    fivec:null,
-
-    results:null,
-
-    activeTab:"summary",
-
-    page:1
-
+client:null,
+fivec:null,
+results:null,
+activeTab:"summary",
+page:1
 };
 
 
+/* =========================================================
+   BASIC HELPERS
+========================================================= */
 
 function showMessage(message,type=""){
-
-    const el = $("message");
-
-    el.textContent = message;
-
-    el.className = type;
-
-    el.style.display = "block";
-
+const el=$("message");
+el.textContent=message;
+el.className=type;
+el.style.display="block";
 }
-
 
 function clearMessage(){
-
-    $("message").style.display = "none";
-
+$("message").style.display="none";
 }
-
 
 function cleanText(v){
-
-    return String(v ?? "")
-        .replace(/\u00a0/g," ")
-        .replace(/\s+/g," ")
-        .trim();
-
+return String(v ?? "")
+.replace(/\u00a0/g," ")
+.replace(/\r/g,"")
+.trim();
 }
-
 
 function norm(v){
-
-    return cleanText(v)
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g,"");
-
+return cleanText(v)
+.toLowerCase()
+.replace(/[^a-z0-9]/g,"");
 }
-
 
 function normId(v){
-
-    return cleanText(v)
-        .toLowerCase()
-        .replace(/\s+/g,"");
-
+return cleanText(v)
+.toLowerCase()
+.replace(/\s+/g,"")
+.replace(/[^\w-]/g,"");
 }
-
 
 function uniqueHeaders(headers){
 
-    const used = {};
+const used={};
 
-    return headers.map((h,i)=>{
+return headers.map((h,i)=>{
 
-        let n = cleanText(h) || `Column ${i+1}`;
+let n=cleanText(h)||`Column ${i+1}`;
 
-        if(used[n]){
+if(used[n]){
+used[n]++;
+n+=`_${used[n]}`;
+}else{
+used[n]=1;
+}
 
-            used[n]++;
+return n;
 
-            n += `_${used[n]}`;
-
-        }else{
-
-            used[n] = 1;
-
-        }
-
-        return n;
-
-    });
+});
 
 }
 
 
+/* =========================================================
+   PATIENT ID VALIDATION
+========================================================= */
+
+/*
+   Main example:
+
+   BP00483511
+   BP00502547
+
+   This accepts common hospital patient IDs such as:
+
+   BP00483511
+   MR12345678
+   UHID12345
+   ABC123456
+*/
+
+function looksLikePatientId(value){
+
+const v=cleanText(value);
+
+if(!v)return false;
+
+/*
+   Strong pattern:
+   2-5 letters followed by at least 4 digits
+*/
+if(/^[A-Za-z]{2,5}\d{4,15}$/.test(v)){
+return true;
+}
+
+/*
+   Common UHID/MRN formats
+*/
+if(/^(UHID|MRN|MR|PID|PAT)[A-Za-z0-9\-]{4,20}$/i.test(v)){
+return true;
+}
+
+return false;
+
+}
+
 
 /* =========================================================
-   MATRIX → OBJECTS
+   MATRIX -> OBJECTS
 ========================================================= */
 
 function rowsToObjects(matrix){
 
-    const cleaned = matrix
-        .map(r => Array.isArray(r) ? r.map(cleanText) : [])
-        .filter(r => r.some(Boolean));
+const cleaned=matrix
+.map(r=>Array.isArray(r)?r.map(cleanText):[])
+.filter(r=>r.some(Boolean));
 
-    if(!cleaned.length){
+if(!cleaned.length){
+return {
+headers:[],
+rows:[]
+};
+}
 
-        return {
-            headers:[],
-            rows:[]
-        };
+let hi=0;
+let best=-1;
 
-    }
+const terms=[
+"study",
+"order",
+"patient",
+"client",
+"accession",
+"modality",
+"date",
+"id",
+"name",
+"description",
+"cost",
+"report"
+];
 
+for(let i=0;i<Math.min(cleaned.length,30);i++){
 
-    let hi = 0;
+const words=cleaned[i].map(norm);
 
-    let best = -1;
+const score =
+words.reduce(
+(s,w)=>s+(terms.some(t=>w.includes(t))?2:0),
+0
+)
++
+Math.min(
+cleaned[i].filter(Boolean).length,
+12
+)*.15;
 
-
-    const terms = [
-
-        "study",
-        "order",
-        "patient",
-        "client",
-        "accession",
-        "modality",
-        "date",
-        "id",
-        "name",
-        "description",
-        "cost"
-
-    ];
-
-
-    for(let i=0;i<Math.min(cleaned.length,20);i++){
-
-        const words = cleaned[i].map(norm);
-
-        const score =
-            words.reduce(
-                (s,w)=>
-                    s +
-                    (terms.some(t=>w.includes(t)) ? 2 : 0),
-                0
-            )
-            +
-            Math.min(
-                cleaned[i].filter(Boolean).length,
-                10
-            ) * .15;
-
-
-        if(score > best){
-
-            best = score;
-
-            hi = i;
-
-        }
-
-    }
-
-
-    const headers =
-        uniqueHeaders(cleaned[hi]);
-
-
-    const rows = [];
-
-
-    for(let i=hi+1;i<cleaned.length;i++){
-
-        const obj = {};
-
-        headers.forEach((h,j)=>{
-
-            obj[h] = cleaned[i][j] ?? "";
-
-        });
-
-
-        if(Object.values(obj).some(v=>cleanText(v))){
-
-            rows.push(obj);
-
-        }
-
-    }
-
-
-    return {
-        headers,
-        rows
-    };
+if(score>best){
+best=score;
+hi=i;
+}
 
 }
 
+const headers=uniqueHeaders(cleaned[hi]);
+
+const rows=[];
+
+for(let i=hi+1;i<cleaned.length;i++){
+
+const obj={};
+
+headers.forEach((h,j)=>{
+obj[h]=cleaned[i][j] ?? "";
+});
+
+if(
+Object.values(obj).some(
+v=>cleanText(v)
+)
+){
+rows.push(obj);
+}
+
+}
+
+return {
+headers,
+rows
+};
+
+}
 
 
 /* =========================================================
@@ -1297,299 +1201,205 @@ function rowsToObjects(matrix){
 
 function parseDelimited(text){
 
-    const lines =
-        text
-        .split(/\r?\n/)
-        .filter(x=>x.trim());
+const lines=text
+.split(/\r?\n/)
+.filter(x=>x.trim());
 
+if(!lines.length){
+return {
+headers:[],
+rows:[]
+};
+}
 
-    if(!lines.length){
+const candidates=[",","\t","|",";"];
 
-        return {
-            headers:[],
-            rows:[]
-        };
+let delim=",";
+let score=-1;
 
-    }
+for(const d of candidates){
 
+const counts=lines
+.slice(0,10)
+.map(l=>l.split(d).length);
 
-    const candidates = [
-        ",",
-        "\t",
-        "|",
-        ";"
-    ];
+const s =
+counts.filter(n=>n>1).length*10
++
+Math.max(...counts);
 
+if(s>score){
+score=s;
+delim=d;
+}
 
-    let delim = ",";
+}
 
-    let score = -1;
+const matrix=lines.map(line=>{
 
+if(delim===","){
 
-    for(const d of candidates){
+return line
+.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+.map(x=>
+x
+.replace(/^"|"$/g,"")
+.replace(/""/g,'"')
+.trim()
+);
 
-        const counts =
-            lines
-            .slice(0,10)
-            .map(l=>l.split(d).length);
+}
 
+return line
+.split(delim)
+.map(cleanText);
 
-        const s =
-            counts.filter(n=>n>1).length * 10
-            +
-            Math.max(...counts);
+});
 
-
-        if(s > score){
-
-            score = s;
-
-            delim = d;
-
-        }
-
-    }
-
-
-    const matrix =
-        lines.map(line=>{
-
-            if(delim === ","){
-
-                return line
-                    .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-                    .map(
-                        x =>
-                        x
-                        .replace(/^"|"$/g,"")
-                        .replace(/""/g,'"')
-                        .trim()
-                    );
-
-            }
-
-
-            return line
-                .split(delim)
-                .map(cleanText);
-
-        });
-
-
-    return rowsToObjects(matrix);
+return rowsToObjects(matrix);
 
 }
 
 
-
 /* =========================================================
-   HTML
+   HTML TABLE
 ========================================================= */
 
 function htmlToRows(text){
 
-    const doc =
-        new DOMParser()
-        .parseFromString(text,"text/html");
+const doc =
+new DOMParser()
+.parseFromString(text,"text/html");
 
+const tables =
+[...doc.querySelectorAll("table")];
 
-    const tables =
-        [...doc.querySelectorAll("table")];
+if(tables.length){
 
+const all=[];
 
-    if(tables.length){
+tables.forEach(table=>{
 
-        const allRows = [];
+const matrix =
+[...table.querySelectorAll("tr")]
+.map(tr=>
+[...tr.querySelectorAll("th,td")]
+.map(td=>cleanText(td.textContent))
+);
 
+if(matrix.length){
+all.push(...matrix);
+}
 
-        tables.forEach(table=>{
+});
 
-            [
-                ...table.querySelectorAll("tr")
-            ].forEach(tr=>{
+return rowsToObjects(all);
 
-                const cells =
-                    [
-                        ...tr.querySelectorAll("th,td")
-                    ]
-                    .map(td=>cleanText(td.textContent));
+}
 
-
-                if(cells.length){
-
-                    allRows.push(cells);
-
-                }
-
-            });
-
-        });
-
-
-        return rowsToObjects(allRows);
-
-    }
-
-
-    return parseDelimited(
-        doc.body.innerText ||
-        doc.body.textContent ||
-        ""
-    );
+return parseDelimited(
+doc.body.innerText ||
+doc.body.textContent ||
+""
+);
 
 }
 
 
-
 /* =========================================================
-   PDF TEXT POSITION GROUPING
+   PDF TEXT EXTRACTION
 ========================================================= */
 
 function pdfLineGroups(items){
 
-    const arr =
-        items
-        .filter(i=>i.str && i.str.trim())
-        .map(i=>({
+const arr=items
+.filter(i=>i.str && i.str.trim())
+.map(i=>({
 
-            text:i.str.trim(),
+text:i.str.trim(),
 
-            x:i.transform[4],
+x:i.transform[4],
 
-            y:i.transform[5],
+y:i.transform[5],
 
-            width:i.width || 0
+width:i.width || 0,
 
-        }))
-        .sort(
-            (a,b)=>
-                b.y-a.y ||
-                a.x-b.x
-        );
+height:Math.abs(
+i.transform[3] || 10
+)
 
+}))
+.sort(
+(a,b)=>
+b.y-a.y ||
+a.x-b.x
+);
 
-    const lines = [];
+const lines=[];
 
+for(const item of arr){
 
-    for(const item of arr){
+let line=lines.find(
+l=>Math.abs(l.y-item.y)<=3
+);
 
-        let line =
-            lines.find(
-                l =>
-                Math.abs(l.y-item.y)<=3
-            );
+if(!line){
 
+line={
+y:item.y,
+items:[]
+};
 
-        if(!line){
+lines.push(line);
 
-            line = {
-                y:item.y,
-                items:[]
-            };
+}else{
 
-            lines.push(line);
-
-        }
-
-
-        line.items.push(item);
-
-    }
-
-
-    return lines
-        .sort((a,b)=>b.y-a.y)
-        .map(line=>{
-
-            let out = "";
-
-            let end = null;
-
-
-            for(
-                const p of
-                line.items.sort((a,b)=>a.x-b.x)
-            ){
-
-                if(end !== null){
-
-                    out +=
-                        p.x-end > 22
-                        ? "   "
-                        : " ";
-
-                }
-
-
-                out += p.text;
-
-                end = p.x+p.width;
-
-            }
-
-
-            return out.trim();
-
-        })
-        .filter(Boolean);
+line.items.push(item);
 
 }
 
+}
 
+return lines
+.sort((a,b)=>b.y-a.y)
+.map(line=>{
 
-/* =========================================================
-   PDF READER
-========================================================= */
+line.items.sort(
+(a,b)=>a.x-b.x
+);
 
-async function readPdf(file){
+let out="";
+let end=null;
 
-    const pdf =
-        await pdfjsLib
-        .getDocument({
-            data:new Uint8Array(
-                await file.arrayBuffer()
-            )
-        })
-        .promise;
+for(const p of line.items){
 
+if(end!==null){
 
-    const lines = [];
-
-
-    for(
-        let p=1;
-        p<=pdf.numPages;
-        p++
-    ){
-
-        const page =
-            await pdf.getPage(p);
-
-
-        const content =
-            await page.getTextContent();
-
-
-        lines.push(
-            ...pdfLineGroups(content.items)
-        );
-
-    }
-
-
-    if(!lines.length){
-
-        throw new Error(
-            "No selectable text found in this PDF. It may be scanned and require OCR."
-        );
-
-    }
-
-
-    return parsePdfText(lines);
+out +=
+p.x-end>22
+?
+"   "
+:
+" ";
 
 }
 
+out += p.text;
+
+end=p.x+p.width;
+
+}
+
+return {
+y:line.y,
+items:line.items,
+text:out.trim()
+};
+
+})
+.filter(x=>x.text);
+
+}
 
 
 /* =========================================================
@@ -1598,972 +1408,1315 @@ async function readPdf(file){
 
 function detectPdfHeader(lines){
 
-    let bestIndex = -1;
+const headerTerms=[
+"orderid",
+"order",
+"patientid",
+"patient",
+"patientname",
+"modality",
+"study",
+"date",
+"numofreports",
+"reports",
+"cost"
+];
 
-    let bestScore = 0;
+let bestIndex=-1;
+let bestScore=0;
 
+for(let i=0;i<lines.length;i++){
 
-    const headerGroups = [
+const textNorm=norm(lines[i].text);
 
-        [
-            "order id",
-            "orderid",
-            "order"
-        ],
+let score=0;
 
-        [
-            "patient id",
-            "patientid",
-            "patient identifier",
-            "mrn",
-            "uhid"
-        ],
+for(const term of headerTerms){
 
-        [
-            "patient name",
-            "name"
-        ],
-
-        [
-            "modality",
-            "study"
-        ],
-
-        [
-            "date"
-        ]
-
-    ];
-
-
-    for(
-        let i=0;
-        i<Math.min(lines.length,100);
-        i++
-    ){
-
-        const s = norm(lines[i]);
-
-
-        let score = 0;
-
-
-        headerGroups.forEach(group=>{
-
-            if(
-                group.some(
-                    term =>
-                    s.includes(norm(term))
-                )
-            ){
-
-                score++;
-
-            }
-
-        });
-
-
-        if(score > bestScore){
-
-            bestScore = score;
-
-            bestIndex = i;
-
-        }
-
-    }
-
-
-    return {
-        index:bestIndex,
-        score:bestScore
-    };
+if(textNorm.includes(term)){
+score++;
+}
 
 }
 
+if(
+textNorm.includes("patientid") &&
+textNorm.includes("patientname")
+){
+score+=5;
+}
+
+if(
+textNorm.includes("orderid")
+){
+score+=2;
+}
+
+if(score>bestScore){
+
+bestScore=score;
+bestIndex=i;
+
+}
+
+}
+
+return bestScore>=2
+?bestIndex
+:-1;
+
+}
+
+
+/* =========================================================
+   PDF COLUMN HEADER POSITION DETECTION
+========================================================= */
+
+function getPdfColumnHeaders(headerLine){
+
+const result=[];
+
+for(const item of headerLine.items){
+
+const n=norm(item.text);
+
+let type="";
+
+if(
+n==="orderid" ||
+n==="order" ||
+n==="orderid:"
+){
+type="Order Id";
+}
+
+else if(
+n==="patientid" ||
+n==="patient"
+){
+type="Patient Id";
+}
+
+else if(
+n==="patientname" ||
+n==="name"
+){
+type="Patient Name";
+}
+
+else if(
+n==="modality"
+){
+type="Modality";
+}
+
+else if(
+n==="study" ||
+n==="studydescription" ||
+n==="modalitystudy"
+){
+type="Study";
+}
+
+else if(
+n==="date" ||
+n==="studydate"
+){
+type="Date";
+}
+
+else if(
+n==="numofreports" ||
+n==="reports" ||
+n==="numreports"
+){
+type="Num of Reports";
+}
+
+else if(
+n==="costrs" ||
+n==="cost"
+){
+type="Cost (Rs)";
+}
+
+if(type){
+
+result.push({
+name:type,
+x:item.x,
+end:item.x+(item.width||0)
+});
+
+}
+
+}
+
+return result;
+
+}
 
 
 /* =========================================================
    PDF ROW PARSER
-
-   Example input:
-
-   NH60UW5ZFN MM02865249 Kumar Ajeet XRAY Radiograph Chest - AP 2026-08-01
-
-   Output:
-
-   Order Id        NH60UW5ZFN
-   Patient Id      MM02865249
-   Patient Name    Kumar Ajeet
-   Modality Study  XRAY Radiograph Chest - AP
-   Date            2026-08-01
 ========================================================= */
 
-function parsePdfPatientLine(line){
-
-    line = cleanText(line);
-
-
-    if(!line){
-
-        return null;
-
-    }
-
-
-    /*
-        Date can be:
-        2026-08-01
-        01-08-2026
-        01/08/2026
-        2026/08/01
-    */
-
-    const dateRegex =
-        /(\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{4})$/;
-
-
-    const dateMatch =
-        line.match(dateRegex);
-
-
-    let date = "";
-
-    let body = line;
-
-
-    if(dateMatch){
-
-        date = dateMatch[1];
-
-        body =
-            line
-            .slice(
-                0,
-                dateMatch.index
-            )
-            .trim();
-
-    }
-
-
-    /*
-        Split based on multiple spaces first.
-        PDF extraction often preserves column gaps.
-    */
-
-    let parts =
-        body
-        .split(/\s{2,}/)
-        .map(cleanText)
-        .filter(Boolean);
-
-
-    /*
-        If PDF collapsed everything into one space,
-        fall back to token parsing.
-    */
-
-    if(parts.length < 3){
-
-        const tokens =
-            body
-            .split(/\s+/)
-            .filter(Boolean);
-
-
-        if(tokens.length < 2){
-
-            return null;
-
-        }
-
-
-        /*
-            First token = Order ID
-            Second token = Patient ID
-        */
-
-        const orderId = tokens.shift();
-
-        const patientId = tokens.shift();
-
-
-        /*
-            Common modalities used in radiology/reports.
-        */
-
-        const modalityPattern =
-            /^(XRAY|X-RAY|CT|MRI|USG|ULTRASOUND|PET|PETCT|PET-CT|MAMMO|MAMMOGRAPHY|DEXA|ECG|ECHO|EEG|NM|SPECT)$/i;
-
-
-        let modalityIndex = -1;
-
-
-        for(
-            let i=0;
-            i<tokens.length;
-            i++
-        ){
-
-            if(
-                modalityPattern.test(
-                    tokens[i]
-                )
-            ){
-
-                modalityIndex = i;
-
-                break;
-
-            }
-
-        }
-
-
-        let patientName = "";
-
-        let modalityStudy = "";
-
-
-        if(modalityIndex >= 0){
-
-            patientName =
-                tokens
-                .slice(0,modalityIndex)
-                .join(" ");
-
-
-            modalityStudy =
-                tokens
-                .slice(modalityIndex)
-                .join(" ");
-
-        }else{
-
-            /*
-                If modality isn't recognized,
-                retain remaining text as patient name
-                instead of losing information.
-            */
-
-            patientName =
-                tokens.join(" ");
-
-        }
-
-
-        return {
-
-            "Order Id":orderId,
-
-            "Patient Id":patientId,
-
-            "Patient Name":patientName,
-
-            "Modality Study":modalityStudy,
-
-            "Date":date
-
-        };
-
-    }
-
-
-    /*
-        If there are clear PDF column gaps,
-        identify fields from the pieces.
-    */
-
-    let orderId = "";
-
-    let patientId = "";
-
-    let patientName = "";
-
-    let modalityStudy = "";
-
-
-    /*
-        First part normally contains order id.
-    */
-
-    orderId = parts[0] || "";
-
-
-    /*
-        Second part normally contains patient id.
-    */
-
-    patientId = parts[1] || "";
-
-
-    /*
-        Remaining pieces.
-    */
-
-    const remaining =
-        parts.slice(2);
-
-
-    if(remaining.length){
-
-        /*
-            If there are 2 remaining fields:
-            one is generally name and one study.
-        */
-
-        if(remaining.length === 1){
-
-            patientName = remaining[0];
-
-        }else{
-
-            /*
-                Look for known modality.
-            */
-
-            let modalityIndex = -1;
-
-
-            for(
-                let i=0;
-                i<remaining.length;
-                i++
-            ){
-
-                const value =
-                    remaining[i];
-
-
-                if(
-                    /^(XRAY|X-RAY|CT|MRI|USG|ULTRASOUND|PET|PETCT|PET-CT|MAMMO|MAMMOGRAPHY|DEXA|ECG|ECHO|EEG|NM|SPECT)$/i
-                    .test(value)
-                ){
-
-                    modalityIndex = i;
-
-                    break;
-
-                }
-
-            }
-
-
-            if(modalityIndex >= 0){
-
-                patientName =
-                    remaining
-                    .slice(0,modalityIndex)
-                    .join(" ");
-
-
-                modalityStudy =
-                    remaining
-                    .slice(modalityIndex)
-                    .join(" ");
-
-            }else{
-
-                /*
-                    When modality isn't explicitly separated,
-                    try the last field as study.
-                */
-
-                patientName =
-                    remaining
-                    .slice(0,-1)
-                    .join(" ");
-
-
-                modalityStudy =
-                    remaining[remaining.length-1];
-
-            }
-
-        }
-
-    }
-
-
-    /*
-        Validate that this looks like a patient row.
-
-        Patient IDs such as:
-
-        MM02865249
-        P123456
-        UHID12345
-        MRN00123
-
-        are accepted.
-    */
-
-    const looksLikePatientId =
-        /^[A-Za-z]{1,8}[-/]?\d{3,20}$/i
-        .test(patientId);
-
-
-    if(!looksLikePatientId){
-
-        return null;
-
-    }
-
-
-    return {
-
-        "Order Id":orderId,
-
-        "Patient Id":patientId,
-
-        "Patient Name":patientName,
-
-        "Modality Study":modalityStudy,
-
-        "Date":date
-
-    };
+function parsePdfPatientReport(lines,headerIndex){
+
+const headerLine=lines[headerIndex];
+
+let columns=getPdfColumnHeaders(headerLine);
+
+
+/*
+   If PDF extractor has combined headings,
+   use known approximate order.
+*/
+
+if(columns.length<3){
+
+const text=headerLine.text;
+
+const positions=[
+"Order Id",
+"Patient Id",
+"Patient Name",
+"Modality",
+"Study",
+"Date",
+"Num of Reports",
+"Cost (Rs)"
+];
+
+columns=positions.map(
+(name,index)=>({
+name,
+x:index*100,
+end:index*100+80
+})
+);
 
 }
 
 
+/*
+   Sort according to horizontal position.
+*/
+
+columns.sort((a,b)=>a.x-b.x);
+
+
+/*
+   Remove duplicate column types.
+*/
+
+const seen=new Set();
+
+columns=columns.filter(c=>{
+
+if(seen.has(c.name)){
+return false;
+}
+
+seen.add(c.name);
+return true;
+
+});
+
+
+/*
+   If the report headings are recognizable,
+   map them to the exact expected columns.
+*/
+
+const expected=[
+"Order Id",
+"Patient Id",
+"Patient Name",
+"Modality",
+"Study",
+"Date",
+"Num of Reports",
+"Cost (Rs)"
+];
+
+const finalColumns=[];
+
+expected.forEach(name=>{
+
+const found=columns.find(
+c=>c.name===name
+);
+
+if(found){
+
+finalColumns.push(found);
+
+}
+
+});
+
+
+/*
+   Need at least Patient ID.
+*/
+
+if(
+!finalColumns.some(
+c=>c.name==="Patient Id"
+)
+){
+
+return null;
+
+}
+
+
+/*
+   Calculate column boundaries.
+
+   Each column occupies the horizontal
+   space until the midpoint of the next
+   column.
+*/
+
+const boundaries=finalColumns
+.sort((a,b)=>a.x-b.x)
+.map((col,index)=>{
+
+const next=
+finalColumns[index+1];
+
+return {
+...col,
+right:
+next
+?
+(col.x+next.x)/2
+:
+Infinity
+};
+
+});
+
+
+const rows=[];
+
+
+/*
+   Ignore repeated headings.
+   Patient rows are identified by a
+   valid Patient ID.
+*/
+
+for(
+let i=headerIndex+1;
+i<lines.length;
+i++
+){
+
+const line=lines[i];
+
+const text=line.text;
+
+
+/*
+   Skip obvious repeated headings.
+*/
+
+const nt=norm(text);
+
+if(
+nt.includes("orderid") &&
+nt.includes("patientid")
+){
+continue;
+}
+
+if(
+nt.includes("patientname") &&
+nt.includes("modality")
+){
+continue;
+}
+
+if(
+nt==="patientid" ||
+nt==="patientname"
+){
+continue;
+}
+
+
+/*
+   Assign PDF text fragments to columns
+   according to X coordinate.
+*/
+
+const cells={};
+
+for(const col of boundaries){
+
+cells[col.name]="";
+
+}
+
+
+for(const item of line.items){
+
+const x=item.x;
+
+let target=null;
+
+for(let j=0;j<boundaries.length;j++){
+
+const col=boundaries[j];
+
+if(
+x>=col.x &&
+x<col.right
+){
+
+target=col;
+break;
+
+}
+
+}
+
+
+/*
+   Sometimes PDF extraction places a
+   text fragment slightly before a header.
+   Attach it to nearest column.
+*/
+
+if(!target){
+
+let nearest=null;
+let distance=Infinity;
+
+for(const col of boundaries){
+
+const d=Math.abs(x-col.x);
+
+if(d<distance){
+
+distance=d;
+nearest=col;
+
+}
+
+}
+
+if(distance<80){
+target=nearest;
+}
+
+}
+
+
+if(target){
+
+const current=cells[target.name];
+
+cells[target.name]=
+current
+?
+current+" "+item.text
+:
+item.text;
+
+}
+
+}
+
+
+/*
+   Clean cells.
+*/
+
+Object.keys(cells).forEach(
+key=>{
+cells[key]=cleanText(cells[key]);
+}
+);
+
+
+/*
+   Patient ID validation.
+*/
+
+let patientId=
+cells["Patient Id"];
+
+
+/*
+   If the PDF parser accidentally put
+   multiple values into Patient Id,
+   find the actual patient ID inside it.
+*/
+
+if(
+patientId &&
+!looksLikePatientId(patientId)
+){
+
+const matches=
+patientId.match(
+/\b[A-Za-z]{2,5}\d{4,15}\b/g
+);
+
+if(matches && matches.length){
+
+patientId=matches[0];
+
+cells["Patient Id"]=patientId;
+
+}
+
+}
+
+
+/*
+   IMPORTANT:
+   Rows without Patient ID are ignored.
+
+   This removes:
+   - headings
+   - page headings
+   - blank lines
+   - report titles
+   - totals
+   - unrelated PDF text
+*/
+
+if(
+!looksLikePatientId(patientId)
+){
+
+continue;
+
+}
+
+
+/*
+   Some PDFs return the entire row as
+   one text fragment.
+
+   Example:
+   4JMY8FDXUK BP00483511 Aara Zeenat
+   CT CT KUB Plain - Female 2026-08-01 1 235.0
+
+   Try a fallback parser if the
+   spatial extraction did not separate
+   the columns correctly.
+*/
+
+const rowValues=
+Object.values(cells).filter(Boolean);
+
+const tooFewColumns=
+rowValues.length<3 ||
+!cells["Patient Name"];
+
+
+/*
+   Fallback for one-line PDF text.
+*/
+
+if(tooFewColumns){
+
+const fallback=
+parsePdfPatientLine(text);
+
+if(fallback){
+
+Object.assign(
+cells,
+fallback
+);
+
+}
+
+}
+
+
+/*
+   Final patient ID validation.
+*/
+
+if(
+!looksLikePatientId(
+cells["Patient Id"]
+)
+){
+
+continue;
+
+}
+
+
+/*
+   Ignore rows that are clearly not
+   patient records.
+*/
+
+if(
+!cells["Patient Name"] &&
+!cells["Study"]
+){
+
+continue;
+
+}
+
+
+rows.push(cells);
+
+}
+
+
+if(!rows.length){
+
+return null;
+
+}
+
+
+/*
+   Only use actual columns that exist.
+*/
+
+const headers=expected.filter(
+h=>rows.some(
+r=>Object.prototype.hasOwnProperty.call(r,h)
+)
+);
+
+
+return {
+headers,
+rows
+};
+
+}
+
 
 /* =========================================================
-   PDF TABLE PARSER
+   PDF FALLBACK LINE PARSER
+========================================================= */
+
+function parsePdfPatientLine(text){
+
+const t=cleanText(text);
+
+
+/*
+   Expected:
+
+   OrderId
+   PatientId
+   PatientName
+   Modality
+   Study
+   Date
+   NumOfReports
+   Cost
+*/
+
+
+const patientMatch=
+t.match(
+/\b([A-Za-z]{2,5}\d{4,15})\b/
+);
+
+if(!patientMatch){
+return null;
+}
+
+const patientId=patientMatch[1];
+
+const patientPos=
+t.indexOf(patientId);
+
+if(patientPos<0){
+return null;
+}
+
+
+/*
+   Text before Patient ID is usually
+   Order ID.
+*/
+
+let orderId=
+cleanText(
+t.substring(0,patientPos)
+);
+
+
+/*
+   Remove possible preceding report
+   labels/numbers.
+*/
+
+orderId=
+orderId
+.replace(/^.*?(?=[A-Za-z0-9]{5,}$)/,"$&")
+.trim();
+
+
+const after=
+cleanText(
+t.substring(
+patientPos+patientId.length
+)
+);
+
+
+/*
+   Find date.
+*/
+
+const dateMatch=
+after.match(
+/\b\d{4}[-/]\d{2}[-/]\d{2}\b/
+);
+
+if(!dateMatch){
+return null;
+}
+
+const date=dateMatch[0];
+
+const datePos=
+after.indexOf(date);
+
+
+/*
+   Everything before date.
+*/
+
+let middle=
+cleanText(
+after.substring(0,datePos)
+);
+
+
+/*
+   Report count and cost after date.
+*/
+
+const afterDate=
+cleanText(
+after.substring(
+datePos+date.length
+)
+);
+
+const numbers=
+afterDate.match(
+/[-+]?\d+(?:\.\d+)?/g
+)||[];
+
+let numReports="";
+let cost="";
+
+if(numbers.length>=2){
+
+numReports=numbers[numbers.length-2];
+cost=numbers[numbers.length-1];
+
+}else if(numbers.length===1){
+
+numReports=numbers[0];
+
+}
+
+
+/*
+   Remove report count/cost-like endings
+   from middle if present.
+*/
+
+const parts=middle.split(/\s+/).filter(Boolean);
+
+let modality="";
+let study="";
+let patientName="";
+
+
+/*
+   Known modality list.
+*/
+
+const modalityIndex=
+parts.findIndex(
+p=>
+/^(CT|MRI|MR|XRAY|X-RAY|USG|US|PET|PET-CT|MAMMO|DX|CR|DR|NM)$/i.test(p)
+);
+
+if(modalityIndex>=0){
+
+patientName=
+parts.slice(0,modalityIndex).join(" ");
+
+modality=
+parts[modalityIndex];
+
+study=
+parts.slice(modalityIndex+1).join(" ");
+
+}else{
+
+/*
+   If modality is not recognized,
+   assume first few words are patient name
+   and remaining text is study.
+*/
+
+patientName=
+parts.slice(0,2).join(" ");
+
+study=
+parts.slice(2).join(" ");
+
+}
+
+
+/*
+   Correct common case where study begins
+   with modality again:
+
+   CT CT KUB Plain - Female
+*/
+
+if(
+modality &&
+study &&
+norm(study).startsWith(
+norm(modality)
+)
+){
+
+study=cleanText(
+study.substring(
+modality.length
+)
+);
+
+}
+
+
+return {
+
+"Order Id":orderId,
+
+"Patient Id":patientId,
+
+"Patient Name":patientName,
+
+"Modality":modality,
+
+"Study":study,
+
+"Date":date,
+
+"Num of Reports":numReports,
+
+"Cost (Rs)":cost
+
+};
+
+}
+
+
+/* =========================================================
+   PDF PARSER
 ========================================================= */
 
 function parsePdfText(lines){
 
-    const headerInfo =
-        detectPdfHeader(lines);
+const headerIndex=
+detectPdfHeader(lines);
 
 
-    /*
-        First attempt:
-        detect a proper table header.
-    */
+/*
+   First attempt:
+   proper column-based report parser.
+*/
 
-    if(
-        headerInfo.index >= 0 &&
-        headerInfo.score >= 2
-    ){
+if(headerIndex>=0){
 
-        const headerLine =
-            lines[headerInfo.index];
+const parsed=
+parsePdfPatientReport(
+lines,
+headerIndex
+);
 
+if(parsed && parsed.rows.length){
 
-        const headers =
-            headerLine
-            .split(/\s{2,}|\t|\|/)
-            .map(cleanText)
-            .filter(Boolean);
+return parsed;
 
-
-        /*
-            If PDF header clearly contains
-            Order / Patient / Name etc.,
-            use the structured parser.
-        */
-
-        const hasOrder =
-            headers.some(
-                h =>
-                /order/i.test(h)
-            );
-
-
-        const hasPatient =
-            headers.some(
-                h =>
-                /patient.*id|patientid|mrn|uhid/i.test(h)
-            );
-
-
-        const hasName =
-            headers.some(
-                h =>
-                /patient.*name|name/i.test(h)
-            );
-
-
-        if(
-            hasOrder &&
-            hasPatient
-        ){
-
-            const output = [];
-
-
-            for(
-                let i=headerInfo.index+1;
-                i<lines.length;
-                i++
-            ){
-
-                const parsed =
-                    parsePdfPatientLine(
-                        lines[i]
-                    );
-
-
-                if(parsed){
-
-                    output.push(parsed);
-
-                }
-
-            }
-
-
-            if(output.length){
-
-                return {
-
-                    headers:[
-                        "Order Id",
-                        "Patient Id",
-                        "Patient Name",
-                        "Modality Study",
-                        "Date"
-                    ],
-
-                    rows:output
-
-                };
-
-            }
-
-        }
-
-    }
-
-
-
-    /*
-        Second attempt:
-        parse every PDF line as a patient row.
-    */
-
-    const extractedRows = [];
-
-
-    for(const line of lines){
-
-        const parsed =
-            parsePdfPatientLine(line);
-
-
-        if(parsed){
-
-            extractedRows.push(parsed);
-
-        }
-
-    }
-
-
-    if(extractedRows.length){
-
-        return {
-
-            headers:[
-                "Order Id",
-                "Patient Id",
-                "Patient Name",
-                "Modality Study",
-                "Date"
-            ],
-
-            rows:extractedRows
-
-        };
-
-    }
-
-
-
-    /*
-        Final fallback.
-
-        Preserve all PDF text rather than
-        throwing the data away.
-    */
-
-    return {
-
-        headers:[
-            "PDF Extracted Text"
-        ],
-
-        rows:
-            lines.map(line=>({
-
-                "PDF Extracted Text":line
-
-            }))
-
-    };
+}
 
 }
 
 
+/*
+   Second attempt:
+   Search every PDF line for a
+   recognizable patient ID.
+
+   This is useful if the PDF header
+   itself is split across several lines.
+*/
+
+const rows=[];
+
+for(const line of lines){
+
+const fallback=
+parsePdfPatientLine(
+line.text
+);
+
+if(
+fallback &&
+looksLikePatientId(
+fallback["Patient Id"]
+)
+){
+
+rows.push(fallback);
+
+}
+
+}
+
+
+if(rows.length){
+
+return {
+
+headers:[
+"Order Id",
+"Patient Id",
+"Patient Name",
+"Modality",
+"Study",
+"Date",
+"Num of Reports",
+"Cost (Rs)"
+],
+
+rows
+
+};
+
+}
+
+
+/*
+   If no structured patient records
+   are found, retain PDF text.
+*/
+
+return {
+
+headers:["PDF Extracted Text"],
+
+rows:lines.map(
+line=>({
+"PDF Extracted Text":line.text
+})
+)
+
+};
+
+}
+
 
 /* =========================================================
-   READ ANY SUPPORTED FILE
+   READ PDF
+========================================================= */
+
+async function readPdf(file){
+
+const pdf=
+await pdfjsLib.getDocument({
+data:new Uint8Array(
+await file.arrayBuffer()
+)
+}).promise;
+
+const lines=[];
+
+for(
+let p=1;
+p<=pdf.numPages;
+p++
+){
+
+const page=
+await pdf.getPage(p);
+
+const content=
+await page.getTextContent();
+
+const pageLines=
+pdfLineGroups(
+content.items
+);
+
+lines.push(...pageLines);
+
+}
+
+if(!lines.length){
+
+throw new Error(
+"No selectable text found in this PDF. It may be scanned and require OCR."
+);
+
+}
+
+return parsePdfText(lines);
+
+}
+
+
+/* =========================================================
+   READ ALL FILE TYPES
 ========================================================= */
 
 async function readFile(file){
 
-    const ext =
-        file.name
-        .split(".")
-        .pop()
-        .toLowerCase();
+const ext=
+file.name
+.split(".")
+.pop()
+.toLowerCase();
 
 
+/* Excel */
 
-    /*
-        Excel
-    */
+if(
+["xlsx","xls","xlsm","xlsb"]
+.includes(ext)
+){
 
-    if(
-        ["xlsx","xls","xlsm","xlsb"]
-        .includes(ext)
-    ){
+const wb=
+XLSX.read(
+await file.arrayBuffer(),
+{
+type:"array",
+cellDates:true
+}
+);
 
-        const wb =
-            XLSX.read(
-                await file.arrayBuffer(),
-                {
-                    type:"array",
-                    cellDates:true
-                }
-            );
+const sheets={};
 
+wb.SheetNames.forEach(
+name=>{
 
-        const sheets = {};
+sheets[name]=
+rowsToObjects(
+XLSX.utils.sheet_to_json(
+wb.Sheets[name],
+{
+header:1,
+defval:"",
+raw:false
+}
+)
+);
 
+});
 
-        wb.SheetNames.forEach(name=>{
+return {
 
-            sheets[name] =
-                rowsToObjects(
-                    XLSX.utils.sheet_to_json(
-                        wb.Sheets[name],
-                        {
-                            header:1,
-                            defval:"",
-                            raw:false
-                        }
-                    )
-                );
+sheets,
 
-        });
+sheetNames:wb.SheetNames
 
-
-        return {
-
-            sheets,
-
-            sheetNames:wb.SheetNames
-
-        };
-
-    }
-
-
-
-    /*
-        PDF
-    */
-
-    if(ext === "pdf"){
-
-        return await readPdf(file);
-
-    }
-
-
-
-    /*
-        CSV / TXT / LOG
-    */
-
-    if(
-        ["csv","txt","log"]
-        .includes(ext)
-    ){
-
-        return parseDelimited(
-            await file.text()
-        );
-
-    }
-
-
-
-    /*
-        HTML
-    */
-
-    if(
-        ["html","htm"]
-        .includes(ext)
-    ){
-
-        return htmlToRows(
-            await file.text()
-        );
-
-    }
-
-
-
-    /*
-        JSON
-    */
-
-    if(ext === "json"){
-
-        const data =
-            JSON.parse(
-                await file.text()
-            );
-
-
-        const arr =
-            Array.isArray(data)
-            ? data
-            : (
-                Array.isArray(data.data)
-                ? data.data
-                : (
-                    Array.isArray(data.records)
-                    ? data.records
-                    : null
-                )
-            );
-
-
-        if(
-            arr &&
-            arr.length &&
-            typeof arr[0] === "object"
-        ){
-
-            return {
-
-                headers:Object.keys(arr[0]),
-
-                rows:
-                    arr.map(o =>
-                        Object.fromEntries(
-                            Object.entries(o)
-                            .map(
-                                ([k,v]) =>
-                                [
-                                    k,
-                                    typeof v === "object" &&
-                                    v !== null
-                                    ? JSON.stringify(v)
-                                    : cleanText(v)
-                                ]
-                            )
-                        )
-                    )
-
-            };
-
-        }
-
-
-        throw new Error(
-            "JSON must contain an array of record objects or a data/records array."
-        );
-
-    }
-
-
-
-    /*
-        DOCX
-    */
-
-    if(ext === "docx"){
-
-        const result =
-            await mammoth.convertToHtml({
-                arrayBuffer:
-                    await file.arrayBuffer()
-            });
-
-
-        return htmlToRows(
-            result.value
-        );
-
-    }
-
-
-    throw new Error(
-        "Unsupported file. Use Excel, CSV, PDF, TXT, LOG, DOCX, HTML, or JSON."
-    );
+};
 
 }
 
 
+/* PDF */
+
+if(ext==="pdf"){
+
+return await readPdf(file);
+
+}
+
+
+/* CSV / TXT / LOG */
+
+if(
+["csv","txt","log"].includes(ext)
+){
+
+return parseDelimited(
+await file.text()
+);
+
+}
+
+
+/* HTML */
+
+if(
+["html","htm"].includes(ext)
+){
+
+return htmlToRows(
+await file.text()
+);
+
+}
+
+
+/* JSON */
+
+if(ext==="json"){
+
+const data=
+JSON.parse(
+await file.text()
+);
+
+const arr=
+Array.isArray(data)
+?
+data
+:
+(
+Array.isArray(data.data)
+?
+data.data
+:
+Array.isArray(data.records)
+?
+data.records
+:
+null
+);
+
+if(
+arr &&
+arr.length &&
+typeof arr[0]==="object"
+){
+
+return {
+
+headers:Object.keys(arr[0]),
+
+rows:arr.map(
+o=>
+Object.fromEntries(
+Object.entries(o)
+.map(
+([k,v])=>[
+k,
+typeof v==="object" &&
+v!==null
+?
+JSON.stringify(v)
+:
+cleanText(v)
+]
+)
+)
+)
+
+};
+
+}
+
+throw new Error(
+"JSON must contain an array of record objects or a data/records array."
+);
+
+}
+
+
+/* DOCX */
+
+if(ext==="docx"){
+
+const result=
+await mammoth.convertToHtml({
+arrayBuffer:
+await file.arrayBuffer()
+});
+
+return htmlToRows(
+result.value
+);
+
+}
+
+
+throw new Error(
+"Unsupported file. Use Excel, CSV, PDF, TXT, LOG, DOCX, HTML, or JSON."
+);
+
+}
+
 
 /* =========================================================
-   COMBINE FILES
-
-   IMPORTANT:
-   Every worksheet from every Excel file is processed.
+   COMBINE MULTIPLE FILES AND ALL WORKSHEETS
 ========================================================= */
 
 function combineFiles(parsedList){
 
-    const headers = [];
-
-    const rows = [];
-
-
-    parsedList.forEach(
-        ({file,parsed})=>{
+const headers=[];
+const rows=[];
 
 
-        /*
-            Excel with multiple worksheets
-        */
-
-        if(parsed.sheets){
-
-            parsed.sheetNames.forEach(
-                sheetName=>{
-
-                const sheet =
-                    parsed.sheets[sheetName];
+parsedList.forEach(
+({file,parsed})=>{
 
 
-                if(
-                    !sheet ||
-                    !sheet.rows.length
-                ){
+/*
+   Excel:
+   Process EVERY worksheet.
+*/
 
-                    return;
+if(parsed.sheets){
 
-                }
+parsed.sheetNames.forEach(
+sheetName=>{
 
+const sheet=
+parsed.sheets[sheetName];
 
-                sheet.headers.forEach(header=>{
+if(
+!sheet ||
+!sheet.rows.length
+){
 
-                    if(
-                        !headers.includes(header) &&
-                        ![
-                            "__Source File",
-                            "__Source Sheet",
-                            "__Source Row"
-                        ].includes(header)
-                    ){
-
-                        headers.push(header);
-
-                    }
-
-                });
-
-
-                sheet.rows.forEach(
-                    (row,index)=>{
-
-                    rows.push({
-
-                        ...row,
-
-                        "__Source File":
-                            file.name,
-
-                        "__Source Sheet":
-                            sheetName,
-
-                        "__Source Row":
-                            index + 1
-
-                    });
-
-                });
-
-            });
-
-        }else{
-
-
-            /*
-                PDF / CSV / TXT / DOCX /
-                HTML / JSON
-            */
-
-            parsed.headers.forEach(header=>{
-
-                if(
-                    !headers.includes(header) &&
-                    ![
-                        "__Source File",
-                        "__Source Sheet",
-                        "__Source Row"
-                    ].includes(header)
-                ){
-
-                    headers.push(header);
-
-                }
-
-            });
-
-
-            parsed.rows.forEach(
-                (row,index)=>{
-
-                rows.push({
-
-                    ...row,
-
-                    "__Source File":
-                        file.name,
-
-                    "__Source Sheet":
-                        "Document",
-
-                    "__Source Row":
-                        index + 1
-
-                });
-
-            });
-
-        }
-
-    });
-
-
-    return {
-
-        name:"Combined uploads",
-
-        headers:[
-            ...headers,
-            "__Source File",
-            "__Source Sheet",
-            "__Source Row"
-        ],
-
-        rows
-
-    };
+return;
 
 }
 
+
+sheet.headers.forEach(
+header=>{
+
+if(
+!headers.includes(header) &&
+![
+"__Source File",
+"__Source Sheet",
+"__Source Row"
+].includes(header)
+){
+
+headers.push(header);
+
+}
+
+});
+
+
+sheet.rows.forEach(
+(row,index)=>{
+
+rows.push({
+
+...row,
+
+"__Source File":
+file.name,
+
+"__Source Sheet":
+sheetName,
+
+"__Source Row":
+index+1
+
+});
+
+});
+
+});
+
+}
+
+
+/*
+   PDF / CSV / DOCX / HTML / JSON
+*/
+
+else{
+
+parsed.headers.forEach(
+header=>{
+
+if(
+!headers.includes(header) &&
+![
+"__Source File",
+"__Source Sheet",
+"__Source Row"
+].includes(header)
+){
+
+headers.push(header);
+
+}
+
+});
+
+
+parsed.rows.forEach(
+(row,index)=>{
+
+rows.push({
+
+...row,
+
+"__Source File":
+file.name,
+
+"__Source Sheet":
+"Document",
+
+"__Source Row":
+index+1
+
+});
+
+});
+
+}
+
+});
+
+
+return {
+
+name:"Combined uploads",
+
+headers:[
+...headers,
+"__Source File",
+"__Source Sheet",
+"__Source Row"
+],
+
+rows
+
+};
+
+}
 
 
 /* =========================================================
@@ -2572,67 +2725,113 @@ function combineFiles(parsedList){
 
 function getActiveData(side){
 
-    return state[side] || null;
+return state[side] || null;
 
 }
 
 
 function guessColumn(headers,kind){
 
-    let patterns;
+const patterns=
+kind==="patient"
+?
+[
+"patientid",
+"patientidentifier",
+"patientnumber",
+"mrn",
+"uhid",
+"medicalrecordnumber",
+"patientno",
+"patientnumber"
+]
+:
+kind==="study"
+?
+[
+"studyid",
+"studyidentifier",
+"accessionnumber",
+"accession",
+"orderid",
+"orderidentifier",
+"studyinstanceuid"
+]
+:
+[
+"patientname",
+"patientfullname",
+"fullname",
+"name"
+];
 
 
-    if(kind === "patient"){
+for(const h of headers){
 
-        patterns = [
+if(
+patterns.includes(norm(h))
+){
 
-            "patientid",
-            "patientidentifier",
-            "patientnumber",
-            "patientno",
-            "mrn",
-            "uhid",
-            "medicalrecordnumber"
-
-        ];
-
-    }else if(kind === "study"){
-
-        patterns = [
-
-            "studyid",
-            "studyidentifier",
-            "accessionnumber",
-            "accession",
-            "orderid",
-            "order",
-            "studyinstanceuid"
-
-        ];
-
-    }else{
-
-        patterns = [
-
-            "patientname",
-            "patientfullname",
-            "fullname",
-            "name"
-
-        ];
-
-    }
-
-
-    return headers.find(
-        h =>
-        patterns.includes(
-            norm(h)
-        )
-    ) || "";
+return h;
 
 }
 
+}
+
+
+/*
+   More flexible detection.
+*/
+
+for(const h of headers){
+
+const n=norm(h);
+
+if(kind==="patient"){
+
+if(
+n.includes("patientid") ||
+n==="uhid" ||
+n==="mrn"
+){
+
+return h;
+
+}
+
+}
+
+if(kind==="study"){
+
+if(
+n.includes("studyid") ||
+n.includes("accession") ||
+n.includes("orderid")
+){
+
+return h;
+
+}
+
+}
+
+if(kind==="name"){
+
+if(
+n.includes("patientname")
+){
+
+return h;
+
+}
+
+}
+
+}
+
+return "";
+
+}
 
 
 /* =========================================================
@@ -2640,124 +2839,111 @@ function guessColumn(headers,kind){
 ========================================================= */
 
 function fillDropdown(
-    id,
-    headers,
-    optional=false,
-    kind="patient"
+id,
+headers,
+optional=false,
+kind="patient"
 ){
 
-    const sel = $(id);
+const sel=$(id);
 
-    sel.innerHTML = "";
+sel.innerHTML="";
 
+const first=
+document.createElement("option");
 
-    const first =
-        document.createElement("option");
+first.value="";
 
+first.textContent=
+optional
+?
+"Do not check"
+:
+"Select column";
 
-    first.value = "";
-
-    first.textContent =
-        optional
-        ? "Do not check"
-        : "Select column";
-
-
-    sel.appendChild(first);
-
-
-    headers.forEach(h=>{
-
-        const o =
-            document.createElement("option");
+sel.appendChild(first);
 
 
-        o.value = h;
+headers.forEach(
+h=>{
 
-        o.textContent = h;
+const o=
+document.createElement("option");
 
+o.value=h;
 
-        sel.appendChild(o);
+o.textContent=h;
 
-    });
+sel.appendChild(o);
 
-
-    sel.disabled =
-        !headers.length;
-
-
-    const guess =
-        guessColumn(
-            headers,
-            kind
-        );
+});
 
 
-    if(guess){
+sel.disabled=!headers.length;
 
-        sel.value = guess;
 
-    }
+const guess=
+guessColumn(
+headers,
+kind
+);
+
+if(guess){
+
+sel.value=guess;
+
+}
 
 }
 
 
-
 /* =========================================================
-   REFRESH SIDE FIELDS
+   REFRESH FIELDS
 ========================================================= */
 
 function refreshFields(side){
 
-    const d =
-        getActiveData(side);
+const d=
+getActiveData(side);
+
+if(!d)return;
+
+const prefix=
+side==="client"
+?
+"client"
+:
+"fivec";
 
 
-    if(!d){
+fillDropdown(
+prefix+"Key",
+d.headers,
+false,
+"patient"
+);
 
-        return;
+fillDropdown(
+prefix+"StudyKey",
+d.headers,
+true,
+"study"
+);
 
-    }
-
-
-    const prefix =
-        side === "client"
-        ? "client"
-        : "fivec";
-
-
-    fillDropdown(
-        prefix+"Key",
-        d.headers,
-        false,
-        "patient"
-    );
-
-
-    fillDropdown(
-        prefix+"StudyKey",
-        d.headers,
-        true,
-        "study"
-    );
+fillDropdown(
+prefix+"NameKey",
+d.headers,
+true,
+"name"
+);
 
 
-    fillDropdown(
-        prefix+"NameKey",
-        d.headers,
-        true,
-        "name"
-    );
+$(prefix+"Sheet").innerHTML=
+'<option value="Combined uploads">Combined uploads</option>';
 
-
-    $(prefix+"Sheet").innerHTML =
-        '<option value="Combined uploads">Combined uploads</option>';
-
-
-    $(prefix+"Sheet").disabled = true;
+$(prefix+"Sheet").disabled=true;
 
 }
-
 
 
 /* =========================================================
@@ -2766,217 +2952,203 @@ function refreshFields(side){
 
 function updateCompareButton(){
 
-    $("compareBtn").disabled =
-        !(state.client && state.fivec);
+$("compareBtn").disabled=
+!(
+state.client &&
+state.fivec
+);
 
 }
-
 
 
 /* =========================================================
    UPLOAD HANDLER
 ========================================================= */
 
-async function handleUpload(side,files){
+async function handleUpload(
+side,
+files
+){
 
-    if(!files || !files.length){
+if(!files || !files.length)return;
 
-        return;
+clearMessage();
 
-    }
+showMessage(
+`Reading ${files.length} file(s)...`
+);
 
+state.results=null;
 
-    clearMessage();
-
-
-    showMessage(
-        `Reading ${files.length} file(s)...`
-    );
-
-
-    state.results = null;
-
-    $("results").style.display = "none";
+$("results").style.display="none";
 
 
-    try{
+try{
 
-        const parsed = [];
+const parsed=[];
 
+for(
+const file of files
+){
 
-        for(const file of files){
+showMessage(
+`Reading ${file.name}...`
+);
 
-            showMessage(
-                `Reading ${file.name}...`
-            );
+parsed.push({
 
+file,
 
-            parsed.push({
+parsed:
+await readFile(file)
 
-                file,
-
-                parsed:
-                    await readFile(file)
-
-            });
-
-        }
-
-
-        state[side] =
-            combineFiles(parsed);
-
-
-        const prefix =
-            side === "client"
-            ? "client"
-            : "fivec";
-
-
-        $(prefix+"FileName").textContent =
-            [...files]
-            .map(f=>f.name)
-            .join(", ");
-
-
-        $(prefix+"Status").textContent =
-            `${files.length} file(s) loaded`;
-
-
-        $(prefix+"Status")
-            .classList.add("ready");
-
-
-        refreshFields(side);
-
-        updateCompareButton();
-
-
-        showMessage(
-
-            `${side === "client" ? "Client" : "5C"} data loaded: ` +
-
-            `${state[side].rows.length.toLocaleString()} rows ` +
-
-            `and ${state[side].headers.length} columns. ` +
-
-            `Select Patient ID and optional Study ID/name columns.`
-
-        );
-
-    }catch(e){
-
-        console.error(e);
-
-        state[side] = null;
-
-        updateCompareButton();
-
-
-        showMessage(
-            "Unable to read file: " +
-            e.message,
-            "error"
-        );
-
-    }
+});
 
 }
 
 
+state[side]=
+combineFiles(parsed);
+
+
+const prefix=
+side==="client"
+?
+"client"
+:
+"fivec";
+
+
+$(prefix+"FileName").textContent=
+[...files]
+.map(f=>f.name)
+.join(", ");
+
+
+$(prefix+"Status").textContent=
+`${files.length} file(s) loaded`;
+
+$(prefix+"Status")
+.classList.add("ready");
+
+
+refreshFields(side);
+
+updateCompareButton();
+
+
+showMessage(
+`${side==="client"?"Client":"5C"} data loaded: `+
+`${state[side].rows.length.toLocaleString()} patient/data rows and `+
+`${state[side].headers.length} columns.`
+);
+
+
+}
+catch(e){
+
+console.error(e);
+
+state[side]=null;
+
+updateCompareButton();
+
+showMessage(
+"Unable to read file: "+e.message,
+"error"
+);
+
+}
+
+}
+
+
+/* =========================================================
+   FILE EVENTS
+========================================================= */
 
 $("clientFile")
 .addEventListener(
-    "change",
-    e =>
-    handleUpload(
-        "client",
-        e.target.files
-    )
+"change",
+e=>
+handleUpload(
+"client",
+e.target.files
+)
 );
 
 
 $("fivecFile")
 .addEventListener(
-    "change",
-    e =>
-    handleUpload(
-        "fivec",
-        e.target.files
-    )
+"change",
+e=>
+handleUpload(
+"fivec",
+e.target.files
+)
 );
 
 
-
 /* =========================================================
-   INDEX DATA BY KEY
+   INDEX BY PATIENT ID / STUDY ID
 ========================================================= */
 
 function indexBy(rows,key){
 
-    const map = new Map();
+const map=new Map();
 
-    const blanks = [];
-
-
-    rows.forEach(
-        (row,i)=>{
-
-        const raw =
-            cleanText(
-                row[key]
-            );
+const blanks=[];
 
 
-        if(!raw){
+rows.forEach(
+(row,i)=>{
 
-            blanks.push({
+const raw=
+cleanText(
+row[key]
+);
 
-                row,
+if(!raw){
 
-                rowNumber:i+1
+blanks.push({
+row,
+rowNumber:i+1
+});
 
-            });
-
-            return;
-
-        }
-
-
-        const id =
-            normId(raw);
-
-
-        if(!map.has(id)){
-
-            map.set(
-                id,
-                []
-            );
-
-        }
-
-
-        map.get(id).push({
-
-            row,
-
-            rowNumber:i+1,
-
-            raw
-
-        });
-
-    });
-
-
-    return {
-        map,
-        blanks
-    };
+return;
 
 }
 
+const id=
+normId(raw);
+
+
+if(!map.has(id)){
+
+map.set(id,[]);
+
+}
+
+
+map.get(id).push({
+
+row,
+
+rowNumber:i+1,
+
+raw
+
+});
+
+});
+
+
+return {
+map,
+blanks
+};
+
+}
 
 
 /* =========================================================
@@ -2984,52 +3156,50 @@ function indexBy(rows,key){
 ========================================================= */
 
 function duplicatesFromIndex(
-    index,
-    source,
-    type
+index,
+source,
+type
 ){
 
-    const out = [];
+const out=[];
 
+for(
+const entries
+of index.values()
+){
 
-    for(
-        const entries of
-        index.values()
-    ){
+if(entries.length>1){
 
-        if(entries.length > 1){
+entries.forEach(
+e=>{
 
-            entries.forEach(e=>{
+out.push({
 
-                out.push({
+Source:source,
 
-                    Source:source,
+Type:type,
 
-                    Type:type,
+Identifier:e.raw,
 
-                    Identifier:e.raw,
+"Row Number":
+e.rowNumber,
 
-                    "Row Number":
-                        e.rowNumber,
+Occurrences:
+entries.length,
 
-                    Occurrences:
-                        entries.length,
+...e.row
 
-                    ...e.row
+});
 
-                });
-
-            });
-
-        }
-
-    }
-
-
-    return out;
+});
 
 }
 
+}
+
+return out;
+
+}
 
 
 /* =========================================================
@@ -3038,988 +3208,977 @@ function duplicatesFromIndex(
 
 function compareData(){
 
-    const c =
-        getActiveData("client");
+const c=
+getActiveData("client");
 
+const f=
+getActiveData("fivec");
 
-    const f =
-        getActiveData("fivec");
 
+if(!c || !f){
 
-    if(!c || !f){
+showMessage(
+"Upload both documents first.",
+"error"
+);
 
-        showMessage(
-            "Upload both documents first.",
-            "error"
-        );
+return;
 
-        return;
+}
 
-    }
 
+const ck=
+$("clientKey").value;
 
-    const ck =
-        $("clientKey").value;
+const fk=
+$("fivecKey").value;
 
 
-    const fk =
-        $("fivecKey").value;
+if(!ck || !fk){
 
+showMessage(
+"Select Patient ID columns for both documents.",
+"error"
+);
 
-    if(!ck || !fk){
+return;
 
-        showMessage(
-            "Select Patient ID columns for both documents.",
-            "error"
-        );
+}
 
-        return;
 
-    }
+if(
+!c.rows.length ||
+!f.rows.length
+){
 
+showMessage(
+"One or both uploads contain no data rows.",
+"error"
+);
 
-    if(
-        !c.rows.length ||
-        !f.rows.length
-    ){
+return;
 
-        showMessage(
-            "One or both uploads contain no data rows.",
-            "error"
-        );
+}
 
-        return;
 
-    }
+const cs=
+$("clientStudyKey").value;
 
+const fs=
+$("fivecStudyKey").value;
 
-    const cs =
-        $("clientStudyKey").value;
+const cn=
+$("clientNameKey").value;
 
+const fn=
+$("fivecNameKey").value;
 
-    const fs =
-        $("fivecStudyKey").value;
 
+const ci=
+indexBy(
+c.rows,
+ck
+);
 
-    const cn =
-        $("clientNameKey").value;
+const fi=
+indexBy(
+f.rows,
+fk
+);
 
 
-    const fn =
-        $("fivecNameKey").value;
+const matched=[];
 
+const clientMissing=[];
 
-    const ci =
-        indexBy(
-            c.rows,
-            ck
-        );
+const fivecMissing=[];
 
+const duplicates=[];
 
-    const fi =
-        indexBy(
-            f.rows,
-            fk
-        );
+const duplicateStudies=[];
 
+const nameMismatches=[];
 
-    const matched = [];
+const studyMismatches=[];
 
-    const clientMissing = [];
 
-    const fivecMissing = [];
+const matchedIds=new Set();
 
-    const duplicates = [];
+const missingClientIds=new Set();
 
-    const duplicateStudies = [];
+const missingFivecIds=new Set();
 
-    const nameMismatches = [];
 
-    const studyMismatches = [];
+/*
+   CLIENT -> 5C
+*/
 
+for(
+const [id,ce]
+of ci.map
+){
 
-    const matchedIds = new Set();
+const fe=
+fi.map.get(id);
 
-    const missingClientIds = new Set();
 
-    const missingFivecIds = new Set();
+if(!fe){
 
+missingFivecIds.add(id);
 
+ce.forEach(
+e=>
+clientMissing.push({
 
-    /*
-        Client → 5C
-    */
+"Patient ID":
+e.raw,
 
-    for(
-        const [id,ce] of
-        ci.map
-    ){
+"Client Row Number":
+e.rowNumber,
 
-        const fe =
-            fi.map.get(id);
+...e.row
 
+})
+);
 
-        if(!fe){
+continue;
 
-            missingFivecIds.add(id);
+}
 
 
-            ce.forEach(e=>{
+matchedIds.add(id);
 
-                clientMissing.push({
 
-                    "Patient ID":e.raw,
+const count=
+Math.min(
+ce.length,
+fe.length
+);
 
-                    "Client Row Number":
-                        e.rowNumber,
 
-                    ...e.row
+for(
+let i=0;
+i<count;
+i++
+){
 
-                });
+const cr=ce[i];
 
-            });
+const fr=fe[i];
 
 
-            continue;
+const matchedRow={
 
-        }
+"Patient ID":
+cr.raw,
 
+"Client Row Number":
+cr.rowNumber,
 
-        matchedIds.add(id);
+"5C Row Number":
+fr.rowNumber,
 
+"Client Patient Name":
+cn
+?
+cr.row[cn]
+:
+"",
 
-        const count =
-            Math.min(
-                ce.length,
-                fe.length
-            );
+"5C Patient Name":
+fn
+?
+fr.row[fn]
+:
+"",
 
+"Client Study ID":
+cs
+?
+cr.row[cs]
+:
+"",
 
-        for(
-            let i=0;
-            i<count;
-            i++
-        ){
+"5C Study ID":
+fs
+?
+fr.row[fs]
+:
+""
 
-            const cr = ce[i];
+};
 
-            const fr = fe[i];
 
+c.headers.forEach(
+h=>{
 
-            const clientValues =
-                Object.fromEntries(
-                    c.headers.map(
-                        h =>
-                        [
-                            "Client - "+h,
-                            cr.row[h] ?? ""
-                        ]
-                    )
-                );
+matchedRow[
+"Client - "+h
+]=
+cr.row[h] ?? "";
 
+});
 
-            const fivecValues =
-                Object.fromEntries(
-                    f.headers.map(
-                        h =>
-                        [
-                            "5C - "+h,
-                            fr.row[h] ?? ""
-                        ]
-                    )
-                );
 
+f.headers.forEach(
+h=>{
 
-            matched.push({
+matchedRow[
+"5C - "+h
+]=
+fr.row[h] ?? "";
 
-                "Patient ID":cr.raw,
+});
 
-                "Client Row Number":
-                    cr.rowNumber,
 
-                "5C Row Number":
-                    fr.rowNumber,
+matched.push(matchedRow);
 
-                "Client Patient Name":
-                    cn
-                    ? cr.row[cn]
-                    : "",
 
-                "5C Patient Name":
-                    fn
-                    ? fr.row[fn]
-                    : "",
+/*
+   NAME CHECK
+*/
 
-                "Client Study ID":
-                    cs
-                    ? cr.row[cs]
-                    : "",
+if(
+cn &&
+fn &&
+norm(cr.row[cn]) !==
+norm(fr.row[fn])
+){
 
-                "5C Study ID":
-                    fs
-                    ? fr.row[fs]
-                    : "",
+nameMismatches.push({
 
-                ...clientValues,
+"Patient ID":
+cr.raw,
 
-                ...fivecValues
+"Client Name":
+cr.row[cn],
 
-            });
+"5C Name":
+fr.row[fn],
 
+"Client Row":
+cr.rowNumber,
 
-            /*
-                Name mismatch is reported separately.
-                It does NOT invalidate Patient ID match.
-            */
+"5C Row":
+fr.rowNumber
 
-            if(
-                cn &&
-                fn &&
-                norm(cr.row[cn]) !==
-                norm(fr.row[fn])
-            ){
+});
 
-                nameMismatches.push({
+}
 
-                    "Patient ID":cr.raw,
+}
 
-                    "Client Name":
-                        cr.row[cn],
 
-                    "5C Name":
-                        fr.row[fn],
+/*
+   Record count difference.
 
-                    "Client Row":
-                        cr.rowNumber,
+   This represents the number of
+   patient records/studies associated
+   with that Patient ID.
+*/
 
-                    "5C Row":
-                        fr.rowNumber
+if(
+ce.length !==
+fe.length
+){
 
-                });
+studyMismatches.push({
 
-            }
+"Patient ID":
+ce[0].raw,
 
-        }
+"Client Record Count":
+ce.length,
 
+"5C Record Count":
+fe.length,
 
-        /*
-            Record-count difference.
-        */
+"Difference":
+ce.length-fe.length,
 
-        if(
-            ce.length !==
-            fe.length
-        ){
+"Status":
+ce.length>fe.length
+?
+"More records in Client"
+:
+"More records in 5C"
 
-            studyMismatches.push({
+});
 
-                "Patient ID":
-                    ce[0].raw,
+}
 
-                "Client Record Count":
-                    ce.length,
 
-                "5C Record Count":
-                    fe.length,
+/*
+   Duplicate patient IDs
+*/
 
-                Difference:
-                    ce.length-fe.length,
+if(ce.length>1){
 
-                Status:
-                    ce.length > fe.length
-                    ? "More records in Client"
-                    : "More records in 5C"
+ce.forEach(
+e=>
+duplicates.push({
 
-            });
+Source:"Client",
 
-        }
+"Patient ID":
+e.raw,
 
+"Row Number":
+e.rowNumber,
 
-        /*
-            Duplicate Patient IDs
-        */
+Occurrences:
+ce.length
 
-        if(ce.length > 1){
+})
+);
 
-            ce.forEach(e=>{
+}
 
-                duplicates.push({
 
-                    Source:"Client",
+if(fe.length>1){
 
-                    "Patient ID":e.raw,
+fe.forEach(
+e=>
+duplicates.push({
 
-                    "Row Number":
-                        e.rowNumber,
+Source:"5C",
 
-                    Occurrences:
-                        ce.length
+"Patient ID":
+e.raw,
 
-                });
+"Row Number":
+e.rowNumber,
 
-            });
+Occurrences:
+fe.length
 
-        }
+})
+);
 
+}
 
-        if(fe.length > 1){
+}
 
-            fe.forEach(e=>{
 
-                duplicates.push({
+/*
+   5C -> CLIENT
+*/
 
-                    Source:"5C",
+for(
+const [id,entries]
+of fi.map
+){
 
-                    "Patient ID":e.raw,
+if(
+!ci.map.has(id)
+){
 
-                    "Row Number":
-                        e.rowNumber,
+missingClientIds.add(id);
 
-                    Occurrences:
-                        fe.length
+entries.forEach(
+e=>
+fivecMissing.push({
 
-                });
+"Patient ID":
+e.raw,
 
-            });
+"5C Row Number":
+e.rowNumber,
 
-        }
+...e.row
 
-    }
+})
+);
 
+}
 
+}
 
-    /*
-        5C → Client
-    */
 
-    for(
-        const [id,entries] of
-        fi.map
-    ){
+/*
+   DUPLICATE STUDY IDs
+*/
 
-        if(!ci.map.has(id)){
+if(cs){
 
-            missingClientIds.add(id);
+const idx=
+indexBy(
+c.rows,
+cs
+);
 
+duplicateStudies.push(
+...duplicatesFromIndex(
+idx.map,
+"Client",
+"Study ID"
+)
+);
 
-            entries.forEach(e=>{
+}
 
-                fivecMissing.push({
 
-                    "Patient ID":e.raw,
+if(fs){
 
-                    "5C Row Number":
-                        e.rowNumber,
+const idx=
+indexBy(
+f.rows,
+fs
+);
 
-                    ...e.row
+duplicateStudies.push(
+...duplicatesFromIndex(
+idx.map,
+"5C",
+"Study ID"
+)
+);
 
-                });
+}
 
-            });
 
-        }
+/*
+   BLANK PATIENT IDS
+*/
 
-    }
+const blanks=[
 
+...ci.blanks.map(
+e=>({
 
+Source:"Client",
 
-    /*
-        Duplicate Study IDs
-    */
+"Row Number":
+e.rowNumber,
 
-    if(cs){
+...e.row
 
-        const idx =
-            indexBy(
-                c.rows,
-                cs
-            );
+})
+),
 
+...fi.blanks.map(
+e=>({
 
-        duplicateStudies.push(
-            ...duplicatesFromIndex(
-                idx.map,
-                "Client",
-                "Study ID"
-            )
-        );
+Source:"5C",
 
-    }
+"Row Number":
+e.rowNumber,
 
+...e.row
 
-    if(fs){
+})
+)
 
-        const idx =
-            indexBy(
-                f.rows,
-                fs
-            );
+];
 
 
-        duplicateStudies.push(
-            ...duplicatesFromIndex(
-                idx.map,
-                "5C",
-                "Study ID"
-            )
-        );
+/* =========================================================
+   SUMMARY
+========================================================= */
 
-    }
+const summary=[
 
+{
+Metric:"Client records",
+Value:c.rows.length
+},
 
+{
+Metric:"5C records",
+Value:f.rows.length
+},
 
-    /*
-        Blank Patient IDs
-    */
+{
+Metric:"Matched unique Patient IDs",
+Value:matchedIds.size
+},
 
-    const blanks = [
+{
+Metric:"Unique Patient IDs missing from 5C",
+Value:missingFivecIds.size
+},
 
-        ...ci.blanks.map(
-            e => ({
+{
+Metric:"Unique Patient IDs missing from Client",
+Value:missingClientIds.size
+},
 
-                Source:"Client",
+{
+Metric:"Duplicate Patient ID rows",
+Value:duplicates.length
+},
 
-                "Row Number":
-                    e.rowNumber,
+{
+Metric:"Duplicate Study ID rows",
+Value:duplicateStudies.length
+},
 
-                ...e.row
+{
+Metric:"Patient name mismatches",
+Value:nameMismatches.length
+},
 
-            })
-        ),
+{
+Metric:"Patient study-count mismatches",
+Value:studyMismatches.length
+},
 
-        ...fi.blanks.map(
-            e => ({
+{
+Metric:"Blank Patient ID rows",
+Value:blanks.length
+},
 
-                Source:"5C",
+{
+Metric:"Client Patient ID column",
+Value:ck
+},
 
-                "Row Number":
-                    e.rowNumber,
+{
+Metric:"5C Patient ID column",
+Value:fk
+},
 
-                ...e.row
+{
+Metric:"Client Study ID column",
+Value:cs || "Not selected"
+},
 
-            })
-        )
+{
+Metric:"5C Study ID column",
+Value:fs || "Not selected"
+}
 
-    ];
+];
 
 
+state.results={
 
-    /*
-        Summary
-    */
+summary,
 
-    const summary = [
+matched,
 
-        {
-            Metric:"Client records",
-            Value:c.rows.length
-        },
+clientMissing,
 
-        {
-            Metric:"5C records",
-            Value:f.rows.length
-        },
+fivecMissing,
 
-        {
-            Metric:"Matched unique Patient IDs",
-            Value:matchedIds.size
-        },
+duplicates,
 
-        {
-            Metric:"Unique Patient IDs missing from 5C",
-            Value:missingFivecIds.size
-        },
+duplicateStudies,
 
-        {
-            Metric:"Unique Patient IDs missing from Client",
-            Value:missingClientIds.size
-        },
+nameMismatches,
 
-        {
-            Metric:"Duplicate Patient ID rows",
-            Value:duplicates.length
-        },
+studyMismatches,
 
-        {
-            Metric:"Duplicate Study ID rows",
-            Value:duplicateStudies.length
-        },
+blanks,
 
-        {
-            Metric:"Patient name mismatches",
-            Value:nameMismatches.length
-        },
+clientRows:c.rows,
 
-        {
-            Metric:"Patient study-count mismatches",
-            Value:studyMismatches.length
-        },
+fivecRows:f.rows,
 
-        {
-            Metric:"Blank Patient ID rows",
-            Value:blanks.length
-        },
+clientHeaders:c.headers,
 
-        {
-            Metric:"Client Patient ID column",
-            Value:ck
-        },
+fivecHeaders:f.headers
 
-        {
-            Metric:"5C Patient ID column",
-            Value:fk
-        },
+};
 
-        {
-            Metric:"Client Study ID column",
-            Value:cs || "Not selected"
-        },
 
-        {
-            Metric:"5C Study ID column",
-            Value:fs || "Not selected"
-        }
+/* =========================================================
+   DISPLAY STATS
+========================================================= */
 
-    ];
+$("clientCount").textContent=
+c.rows.length.toLocaleString();
 
+$("fivecCount").textContent=
+f.rows.length.toLocaleString();
 
+$("matchedCount").textContent=
+matchedIds.size.toLocaleString();
 
-    state.results = {
+$("missingCount").textContent=
+(
+missingFivecIds.size+
+missingClientIds.size
+).toLocaleString();
 
-        summary,
+$("duplicateCount").textContent=
+duplicates.length.toLocaleString();
 
-        matched,
+$("duplicateStudyCount").textContent=
+duplicateStudies.length.toLocaleString();
 
-        clientMissing,
+$("nameMismatchCount").textContent=
+nameMismatches.length.toLocaleString();
 
-        fivecMissing,
+$("studyMismatchCount").textContent=
+studyMismatches.length.toLocaleString();
 
-        duplicates,
 
-        duplicateStudies,
+$("results").style.display="block";
 
-        nameMismatches,
+state.activeTab="summary";
 
-        studyMismatches,
+state.page=1;
 
-        blanks,
+$("searchBox").value="";
 
-        clientRows:c.rows,
+updateTabs();
 
-        fivecRows:f.rows,
+renderTable();
 
-        clientHeaders:c.headers,
+$("results").scrollIntoView({
+behavior:"smooth",
+block:"start"
+});
 
-        fivecHeaders:f.headers
 
-    };
-
-
-
-    $("clientCount").textContent =
-        c.rows.length.toLocaleString();
-
-
-    $("fivecCount").textContent =
-        f.rows.length.toLocaleString();
-
-
-    $("matchedCount").textContent =
-        matchedIds.size.toLocaleString();
-
-
-    $("missingCount").textContent =
-        (
-            missingFivecIds.size +
-            missingClientIds.size
-        ).toLocaleString();
-
-
-    $("duplicateCount").textContent =
-        duplicates.length.toLocaleString();
-
-
-    $("duplicateStudyCount").textContent =
-        duplicateStudies.length.toLocaleString();
-
-
-    $("nameMismatchCount").textContent =
-        nameMismatches.length.toLocaleString();
-
-
-    $("studyMismatchCount").textContent =
-        studyMismatches.length.toLocaleString();
-
-
-    $("results").style.display =
-        "block";
-
-
-    state.activeTab =
-        "summary";
-
-
-    state.page = 1;
-
-
-    $("searchBox").value = "";
-
-
-    updateTabs();
-
-    renderTable();
-
-
-    $("results").scrollIntoView({
-        behavior:"smooth",
-        block:"start"
-    });
-
-
-    showMessage(
-
-        `Comparison complete. ` +
-
-        `${matchedIds.size} unique Patient IDs matched. ` +
-
-        `Name mismatches, duplicate IDs, duplicate studies, ` +
-
-        `and count differences are reported separately.`
-
-    );
+showMessage(
+`Comparison complete. ${matchedIds.size} unique Patient IDs matched. `+
+`Missing IDs, duplicate IDs, duplicate studies, name mismatches, and record-count differences are reported separately.`
+);
 
 }
 
 
 $("compareBtn")
 .addEventListener(
-    "click",
-    compareData
+"click",
+compareData
 );
 
 
-
 /* =========================================================
-   TABS
+   TABLE
 ========================================================= */
 
 function getTabRows(tab){
 
-    return state.results?.[tab] || [];
+return state.results?.[tab] || [];
 
 }
 
 
 function updateTabs(){
 
-    document
-    .querySelectorAll(".tab")
-    .forEach(
-        b =>
-        b.classList.toggle(
-            "active",
-            b.dataset.tab ===
-            state.activeTab
-        )
-    );
+document
+.querySelectorAll(".tab")
+.forEach(
+b=>
+b.classList.toggle(
+"active",
+b.dataset.tab===
+state.activeTab
+)
+);
 
 }
 
 
 $("tabs")
 .addEventListener(
-    "click",
-    e=>{
+"click",
+e=>{
 
-        const b =
-            e.target.closest(".tab");
+const b=
+e.target.closest(".tab");
 
+if(!b)return;
 
-        if(!b){
+state.activeTab=
+b.dataset.tab;
 
-            return;
+state.page=1;
 
-        }
+$("searchBox").value="";
 
+updateTabs();
 
-        state.activeTab =
-            b.dataset.tab;
+renderTable();
 
-
-        state.page = 1;
-
-
-        $("searchBox").value = "";
-
-
-        updateTabs();
-
-        renderTable();
-
-    }
+}
 );
 
 
 $("searchBox")
 .addEventListener(
-    "input",
-    ()=>{
-        state.page = 1;
-        renderTable();
-    }
+"input",
+()=>{
+
+state.page=1;
+
+renderTable();
+
+}
 );
 
 
-
-/* =========================================================
-   HTML ESCAPE
-========================================================= */
-
 function escapeHtml(v){
 
-    return String(v ?? "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+return String(v ?? "")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
 
 }
 
-
-
-/* =========================================================
-   EMPTY HEADERS
-========================================================= */
 
 function getEmptyHeaders(tab){
 
-    const map = {
+const map={
 
-        summary:[
-            "Metric",
-            "Value"
-        ],
+summary:[
+"Metric",
+"Value"
+],
 
-        matched:[
-            "Patient ID",
-            "Client Row Number",
-            "5C Row Number"
-        ],
+matched:[
+"Patient ID",
+"Client Row Number",
+"5C Row Number"
+],
 
-        clientMissing:[
-            "Patient ID",
-            "Client Row Number"
-        ],
+clientMissing:[
+"Patient ID",
+"Client Row Number"
+],
 
-        fivecMissing:[
-            "Patient ID",
-            "5C Row Number"
-        ],
+fivecMissing:[
+"Patient ID",
+"5C Row Number"
+],
 
-        duplicates:[
-            "Source",
-            "Patient ID",
-            "Row Number",
-            "Occurrences"
-        ],
+duplicates:[
+"Source",
+"Patient ID",
+"Row Number",
+"Occurrences"
+],
 
-        duplicateStudies:[
-            "Source",
-            "Type",
-            "Identifier",
-            "Row Number",
-            "Occurrences"
-        ],
+duplicateStudies:[
+"Source",
+"Type",
+"Identifier",
+"Row Number",
+"Occurrences"
+],
 
-        nameMismatches:[
-            "Patient ID",
-            "Client Name",
-            "5C Name"
-        ],
+nameMismatches:[
+"Patient ID",
+"Client Name",
+"5C Name"
+],
 
-        studyMismatches:[
-            "Patient ID",
-            "Client Record Count",
-            "5C Record Count",
-            "Difference",
-            "Status"
-        ],
+studyMismatches:[
+"Patient ID",
+"Client Record Count",
+"5C Record Count",
+"Difference",
+"Status"
+],
 
-        blanks:[
-            "Source",
-            "Row Number"
-        ]
+blanks:[
+"Source",
+"Row Number"
+]
 
-    };
+};
 
-
-    return map[tab] || [];
+return map[tab] || [];
 
 }
 
-
-
-/* =========================================================
-   TABLE RENDERING
-========================================================= */
 
 function renderTable(){
 
-    if(!state.results){
-
-        return;
-
-    }
+if(!state.results)return;
 
 
-    const rows =
-        getTabRows(
-            state.activeTab
-        );
+const rows=
+getTabRows(
+state.activeTab
+);
+
+const q=
+$("searchBox")
+.value
+.toLowerCase()
+.trim();
 
 
-    const q =
-        $("searchBox")
-        .value
-        .toLowerCase()
-        .trim();
+const filtered=
+q
+?
+rows.filter(
+r=>
+Object.values(r)
+.some(
+v=>
+String(v ?? "")
+.toLowerCase()
+.includes(q)
+)
+)
+:
+rows;
 
 
-    const filtered =
-        q
-        ? rows.filter(
-            r =>
-            Object.values(r)
-            .some(
-                v =>
-                String(v ?? "")
-                .toLowerCase()
-                .includes(q)
-            )
-        )
-        : rows;
+const headers=
+filtered.length
+?
+Object.keys(filtered[0])
+:
+getEmptyHeaders(
+state.activeTab
+);
 
 
-    const headers =
-        filtered.length
-        ? Object.keys(filtered[0])
-        : getEmptyHeaders(
-            state.activeTab
-        );
+const pages=
+Math.max(
+1,
+Math.ceil(
+filtered.length/PAGE_SIZE
+)
+);
 
 
-    const pages =
-        Math.max(
-            1,
-            Math.ceil(
-                filtered.length /
-                PAGE_SIZE
-            )
-        );
+state.page=
+Math.min(
+state.page,
+pages
+);
 
 
-    state.page =
-        Math.min(
-            state.page,
-            pages
-        );
+const visible=
+filtered.slice(
+(state.page-1)*PAGE_SIZE,
+state.page*PAGE_SIZE
+);
 
 
-    const visible =
-        filtered.slice(
-            (state.page-1)*PAGE_SIZE,
-            state.page*PAGE_SIZE
-        );
+$("tableHead").innerHTML=
+headers.length
+?
+`<tr>${
+headers
+.map(
+h=>
+`<th>${escapeHtml(h)}</th>`
+)
+.join("")
+}</tr>`
+:
+"";
 
 
-    $("tableHead").innerHTML =
-        headers.length
-        ?
-        `<tr>${
-            headers
-            .map(
-                h =>
-                `<th>${escapeHtml(h)}</th>`
-            )
-            .join("")
-        }</tr>`
-        :
-        "";
+$("tableBody").innerHTML=
+visible.length
+?
+visible.map(
+r=>
+`<tr>${
+headers
+.map(
+h=>
+`<td>${escapeHtml(r[h] ?? "")}</td>`
+)
+.join("")
+}</tr>`
+).join("")
+:
+`<tr>
+<td class="empty"
+colspan="${Math.max(headers.length,1)}">
+No records found in this view.
+</td>
+</tr>`;
 
 
-    $("tableBody").innerHTML =
-        visible.length
-        ?
-        visible
-        .map(
-            r =>
-            `<tr>${
-                headers
-                .map(
-                    h =>
-                    `<td>${escapeHtml(r[h] ?? "")}</td>`
-                )
-                .join("")
-            }</tr>`
-        )
-        .join("")
-        :
-        `<tr>
-            <td
-                class="empty"
-                colspan="${Math.max(headers.length,1)}">
-                No records found in this view.
-            </td>
-        </tr>`;
+$("tableInfo").textContent=
+`${filtered.length.toLocaleString()} records · ${state.activeTab}`;
 
 
-    $("tableInfo").textContent =
-        `${filtered.length.toLocaleString()} records · ${state.activeTab}`;
+$("pageInfo").textContent=
+`Page ${state.page} of ${pages} · Showing ${visible.length} rows`;
 
 
-    $("pageInfo").textContent =
-        `Page ${state.page} of ${pages} · Showing ${visible.length} rows`;
+$("prevPage").disabled=
+state.page<=1;
 
-
-    $("prevPage").disabled =
-        state.page <= 1;
-
-
-    $("nextPage").disabled =
-        state.page >= pages;
+$("nextPage").disabled=
+state.page>=pages;
 
 }
-
 
 
 $("prevPage")
 .addEventListener(
-    "click",
-    ()=>{
-        if(state.page > 1){
+"click",
+()=>{
 
-            state.page--;
+if(state.page>1){
 
-            renderTable();
+state.page--;
 
-        }
-    }
+renderTable();
+
+}
+
+}
 );
 
 
 $("nextPage")
 .addEventListener(
-    "click",
-    ()=>{
+"click",
+()=>{
 
-        state.page++;
-
-        renderTable();
-
-    }
+const rows=
+getTabRows(
+state.activeTab
 );
 
+const q=
+$("searchBox")
+.value
+.toLowerCase()
+.trim();
+
+const filtered=
+q
+?
+rows.filter(
+r=>
+Object.values(r)
+.some(
+v=>
+String(v ?? "")
+.toLowerCase()
+.includes(q)
+)
+)
+:
+rows;
+
+const pages=
+Math.max(
+1,
+Math.ceil(
+filtered.length/PAGE_SIZE
+)
+);
+
+if(state.page<pages){
+
+state.page++;
+
+renderTable();
+
+}
+
+}
+);
 
 
 /* =========================================================
@@ -4027,115 +4186,109 @@ $("nextPage")
 ========================================================= */
 
 function downloadWorkbook(
-    sheets,
-    filename
+sheets,
+filename
 ){
 
-    const wb =
-        XLSX.utils.book_new();
+const wb=
+XLSX.utils.book_new();
 
 
-    Object.entries(sheets)
-    .forEach(
-        ([name,rows])=>{
+Object.entries(sheets)
+.forEach(
+([name,rows])=>{
 
-        const ws =
-            XLSX.utils.json_to_sheet(
-                rows.length
-                ? rows
-                : [
-                    {
-                        Status:
-                            "No records"
-                    }
-                ]
-            );
-
-
-        XLSX.utils.book_append_sheet(
-            wb,
-            ws,
-            name.slice(0,31)
-        );
-
-    });
+const ws=
+XLSX.utils.json_to_sheet(
+rows.length
+?
+rows
+:
+[
+{
+Status:"No records"
+}
+]
+);
 
 
-    XLSX.writeFile(
-        wb,
-        filename
-    );
+XLSX.utils.book_append_sheet(
+wb,
+ws,
+name.slice(0,31)
+);
+
+});
+
+
+XLSX.writeFile(
+wb,
+filename
+);
 
 }
 
 
-
 /* =========================================================
-   FULL EXPORT
+   FULL REPORT
 ========================================================= */
 
 $("exportBtn")
 .addEventListener(
-    "click",
-    ()=>{
+"click",
+()=>{
 
-        if(!state.results){
+if(!state.results)return;
 
-            return;
-
-        }
-
-
-        const r =
-            state.results;
+const r=
+state.results;
 
 
-        downloadWorkbook(
+downloadWorkbook(
 
-            {
+{
 
-                "Summary":
-                    r.summary,
+"Summary":
+r.summary,
 
-                "Matched Patients":
-                    r.matched,
+"Matched Patients":
+r.matched,
 
-                "Missing from 5C":
-                    r.clientMissing,
+"Missing from 5C":
+r.clientMissing,
 
-                "Missing from Client":
-                    r.fivecMissing,
+"Missing from Client":
+r.fivecMissing,
 
-                "Duplicate Patient IDs":
-                    r.duplicates,
+"Duplicate Patient IDs":
+r.duplicates,
 
-                "Duplicate Study IDs":
-                    r.duplicateStudies,
+"Duplicate Study IDs":
+r.duplicateStudies,
 
-                "Name Mismatches":
-                    r.nameMismatches,
+"Name Mismatches":
+r.nameMismatches,
 
-                "Study Count Mismatches":
-                    r.studyMismatches,
+"Study Count Mismatches":
+r.studyMismatches,
 
-                "Blank Patient IDs":
-                    r.blanks,
+"Blank Patient IDs":
+r.blanks,
 
-                "Client Source Data":
-                    r.clientRows,
+"Client Source Data":
+r.clientRows,
 
-                "5C Source Data":
-                    r.fivecRows
+"5C Source Data":
+r.fivecRows
 
-            },
+},
 
-            "Jay_Prabha_Patient_Study_Reconciliation.xlsx"
+"Jay_Prabha_Patient_Study_Reconciliation.xlsx"
 
-        );
-
-    }
 );
 
+}
+);
 
 
 /* =========================================================
@@ -4144,67 +4297,56 @@ $("exportBtn")
 
 $("exportCurrentBtn")
 .addEventListener(
-    "click",
-    ()=>{
+"click",
+()=>{
 
-        if(!state.results){
-
-            return;
-
-        }
+if(!state.results)return;
 
 
-        const labels = {
+const labels={
 
-            summary:"Summary",
+summary:"Summary",
 
-            matched:"Matched_Patients",
+matched:"Matched_Patients",
 
-            clientMissing:
-                "Missing_from_5C",
+clientMissing:"Missing_from_5C",
 
-            fivecMissing:
-                "Missing_from_Client",
+fivecMissing:"Missing_from_Client",
 
-            duplicates:
-                "Duplicate_Patient_IDs",
+duplicates:"Duplicate_Patient_IDs",
 
-            duplicateStudies:
-                "Duplicate_Study_IDs",
+duplicateStudies:"Duplicate_Study_IDs",
 
-            nameMismatches:
-                "Name_Mismatches",
+nameMismatches:"Name_Mismatches",
 
-            studyMismatches:
-                "Study_Count_Mismatches",
+studyMismatches:"Study_Count_Mismatches",
 
-            blanks:
-                "Blank_Patient_IDs"
+blanks:"Blank_Patient_IDs"
 
-        };
+};
 
 
-        const name =
-            labels[state.activeTab]
-            || "Results";
+const name=
+labels[state.activeTab]
+||
+"Results";
 
 
-        downloadWorkbook(
+downloadWorkbook(
 
-            {
-                [name]:
-                    getTabRows(
-                        state.activeTab
-                    )
-            },
+{
+[name]:
+getTabRows(
+state.activeTab
+)
+},
 
-            `Jay_Prabha_${name}.xlsx`
+`Jay_Prabha_${name}.xlsx`
 
-        );
-
-    }
 );
 
+}
+);
 
 
 /* =========================================================
@@ -4213,93 +4355,92 @@ $("exportCurrentBtn")
 
 function resetApp(){
 
-    state.client = null;
+state.client=null;
 
-    state.fivec = null;
+state.fivec=null;
 
-    state.results = null;
+state.results=null;
 
-    state.activeTab = "summary";
+state.activeTab="summary";
 
-    state.page = 1;
-
-
-    [
-        "clientFile",
-        "fivecFile"
-    ]
-    .forEach(
-        id =>
-        $(id).value = ""
-    );
+state.page=1;
 
 
-    [
-        "clientFileName",
-        "fivecFileName"
-    ]
-    .forEach(
-        id =>
-        $(id).textContent =
-        "No file selected"
-    );
+[
+"clientFile",
+"fivecFile"
+]
+.forEach(
+id=>
+$(id).value=""
+);
 
 
-    [
-        "clientStatus",
-        "fivecStatus"
-    ]
-    .forEach(
-        id=>{
-
-            $(id).textContent =
-                "Awaiting file";
-
-            $(id)
-            .classList
-            .remove("ready");
-
-        }
-    );
+[
+"clientFileName",
+"fivecFileName"
+]
+.forEach(
+id=>
+$(id).textContent=
+"No file selected"
+);
 
 
-    [
-        "clientSheet",
-        "fivecSheet",
-        "clientKey",
-        "fivecKey",
-        "clientStudyKey",
-        "fivecStudyKey",
-        "clientNameKey",
-        "fivecNameKey"
-    ]
-    .forEach(
-        id=>{
+[
+"clientStatus",
+"fivecStatus"
+]
+.forEach(
+id=>{
 
-            $(id).innerHTML =
-                '<option value="">Upload documents first</option>';
+$(id).textContent=
+"Awaiting file";
 
-            $(id).disabled = true;
+$(id)
+.classList
+.remove("ready");
 
-        }
-    );
+}
+);
 
 
-    $("compareBtn").disabled = true;
+[
+"clientSheet",
+"fivecSheet",
+"clientKey",
+"fivecKey",
+"clientStudyKey",
+"fivecStudyKey",
+"clientNameKey",
+"fivecNameKey"
+]
+.forEach(
+id=>{
 
-    $("results").style.display = "none";
+$(id).innerHTML=
+'<option value="">Upload documents first</option>';
 
-    clearMessage();
+$(id).disabled=true;
+
+}
+);
+
+
+$("compareBtn").disabled=true;
+
+$("results").style.display="none";
+
+clearMessage();
 
 }
 
 
 $("resetBtn")
 .addEventListener(
-    "click",
-    resetApp
+"click",
+resetApp
 );
-
 
 
 /* =========================================================
@@ -4307,90 +4448,90 @@ $("resetBtn")
 ========================================================= */
 
 function setupDropZone(
-    zoneId,
-    inputId
+zoneId,
+inputId
 ){
 
-    const zone =
-        $(zoneId);
+const zone=
+$(zoneId);
 
 
-    [
-        "dragenter",
-        "dragover"
-    ]
-    .forEach(
-        t =>
-        zone.addEventListener(
-            t,
-            e=>{
+[
+"dragenter",
+"dragover"
+]
+.forEach(
+t=>
+zone.addEventListener(
+t,
+e=>{
 
-                e.preventDefault();
+e.preventDefault();
 
-                zone.classList.add(
-                    "dragover"
-                );
+zone.classList.add(
+"dragover"
+);
 
-            }
-        )
-    );
-
-
-    [
-        "dragleave",
-        "drop"
-    ]
-    .forEach(
-        t =>
-        zone.addEventListener(
-            t,
-            e=>{
-
-                e.preventDefault();
-
-                zone.classList.remove(
-                    "dragover"
-                );
-
-            }
-        )
-    );
+}
+)
+);
 
 
-    zone.addEventListener(
-        "drop",
-        e=>{
+[
+"dragleave",
+"drop"
+]
+.forEach(
+t=>
+zone.addEventListener(
+t,
+e=>{
 
-            const files =
-                e.dataTransfer.files;
+e.preventDefault();
+
+zone.classList.remove(
+"dragover"
+);
+
+}
+)
+);
 
 
-            if(files.length){
+zone.addEventListener(
+"drop",
+e=>{
 
-                handleUpload(
-                    inputId === "clientFile"
-                    ? "client"
-                    : "fivec",
-                    files
-                );
+const files=
+e.dataTransfer.files;
 
-            }
+if(files.length){
 
-        }
-    );
+handleUpload(
+inputId==="clientFile"
+?
+"client"
+:
+"fivec",
+files
+);
+
+}
+
+}
+);
 
 }
 
 
 setupDropZone(
-    "clientDrop",
-    "clientFile"
+"clientDrop",
+"clientFile"
 );
 
-
 setupDropZone(
-    "fivecDrop",
-    "fivecFile"
+"fivecDrop",
+"fivecFile"
 );
 
 </script>
