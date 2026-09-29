@@ -3208,643 +3208,818 @@ return out;
 
 function compareData(){
 
-const c=
-getActiveData("client");
+    const c = getActiveData("client");
+    const f = getActiveData("fivec");
 
-const f=
-getActiveData("fivec");
+    if(!c || !f){
+        showMessage(
+            "Upload both documents first.",
+            "error"
+        );
+        return;
+    }
+
+    const ck = $("clientKey").value;
+    const fk = $("fivecKey").value;
+
+    if(!ck || !fk){
+        showMessage(
+            "Select Patient ID columns for both documents.",
+            "error"
+        );
+        return;
+    }
+
+    if(!c.rows.length || !f.rows.length){
+        showMessage(
+            "One or both uploads contain no patient data rows.",
+            "error"
+        );
+        return;
+    }
+
+    const cs = $("clientStudyKey").value;
+    const fs = $("fivecStudyKey").value;
+    const cn = $("clientNameKey").value;
+    const fn = $("fivecNameKey").value;
+
+    const ci = indexBy(c.rows, ck);
+    const fi = indexBy(f.rows, fk);
+
+    const matched = [];
+    const clientMissing = [];
+    const fivecMissing = [];
+
+    const duplicates = [];
+    const duplicateStudies = [];
+
+    const nameMismatches = [];
+    const studyMismatches = [];
+
+    /*
+       UNIQUE ID COUNTS
+    */
+
+    let matchedUniqueIds = 0;
+    let missingFrom5CUniqueIds = 0;
+    let missingFromClientUniqueIds = 0;
+
+    /*
+       ACTUAL CASE / ROW COUNTS
+    */
+
+    let matchedCases = 0;
+    let clientMatchedCases = 0;
+    let fivecMatchedCases = 0;
+
+    let clientMissingCases = 0;
+    let fivecMissingCases = 0;
+
+    /*
+       Track IDs
+    */
+
+    const matchedIds = new Set();
+    const missingFivecIds = new Set();
+    const missingClientIds = new Set();
+
+    /*
+       ================================================
+       CLIENT -> 5C
+       ================================================
+    */
+
+    for(const [id, clientEntries] of ci.map){
+
+        const fivecEntries = fi.map.get(id);
+
+        /*
+           Patient ID does not exist in 5C
+        */
+
+        if(!fivecEntries){
+
+            missingFivecIds.add(id);
+
+            missingFrom5CUniqueIds++;
+
+            /*
+               EVERY CLIENT ROW for this Patient ID
+               is a missing case.
+            */
+
+            clientMissingCases += clientEntries.length;
+
+            clientEntries.forEach(e => {
+
+                clientMissing.push({
+
+                    "Patient ID": e.raw,
+
+                    "Client Row Number":
+                        e.rowNumber,
+
+                    ...e.row
+
+                });
+
+            });
+
+            continue;
+        }
+
+        /*
+           PATIENT ID EXISTS IN BOTH
+        */
+
+        matchedIds.add(id);
+
+        matchedUniqueIds++;
+
+        /*
+           If same Patient ID appears:
+
+           Client = 5 rows
+           5C     = 4 rows
+
+           then 4 cases match.
+
+           The remaining 1 Client case is a
+           study/count mismatch.
+        */
+
+        const pairCount =
+            Math.min(
+                clientEntries.length,
+                fivecEntries.length
+            );
+
+        matchedCases += pairCount;
+
+        clientMatchedCases += pairCount;
+        fivecMatchedCases += pairCount;
+
+        /*
+           CREATE MATCHED CASE ROWS
+        */
+
+        for(let i=0; i<pairCount; i++){
+
+            const cr = clientEntries[i];
+            const fr = fivecEntries[i];
+
+            const matchedRow = {
+
+                "Patient ID":
+                    cr.raw,
+
+                "Client Row Number":
+                    cr.rowNumber,
+
+                "5C Row Number":
+                    fr.rowNumber,
+
+                "Client Patient Name":
+                    cn
+                    ?
+                    cr.row[cn]
+                    :
+                    "",
+
+                "5C Patient Name":
+                    fn
+                    ?
+                    fr.row[fn]
+                    :
+                    "",
+
+                "Client Study ID":
+                    cs
+                    ?
+                    cr.row[cs]
+                    :
+                    "",
+
+                "5C Study ID":
+                    fs
+                    ?
+                    fr.row[fs]
+                    :
+                    ""
+
+            };
+
+            /*
+               Add all Client columns
+            */
+
+            c.headers.forEach(h => {
+
+                matchedRow[
+                    "Client - " + h
+                ] =
+                    cr.row[h] ?? "";
+
+            });
+
+            /*
+               Add all 5C columns
+            */
+
+            f.headers.forEach(h => {
+
+                matchedRow[
+                    "5C - " + h
+                ] =
+                    fr.row[h] ?? "";
+
+            });
+
+            matched.push(matchedRow);
+
+            /*
+               NAME MISMATCH
+            */
+
+            if(
+                cn &&
+                fn &&
+                norm(cr.row[cn]) !==
+                norm(fr.row[fn])
+            ){
+
+                nameMismatches.push({
+
+                    "Patient ID":
+                        cr.raw,
+
+                    "Client Name":
+                        cr.row[cn],
+
+                    "5C Name":
+                        fr.row[fn],
+
+                    "Client Row":
+                        cr.rowNumber,
+
+                    "5C Row":
+                        fr.rowNumber
+
+                });
+
+            }
+
+        }
+
+        /*
+           ============================================
+           STUDY / CASE COUNT DIFFERENCE
+           ============================================
+        */
+
+        if(
+            clientEntries.length !==
+            fivecEntries.length
+        ){
+
+            const difference =
+                clientEntries.length -
+                fivecEntries.length;
+
+            studyMismatches.push({
+
+                "Patient ID":
+                    clientEntries[0].raw,
+
+                "Client Record Count":
+                    clientEntries.length,
+
+                "5C Record Count":
+                    fivecEntries.length,
+
+                "Matched Case Count":
+                    pairCount,
+
+                "Difference":
+                    difference,
+
+                "Status":
+                    difference > 0
+                    ?
+                    "More records in Client"
+                    :
+                    "More records in 5C"
+
+            });
+
+            /*
+               IMPORTANT:
+               The unmatched cases caused by the
+               count difference are calculated here.
+            */
+
+            if(difference > 0){
+
+                clientMissingCases += difference;
+
+            }
+
+            if(difference < 0){
+
+                fivecMissingCases +=
+                    Math.abs(difference);
+
+            }
+
+        }
+
+        /*
+           ============================================
+           DUPLICATE PATIENT IDs
+           ============================================
+        */
+
+        if(clientEntries.length > 1){
+
+            duplicates.push({
+
+                Source: "Client",
+
+                "Patient ID":
+                    clientEntries[0].raw,
+
+                "Occurrences":
+                    clientEntries.length
+
+            });
+
+        }
+
+        if(fivecEntries.length > 1){
+
+            duplicates.push({
+
+                Source: "5C",
+
+                "Patient ID":
+                    fivecEntries[0].raw,
+
+                "Occurrences":
+                    fivecEntries.length
+
+            });
+
+        }
+
+    }
 
 
-if(!c || !f){
+    /*
+       ================================================
+       5C -> CLIENT
+       ================================================
+    */
 
-showMessage(
-"Upload both documents first.",
-"error"
-);
+    for(const [id, fivecEntries] of fi.map){
 
-return;
+        if(!ci.map.has(id)){
+
+            missingClientIds.add(id);
+
+            missingFromClientUniqueIds++;
+
+            /*
+               Every 5C row for this Patient ID
+               is missing from Client.
+            */
+
+            fivecMissingCases +=
+                fivecEntries.length;
+
+            fivecEntries.forEach(e => {
+
+                fivecMissing.push({
+
+                    "Patient ID":
+                        e.raw,
+
+                    "5C Row Number":
+                        e.rowNumber,
+
+                    ...e.row
+
+                });
+
+            });
+
+        }
+
+    }
+
+
+    /*
+       ================================================
+       DUPLICATE STUDY IDs
+       ================================================
+    */
+
+    if(cs){
+
+        const idx =
+            indexBy(
+                c.rows,
+                cs
+            );
+
+        duplicateStudies.push(
+            ...duplicatesFromIndex(
+                idx.map,
+                "Client",
+                "Study ID"
+            )
+        );
+
+    }
+
+    if(fs){
+
+        const idx =
+            indexBy(
+                f.rows,
+                fs
+            );
+
+        duplicateStudies.push(
+            ...duplicatesFromIndex(
+                idx.map,
+                "5C",
+                "Study ID"
+            )
+        );
+
+    }
+
+
+    /*
+       ================================================
+       BLANK PATIENT IDs
+       ================================================
+    */
+
+    const blanks = [
+
+        ...ci.blanks.map(e => ({
+
+            Source: "Client",
+
+            "Row Number":
+                e.rowNumber,
+
+            ...e.row
+
+        })),
+
+        ...fi.blanks.map(e => ({
+
+            Source: "5C",
+
+            "Row Number":
+                e.rowNumber,
+
+            ...e.row
+
+        }))
+
+    ];
+
+
+    /*
+       ================================================
+       UNIQUE DUPLICATE ID COUNT
+       ================================================
+    */
+
+    const duplicateUniqueIds =
+        duplicates.length;
+
+
+    /*
+       ================================================
+       TOTAL RECONCILIATION
+       ================================================
+    */
+
+    const totalClientCases =
+        c.rows.length;
+
+    const totalFivecCases =
+        f.rows.length;
+
+
+    /*
+       Cases existing on both sides
+    */
+
+    const totalMatchedCases =
+        matchedCases;
+
+
+    /*
+       Actual unmatched rows
+    */
+
+    const clientOnlyCases =
+        totalClientCases -
+        clientMatchedCases;
+
+    const fivecOnlyCases =
+        totalFivecCases -
+        fivecMatchedCases;
+
+
+    /*
+       ================================================
+       SUMMARY
+       ================================================
+    */
+
+    const summary = [
+
+        {
+            Metric:
+                "Client total cases",
+
+            Value:
+                totalClientCases
+        },
+
+        {
+            Metric:
+                "5C total cases",
+
+            Value:
+                totalFivecCases
+        },
+
+        {
+            Metric:
+                "Matched unique Patient IDs",
+
+            Value:
+                matchedUniqueIds
+        },
+
+        {
+            Metric:
+                "Matched cases",
+
+            Value:
+                totalMatchedCases
+        },
+
+        {
+            Metric:
+                "Client matched cases",
+
+            Value:
+                clientMatchedCases
+        },
+
+        {
+            Metric:
+                "5C matched cases",
+
+            Value:
+                fivecMatchedCases
+        },
+
+        {
+            Metric:
+                "Client-only cases",
+
+            Value:
+                clientOnlyCases
+        },
+
+        {
+            Metric:
+                "5C-only cases",
+
+            Value:
+                fivecOnlyCases
+        },
+
+        {
+            Metric:
+                "Unique Patient IDs missing from 5C",
+
+            Value:
+                missingFrom5CUniqueIds
+        },
+
+        {
+            Metric:
+                "Unique Patient IDs missing from Client",
+
+            Value:
+                missingFromClientUniqueIds
+        },
+
+        {
+            Metric:
+                "Client cases missing from 5C",
+
+            Value:
+                clientOnlyCases
+        },
+
+        {
+            Metric:
+                "5C cases missing from Client",
+
+            Value:
+                fivecOnlyCases
+        },
+
+        {
+            Metric:
+                "Duplicate Patient IDs",
+
+            Value:
+                duplicateUniqueIds
+        },
+
+        {
+            Metric:
+                "Duplicate Study IDs",
+
+            Value:
+                duplicateStudies.length
+        },
+
+        {
+            Metric:
+                "Patient name mismatches",
+
+            Value:
+                nameMismatches.length
+        },
+
+        {
+            Metric:
+                "Study count mismatches",
+
+            Value:
+                studyMismatches.length
+        },
+
+        {
+            Metric:
+                "Blank Patient ID rows",
+
+            Value:
+                blanks.length
+        },
+
+        {
+            Metric:
+                "Client Patient ID column",
+
+            Value:
+                ck
+        },
+
+        {
+            Metric:
+                "5C Patient ID column",
+
+            Value:
+                fk
+        }
+
+    ];
+
+
+    /*
+       ================================================
+       SAVE RESULTS
+       ================================================
+    */
+
+    state.results = {
+
+        summary,
+
+        matched,
+
+        clientMissing,
+
+        fivecMissing,
+
+        duplicates,
+
+        duplicateStudies,
+
+        nameMismatches,
+
+        studyMismatches,
+
+        blanks,
+
+        clientRows:
+            c.rows,
+
+        fivecRows:
+            f.rows,
+
+        clientHeaders:
+            c.headers,
+
+        fivecHeaders:
+            f.headers
+
+    };
+
+
+    /*
+       ================================================
+       UPDATE DASHBOARD
+       ================================================
+    */
+
+    $("clientCount").textContent =
+        totalClientCases.toLocaleString();
+
+    $("fivecCount").textContent =
+        totalFivecCases.toLocaleString();
+
+
+    /*
+       SHOW ACTUAL CASE MATCHES,
+       NOT UNIQUE PATIENT IDs
+    */
+
+    $("matchedCount").textContent =
+        totalMatchedCases.toLocaleString();
+
+
+    /*
+       SHOW TOTAL UNMATCHED CASE ROWS
+    */
+
+    $("missingCount").textContent =
+        (
+            clientOnlyCases +
+            fivecOnlyCases
+        ).toLocaleString();
+
+
+    $("duplicateCount").textContent =
+        duplicateUniqueIds.toLocaleString();
+
+
+    $("duplicateStudyCount").textContent =
+        duplicateStudies.length.toLocaleString();
+
+
+    $("nameMismatchCount").textContent =
+        nameMismatches.length.toLocaleString();
+
+
+    $("studyMismatchCount").textContent =
+        studyMismatches.length.toLocaleString();
+
+
+    $("results").style.display =
+        "block";
+
+
+    state.activeTab =
+        "summary";
+
+    state.page = 1;
+
+    $("searchBox").value = "";
+
+    updateTabs();
+
+    renderTable();
+
+
+    $("results").scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+    });
+
+
+    showMessage(
+        `Reconciliation complete. ` +
+        `${totalMatchedCases.toLocaleString()} case rows matched. ` +
+        `${clientOnlyCases.toLocaleString()} Client cases are unmatched and ` +
+        `${fivecOnlyCases.toLocaleString()} 5C cases are unmatched.`
+    );
 
 }
-
-
-const ck=
-$("clientKey").value;
-
-const fk=
-$("fivecKey").value;
-
-
-if(!ck || !fk){
-
-showMessage(
-"Select Patient ID columns for both documents.",
-"error"
-);
-
-return;
-
-}
-
-
-if(
-!c.rows.length ||
-!f.rows.length
-){
-
-showMessage(
-"One or both uploads contain no data rows.",
-"error"
-);
-
-return;
-
-}
-
-
-const cs=
-$("clientStudyKey").value;
-
-const fs=
-$("fivecStudyKey").value;
-
-const cn=
-$("clientNameKey").value;
-
-const fn=
-$("fivecNameKey").value;
-
-
-const ci=
-indexBy(
-c.rows,
-ck
-);
-
-const fi=
-indexBy(
-f.rows,
-fk
-);
-
-
-const matched=[];
-
-const clientMissing=[];
-
-const fivecMissing=[];
-
-const duplicates=[];
-
-const duplicateStudies=[];
-
-const nameMismatches=[];
-
-const studyMismatches=[];
-
-
-const matchedIds=new Set();
-
-const missingClientIds=new Set();
-
-const missingFivecIds=new Set();
-
-
-/*
-   CLIENT -> 5C
-*/
-
-for(
-const [id,ce]
-of ci.map
-){
-
-const fe=
-fi.map.get(id);
-
-
-if(!fe){
-
-missingFivecIds.add(id);
-
-ce.forEach(
-e=>
-clientMissing.push({
-
-"Patient ID":
-e.raw,
-
-"Client Row Number":
-e.rowNumber,
-
-...e.row
-
-})
-);
-
-continue;
-
-}
-
-
-matchedIds.add(id);
-
-
-const count=
-Math.min(
-ce.length,
-fe.length
-);
-
-
-for(
-let i=0;
-i<count;
-i++
-){
-
-const cr=ce[i];
-
-const fr=fe[i];
-
-
-const matchedRow={
-
-"Patient ID":
-cr.raw,
-
-"Client Row Number":
-cr.rowNumber,
-
-"5C Row Number":
-fr.rowNumber,
-
-"Client Patient Name":
-cn
-?
-cr.row[cn]
-:
-"",
-
-"5C Patient Name":
-fn
-?
-fr.row[fn]
-:
-"",
-
-"Client Study ID":
-cs
-?
-cr.row[cs]
-:
-"",
-
-"5C Study ID":
-fs
-?
-fr.row[fs]
-:
-""
-
-};
-
-
-c.headers.forEach(
-h=>{
-
-matchedRow[
-"Client - "+h
-]=
-cr.row[h] ?? "";
-
-});
-
-
-f.headers.forEach(
-h=>{
-
-matchedRow[
-"5C - "+h
-]=
-fr.row[h] ?? "";
-
-});
-
-
-matched.push(matchedRow);
-
-
-/*
-   NAME CHECK
-*/
-
-if(
-cn &&
-fn &&
-norm(cr.row[cn]) !==
-norm(fr.row[fn])
-){
-
-nameMismatches.push({
-
-"Patient ID":
-cr.raw,
-
-"Client Name":
-cr.row[cn],
-
-"5C Name":
-fr.row[fn],
-
-"Client Row":
-cr.rowNumber,
-
-"5C Row":
-fr.rowNumber
-
-});
-
-}
-
-}
-
-
-/*
-   Record count difference.
-
-   This represents the number of
-   patient records/studies associated
-   with that Patient ID.
-*/
-
-if(
-ce.length !==
-fe.length
-){
-
-studyMismatches.push({
-
-"Patient ID":
-ce[0].raw,
-
-"Client Record Count":
-ce.length,
-
-"5C Record Count":
-fe.length,
-
-"Difference":
-ce.length-fe.length,
-
-"Status":
-ce.length>fe.length
-?
-"More records in Client"
-:
-"More records in 5C"
-
-});
-
-}
-
-
-/*
-   Duplicate patient IDs
-*/
-
-if(ce.length>1){
-
-ce.forEach(
-e=>
-duplicates.push({
-
-Source:"Client",
-
-"Patient ID":
-e.raw,
-
-"Row Number":
-e.rowNumber,
-
-Occurrences:
-ce.length
-
-})
-);
-
-}
-
-
-if(fe.length>1){
-
-fe.forEach(
-e=>
-duplicates.push({
-
-Source:"5C",
-
-"Patient ID":
-e.raw,
-
-"Row Number":
-e.rowNumber,
-
-Occurrences:
-fe.length
-
-})
-);
-
-}
-
-}
-
-
-/*
-   5C -> CLIENT
-*/
-
-for(
-const [id,entries]
-of fi.map
-){
-
-if(
-!ci.map.has(id)
-){
-
-missingClientIds.add(id);
-
-entries.forEach(
-e=>
-fivecMissing.push({
-
-"Patient ID":
-e.raw,
-
-"5C Row Number":
-e.rowNumber,
-
-...e.row
-
-})
-);
-
-}
-
-}
-
-
-/*
-   DUPLICATE STUDY IDs
-*/
-
-if(cs){
-
-const idx=
-indexBy(
-c.rows,
-cs
-);
-
-duplicateStudies.push(
-...duplicatesFromIndex(
-idx.map,
-"Client",
-"Study ID"
-)
-);
-
-}
-
-
-if(fs){
-
-const idx=
-indexBy(
-f.rows,
-fs
-);
-
-duplicateStudies.push(
-...duplicatesFromIndex(
-idx.map,
-"5C",
-"Study ID"
-)
-);
-
-}
-
-
-/*
-   BLANK PATIENT IDS
-*/
-
-const blanks=[
-
-...ci.blanks.map(
-e=>({
-
-Source:"Client",
-
-"Row Number":
-e.rowNumber,
-
-...e.row
-
-})
-),
-
-...fi.blanks.map(
-e=>({
-
-Source:"5C",
-
-"Row Number":
-e.rowNumber,
-
-...e.row
-
-})
-)
-
-];
-
-
-/* =========================================================
-   SUMMARY
-========================================================= */
-
-const summary=[
-
-{
-Metric:"Client records",
-Value:c.rows.length
-},
-
-{
-Metric:"5C records",
-Value:f.rows.length
-},
-
-{
-Metric:"Matched unique Patient IDs",
-Value:matchedIds.size
-},
-
-{
-Metric:"Unique Patient IDs missing from 5C",
-Value:missingFivecIds.size
-},
-
-{
-Metric:"Unique Patient IDs missing from Client",
-Value:missingClientIds.size
-},
-
-{
-Metric:"Duplicate Patient ID rows",
-Value:duplicates.length
-},
-
-{
-Metric:"Duplicate Study ID rows",
-Value:duplicateStudies.length
-},
-
-{
-Metric:"Patient name mismatches",
-Value:nameMismatches.length
-},
-
-{
-Metric:"Patient study-count mismatches",
-Value:studyMismatches.length
-},
-
-{
-Metric:"Blank Patient ID rows",
-Value:blanks.length
-},
-
-{
-Metric:"Client Patient ID column",
-Value:ck
-},
-
-{
-Metric:"5C Patient ID column",
-Value:fk
-},
-
-{
-Metric:"Client Study ID column",
-Value:cs || "Not selected"
-},
-
-{
-Metric:"5C Study ID column",
-Value:fs || "Not selected"
-}
-
-];
-
-
-state.results={
-
-summary,
-
-matched,
-
-clientMissing,
-
-fivecMissing,
-
-duplicates,
-
-duplicateStudies,
-
-nameMismatches,
-
-studyMismatches,
-
-blanks,
-
-clientRows:c.rows,
-
-fivecRows:f.rows,
-
-clientHeaders:c.headers,
-
-fivecHeaders:f.headers
-
-};
-
-
-/* =========================================================
-   DISPLAY STATS
-========================================================= */
-
-$("clientCount").textContent=
-c.rows.length.toLocaleString();
-
-$("fivecCount").textContent=
-f.rows.length.toLocaleString();
-
-$("matchedCount").textContent=
-matchedIds.size.toLocaleString();
-
-$("missingCount").textContent=
-(
-missingFivecIds.size+
-missingClientIds.size
-).toLocaleString();
-
-$("duplicateCount").textContent=
-duplicates.length.toLocaleString();
-
-$("duplicateStudyCount").textContent=
-duplicateStudies.length.toLocaleString();
-
-$("nameMismatchCount").textContent=
-nameMismatches.length.toLocaleString();
-
-$("studyMismatchCount").textContent=
-studyMismatches.length.toLocaleString();
-
-
-$("results").style.display="block";
-
-state.activeTab="summary";
-
-state.page=1;
-
-$("searchBox").value="";
-
-updateTabs();
-
-renderTable();
-
-$("results").scrollIntoView({
-behavior:"smooth",
-block:"start"
-});
-
-
-showMessage(
-`Comparison complete. ${matchedIds.size} unique Patient IDs matched. `+
-`Missing IDs, duplicate IDs, duplicate studies, name mismatches, and record-count differences are reported separately.`
-);
-
-}
-
-
-$("compareBtn")
-.addEventListener(
-"click",
-compareData
-);
 
 
 /* =========================================================
