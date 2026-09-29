@@ -3,52 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jay Prabha Medanta Patna | Patient Reconciliation</title>
 
-<title>Jay Prabha Medanta Super Specialty Hospital, Patna | Patient Reconciliation</title>
+<link rel="icon" type="image/svg+xml"
+href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2300d4ff'/%3E%3Ctext x='50' y='67' font-size='55' text-anchor='middle' fill='white'%3E%2B%3C/text%3E%3C/svg%3E">
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
 
 <style>
 *{
     box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
 body{
-    margin:0;
-    min-height:100vh;
     font-family:Arial,Helvetica,sans-serif;
-    color:#eaf2ff;
-    background:
-        radial-gradient(circle at top left,#173c66 0,#081321 42%,#04080f 100%);
+    background:#07111f;
+    color:#e8f1ff;
+    min-height:100vh;
 }
 
 .container{
-    width:96%;
+    width:95%;
     max-width:1600px;
-    margin:auto;
-    padding:24px 0 50px;
+    margin:25px auto;
 }
 
 .header{
-    background:rgba(13,27,47,.88);
+    background:rgba(16,31,52,.92);
     border:1px solid rgba(255,255,255,.1);
-    border-radius:20px;
+    border-radius:18px;
     padding:25px;
     margin-bottom:20px;
-    box-shadow:0 20px 50px rgba(0,0,0,.3);
 }
 
 .header h1{
-    margin:0 0 8px;
     font-size:28px;
+    margin-bottom:8px;
 }
 
 .header p{
-    margin:0;
-    color:#9eafc4;
-    font-size:14px;
+    color:#9fb2c9;
+}
+
+.card{
+    background:rgba(16,31,52,.9);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.card h2{
+    font-size:19px;
+    margin-bottom:15px;
 }
 
 .upload-grid{
@@ -57,339 +68,222 @@ body{
     gap:20px;
 }
 
-.panel{
-    background:rgba(13,27,47,.88);
-    border:1px solid rgba(255,255,255,.1);
-    border-radius:18px;
-    padding:20px;
-    box-shadow:0 15px 40px rgba(0,0,0,.25);
-}
-
-.panel h2{
-    margin:0 0 15px;
-    font-size:19px;
-}
-
-.client-title{
-    color:#58ddb0;
-}
-
-.fivec-title{
-    color:#75aaff;
-}
-
-.file-box{
-    border:2px dashed #304761;
+.upload-box{
+    border:1px dashed #3f6287;
     border-radius:14px;
-    padding:25px;
-    text-align:center;
-    color:#b8c7d9;
+    padding:20px;
+    background:rgba(0,0,0,.12);
 }
 
-.file-box:hover{
-    border-color:#55d6a5;
+.upload-box h3{
+    margin-bottom:12px;
 }
 
-.file-box input{
+input[type=file]{
     width:100%;
-    margin-top:14px;
-}
-
-.file-list{
-    margin-top:12px;
-    max-height:180px;
-    overflow:auto;
-}
-
-.file-item{
-    background:rgba(255,255,255,.045);
-    border-radius:8px;
-    padding:8px 10px;
-    margin-bottom:5px;
-    font-size:12px;
-    word-break:break-all;
+    padding:12px;
+    border-radius:10px;
+    background:#0c1a2d;
+    color:#dbeaff;
+    border:1px solid #294764;
 }
 
 .controls{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:repeat(4,1fr);
     gap:12px;
-    margin-top:15px;
+    margin-top:20px;
 }
 
-.control{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-}
-
-.control label{
-    color:#a6b7cc;
-    font-size:12px;
+label{
+    display:block;
+    font-size:13px;
+    color:#9fb2c9;
+    margin-bottom:6px;
 }
 
 select,
-input[type="text"]{
+input[type=text]{
     width:100%;
-    background:#091525;
-    color:#edf5ff;
-    border:1px solid #2b425f;
+    padding:11px;
+    background:#0b192b;
+    border:1px solid #2c4b69;
+    color:#fff;
     border-radius:9px;
-    padding:10px 12px;
     outline:none;
-}
-
-select:focus,
-input[type="text"]:focus{
-    border-color:#55d6a5;
-}
-
-.action-bar{
-    display:flex;
-    justify-content:center;
-    gap:12px;
-    flex-wrap:wrap;
-    margin:20px 0;
 }
 
 button{
     border:0;
     border-radius:10px;
-    padding:11px 18px;
-    color:#fff;
-    font-weight:700;
+    padding:12px 18px;
     cursor:pointer;
+    font-weight:bold;
+    color:white;
+    background:#1266a8;
 }
 
 button:hover{
-    filter:brightness(1.1);
+    opacity:.9;
 }
 
 .compare-btn{
-    background:linear-gradient(135deg,#16a085,#27ae60);
-    padding:13px 30px;
-    font-size:15px;
+    margin-top:18px;
+    width:100%;
+    font-size:16px;
+    background:#087f8c;
 }
 
-.secondary{
-    background:#25364d;
-}
-
-.export{
-    background:#7655ca;
-}
-
-.message{
-    display:none;
-    margin:15px 0;
-    padding:12px 15px;
-    border-radius:10px;
-    font-size:13px;
-}
-
-.message.success{
-    display:block;
-    background:rgba(39,174,96,.14);
-    border:1px solid rgba(39,174,96,.4);
-    color:#7be5a4;
-}
-
-.message.error{
-    display:block;
-    background:rgba(231,76,60,.14);
-    border:1px solid rgba(231,76,60,.4);
-    color:#ff9b90;
-}
-
-.loading{
-    display:none;
-    text-align:center;
-    padding:18px;
-    color:#72d8ff;
-}
-
-#results{
-    display:none;
-    margin-top:20px;
+.status{
+    margin-top:12px;
+    color:#8fb2d1;
+    font-size:14px;
+    min-height:20px;
 }
 
 .stats{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:14px;
-    margin-bottom:20px;
+    grid-template-columns:repeat(6,1fr);
+    gap:12px;
 }
 
 .stat{
-    background:rgba(13,27,47,.88);
-    border:1px solid rgba(255,255,255,.09);
-    border-radius:15px;
-    padding:17px;
+    background:#0c1b2e;
+    border:1px solid #243f5d;
+    border-radius:13px;
+    padding:18px;
 }
 
-.stat.green{
-    border-left:4px solid #35d399;
-}
-
-.stat.red{
-    border-left:4px solid #ff6b6b;
-}
-
-.stat.blue{
-    border-left:4px solid #5c9dff;
-}
-
-.stat.yellow{
-    border-left:4px solid #f5c451;
-}
-
-.stat.purple{
-    border-left:4px solid #b28cff;
-}
-
-.stat-label{
-    color:#91a3bb;
+.stat .title{
+    color:#8ea6bf;
     font-size:12px;
-    margin-bottom:7px;
+    margin-bottom:8px;
 }
 
-.stat-value{
-    font-size:27px;
-    font-weight:800;
-}
-
-.stat-note{
-    margin-top:5px;
-    font-size:10px;
-    color:#74869d;
+.stat .value{
+    font-size:25px;
+    font-weight:bold;
 }
 
 .tabs{
     display:flex;
     flex-wrap:wrap;
-    gap:7px;
-    margin-bottom:12px;
+    gap:8px;
+    margin-bottom:15px;
 }
 
 .tab{
-    background:#16263c;
-    color:#aabbd0;
-    border:1px solid #273d59;
-    padding:9px 12px;
-    border-radius:9px;
-    font-size:12px;
+    background:#0c1b2e;
+    border:1px solid #294764;
+    padding:9px 13px;
+    border-radius:8px;
+    font-size:13px;
 }
 
 .tab.active{
-    background:#198f72;
-    color:#fff;
-    border-color:#198f72;
+    background:#1266a8;
 }
 
-.table-panel{
-    background:rgba(13,27,47,.88);
-    border:1px solid rgba(255,255,255,.09);
-    border-radius:16px;
-    overflow:hidden;
+.tab-content{
+    display:none;
 }
 
-.table-toolbar{
+.tab-content.active{
+    display:block;
+}
+
+.toolbar{
     display:flex;
-    align-items:center;
     gap:10px;
-    flex-wrap:wrap;
-    padding:14px;
-    border-bottom:1px solid rgba(255,255,255,.08);
+    margin-bottom:15px;
 }
 
-.table-toolbar input{
-    max-width:420px;
-}
-
-.table-info{
-    margin-left:auto;
-    color:#91a3bb;
-    font-size:12px;
+.toolbar input{
+    flex:1;
 }
 
 .table-wrap{
-    width:100%;
     overflow:auto;
-    max-height:650px;
+    max-height:600px;
+    border:1px solid #253e59;
+    border-radius:10px;
 }
 
 table{
-    border-collapse:collapse;
     width:100%;
-    min-width:1000px;
+    border-collapse:collapse;
+    min-width:850px;
 }
 
-th,
-td{
-    padding:9px 10px;
-    border-bottom:1px solid rgba(255,255,255,.07);
+th,td{
+    border-bottom:1px solid #21374e;
+    padding:10px;
     text-align:left;
-    font-size:12px;
-    white-space:nowrap;
+    font-size:13px;
 }
 
 th{
+    background:#0c1b2e;
+    color:#a9c3dc;
     position:sticky;
     top:0;
-    z-index:2;
-    background:#102138;
-    color:#a9d2ff;
 }
 
 td{
-    color:#d5dfec;
+    color:#d9e7f7;
 }
 
-tr:hover td{
-    background:rgba(255,255,255,.025);
+.pagination{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    margin-top:15px;
+}
+
+.pagination button{
+    padding:8px 13px;
+}
+
+.hidden{
+    display:none!important;
 }
 
 .empty{
     padding:35px;
     text-align:center;
-    color:#8293aa;
+    color:#8299b1;
 }
 
-.pagination{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    padding:14px;
+.success{
+    color:#5fe0a0;
 }
 
-.pagination span{
-    color:#9eafc3;
-    font-size:12px;
+.warning{
+    color:#ffd166;
 }
 
-.badge{
-    display:inline-block;
-    padding:4px 7px;
-    border-radius:6px;
-    font-size:10px;
-    background:#172e48;
-    color:#8fc5ff;
+.error{
+    color:#ff7b7b;
 }
 
-@media(max-width:1100px){
+@media(max-width:1000px){
     .stats{
-        grid-template-columns:repeat(2,1fr);
+        grid-template-columns:repeat(3,1fr);
     }
 
+    .controls{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:700px){
     .upload-grid{
         grid-template-columns:1fr;
     }
-}
 
-@media(max-width:650px){
     .stats{
-        grid-template-columns:1fr;
+        grid-template-columns:repeat(2,1fr);
     }
 
     .controls{
@@ -397,7 +291,7 @@ tr:hover td{
     }
 
     .header h1{
-        font-size:21px;
+        font-size:22px;
     }
 }
 </style>
@@ -407,466 +301,493 @@ tr:hover td{
 
 <div class="container">
 
-<div class="header">
-    <h1>Jay Prabha Medanta Super Specialty Hospital, Patna</h1>
-    <p>Patient Reconciliation Dashboard — Client vs 5C</p>
-</div>
+    <div class="header">
+        <h1>Jay Prabha Medanta Super Specialty Hospital, Patna</h1>
+        <p>Patient Reconciliation Dashboard</p>
+    </div>
+
+    <div class="card">
+        <h2>Upload Documents</h2>
+
+        <div class="upload-grid">
+
+            <div class="upload-box">
+                <h3>Client Document</h3>
+                <input
+                    type="file"
+                    id="clientFiles"
+                    multiple
+                    accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.pdf,.txt,.log,.docx,.html,.htm,.json">
+                <div id="clientStatus" class="status"></div>
+            </div>
+
+            <div class="upload-box">
+                <h3>5C Document</h3>
+                <input
+                    type="file"
+                    id="fivecFiles"
+                    multiple
+                    accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.pdf,.txt,.log,.docx,.html,.htm,.json">
+                <div id="fivecStatus" class="status"></div>
+            </div>
+
+        </div>
+
+        <div class="controls">
+
+            <div>
+                <label>Client Worksheet</label>
+                <select id="clientSheet">
+                    <option value="">Auto detect</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Client Patient ID</label>
+                <select id="clientPatientId">
+                    <option value="">Auto detect</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Client Study ID</label>
+                <select id="clientStudyId">
+                    <option value="">None / Auto</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Client Patient Name</label>
+                <select id="clientPatientName">
+                    <option value="">Auto detect</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="controls">
+
+            <div>
+                <label>5C Worksheet</label>
+                <select id="fivecSheet">
+                    <option value="">Auto detect</option>
+                </select>
+            </div>
+
+            <div>
+                <label>5C Patient ID</label>
+                <select id="fivecPatientId">
+                    <option value="Patient Id">Patient Id - Automatic</option>
+                </select>
+            </div>
+
+            <div>
+                <label>5C Study ID</label>
+                <select id="fivecStudyId">
+                    <option value="">None / Auto</option>
+                </select>
+            </div>
+
+            <div>
+                <label>5C Patient Name</label>
+                <select id="fivecPatientName">
+                    <option value="">Auto detect</option>
+                </select>
+            </div>
+
+        </div>
+
+        <button class="compare-btn" onclick="compareData()">
+            ⇄ Compare Documents
+        </button>
+
+        <div id="mainStatus" class="status"></div>
+    </div>
 
+    <div class="card">
 
-<!-- =========================
-     UPLOAD PANELS
-========================= -->
+        <div class="stats">
 
-<div class="upload-grid">
+            <div class="stat">
+                <div class="title">Client Records</div>
+                <div class="value" id="clientRecords">0</div>
+            </div>
 
-<div class="panel">
+            <div class="stat">
+                <div class="title">5C Records</div>
+                <div class="value" id="fivecRecords">0</div>
+            </div>
 
-<h2 class="client-title">Client Documents</h2>
+            <div class="stat">
+                <div class="title">Matched Cases</div>
+                <div class="value" id="matchedCases">0</div>
+            </div>
 
-<div class="file-box">
-    <div>Select Client files</div>
+            <div class="stat">
+                <div class="title">Missing Cases</div>
+                <div class="value" id="missingCases">0</div>
+            </div>
 
-    <input
-        id="clientFiles"
-        type="file"
-        multiple
-        accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.pdf,.txt,.log,.docx,.html,.htm,.json"
-    >
-</div>
+            <div class="stat">
+                <div class="title">Duplicate Patient IDs</div>
+                <div class="value" id="duplicatePatientIds">0</div>
+            </div>
 
-<div id="clientFileList" class="file-list"></div>
+            <div class="stat">
+                <div class="title">Name Mismatches</div>
+                <div class="value" id="nameMismatches">0</div>
+            </div>
 
-<div class="controls">
+        </div>
 
-<div class="control">
-    <label>Client Worksheet</label>
+    </div>
 
-    <select id="clientSheet">
-        <option value="">Upload file first</option>
-    </select>
-</div>
+    <div class="card">
+
+        <div class="tabs">
 
-<div class="control">
-    <label>Client Patient ID</label>
+            <button class="tab active" onclick="openTab('summary',this)">
+                Summary
+            </button>
 
-    <select id="clientKey">
-        <option value="">Select Patient ID</option>
-    </select>
-</div>
+            <button class="tab" onclick="openTab('matched',this)">
+                Matched Patients
+            </button>
 
-<div class="control">
-    <label>Client Study ID — optional</label>
+            <button class="tab" onclick="openTab('missing5c',this)">
+                Missing from 5C
+            </button>
 
-    <select id="clientStudyKey">
-        <option value="">Not selected</option>
-    </select>
-</div>
+            <button class="tab" onclick="openTab('missingClient',this)">
+                Missing from Client
+            </button>
 
-<div class="control">
-    <label>Client Patient Name — optional</label>
+            <button class="tab" onclick="openTab('duplicatePatients',this)">
+                Duplicate Patient IDs
+            </button>
 
-    <select id="clientNameKey">
-        <option value="">Not selected</option>
-    </select>
-</div>
+            <button class="tab" onclick="openTab('duplicateStudies',this)">
+                Duplicate Study IDs
+            </button>
 
-</div>
+            <button class="tab" onclick="openTab('names',this)">
+                Name Mismatches
+            </button>
 
-</div>
+            <button class="tab" onclick="openTab('studyCounts',this)">
+                Study Count Mismatches
+            </button>
 
+            <button class="tab" onclick="openTab('blankIds',this)">
+                Blank Patient IDs
+            </button>
 
-<div class="panel">
+        </div>
 
-<h2 class="fivec-title">5C Documents</h2>
+        <div class="toolbar">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search current table..."
+                oninput="renderCurrentTable()">
 
-<div class="file-box">
-    <div>Select 5C files</div>
+            <button onclick="exportCurrentTab()">
+                Export Current
+            </button>
 
-    <input
-        id="fivecFiles"
-        type="file"
-        multiple
-        accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.pdf,.txt,.log,.docx,.html,.htm,.json"
-    >
-</div>
+            <button onclick="exportFullExcel()">
+                Export Excel
+            </button>
+        </div>
 
-<div id="fivecFileList" class="file-list"></div>
+        <div id="summary" class="tab-content active">
+            <div class="empty" id="summaryText">
+                Upload Client and 5C documents, then click Compare Documents.
+            </div>
+        </div>
 
-<div class="controls">
+        <div id="matched" class="tab-content">
+            <div id="matchedTable"></div>
+        </div>
 
-<div class="control">
-    <label>5C Worksheet</label>
+        <div id="missing5c" class="tab-content">
+            <div id="missing5cTable"></div>
+        </div>
 
-    <select id="fivecSheet">
-        <option value="">Upload file first</option>
-    </select>
-</div>
+        <div id="missingClient" class="tab-content">
+            <div id="missingClientTable"></div>
+        </div>
 
-<div class="control">
-    <label>5C Patient ID</label>
+        <div id="duplicatePatients" class="tab-content">
+            <div id="duplicatePatientsTable"></div>
+        </div>
 
-    <select id="fivecKey">
-        <option value="">Select Patient ID</option>
-    </select>
-</div>
+        <div id="duplicateStudies" class="tab-content">
+            <div id="duplicateStudiesTable"></div>
+        </div>
 
-<div class="control">
-    <label>5C Study ID — optional</label>
+        <div id="names" class="tab-content">
+            <div id="namesTable"></div>
+        </div>
 
-    <select id="fivecStudyKey">
-        <option value="">Not selected</option>
-    </select>
-</div>
+        <div id="studyCounts" class="tab-content">
+            <div id="studyCountsTable"></div>
+        </div>
 
-<div class="control">
-    <label>5C Patient Name — optional</label>
+        <div id="blankIds" class="tab-content">
+            <div id="blankIdsTable"></div>
+        </div>
 
-    <select id="fivecNameKey">
-        <option value="">Not selected</option>
-    </select>
-</div>
+        <div class="pagination">
+            <button onclick="previousPage()">Previous</button>
+            <span id="pageInfo">Page 0 of 0</span>
+            <button onclick="nextPage()">Next</button>
+        </div>
 
-</div>
-
-</div>
-
-</div>
-
-
-<div class="action-bar">
-
-<button
-    class="compare-btn"
-    onclick="compareData()"
->
-    ⇄ Compare Documents
-</button>
-
-<button
-    class="secondary"
-    onclick="clearAll()"
->
-    Clear All
-</button>
-
-</div>
-
-
-<div id="loading" class="loading">
-    Processing documents. Please wait...
-</div>
-
-<div id="message" class="message"></div>
-
-
-<!-- =========================
-     RESULTS
-========================= -->
-
-<div id="results">
-
-<div class="stats">
-
-<div class="stat blue">
-    <div class="stat-label">Client Records</div>
-    <div class="stat-value" id="clientCount">0</div>
-    <div class="stat-note">Actual patient-data rows</div>
-</div>
-
-<div class="stat blue">
-    <div class="stat-label">5C Records</div>
-    <div class="stat-value" id="fivecCount">0</div>
-    <div class="stat-note">Only valid 5C patient rows</div>
-</div>
-
-<div class="stat green">
-    <div class="stat-label">Matched Cases</div>
-    <div class="stat-value" id="matchedCount">0</div>
-    <div class="stat-note">Matched cases on each side</div>
-</div>
-
-<div class="stat red">
-    <div class="stat-label">Missing Cases</div>
-    <div class="stat-value" id="missingCount">0</div>
-    <div class="stat-note">Client-only + 5C-only rows</div>
-</div>
-
-<div class="stat yellow">
-    <div class="stat-label">Duplicate Patient IDs</div>
-    <div class="stat-value" id="duplicateCount">0</div>
-    <div class="stat-note">Unique duplicated IDs</div>
-</div>
-
-<div class="stat yellow">
-    <div class="stat-label">Duplicate Study IDs</div>
-    <div class="stat-value" id="duplicateStudyCount">0</div>
-    <div class="stat-note">Duplicated study identifiers</div>
-</div>
-
-<div class="stat purple">
-    <div class="stat-label">Name Mismatches</div>
-    <div class="stat-value" id="nameMismatchCount">0</div>
-    <div class="stat-note">Same ID, different name</div>
-</div>
-
-<div class="stat red">
-    <div class="stat-label">Study Count Mismatches</div>
-    <div class="stat-value" id="studyMismatchCount">0</div>
-    <div class="stat-note">Different rows per Patient ID</div>
-</div>
-
-</div>
-
-
-<div class="tabs">
-
-<button class="tab active" data-tab="summary"
-onclick="setTab('summary')">
-Summary
-</button>
-
-<button class="tab" data-tab="matched"
-onclick="setTab('matched')">
-Matched Patients
-</button>
-
-<button class="tab" data-tab="clientMissing"
-onclick="setTab('clientMissing')">
-Missing from 5C
-</button>
-
-<button class="tab" data-tab="fivecMissing"
-onclick="setTab('fivecMissing')">
-Missing from Client
-</button>
-
-<button class="tab" data-tab="duplicates"
-onclick="setTab('duplicates')">
-Duplicate Patient IDs
-</button>
-
-<button class="tab" data-tab="duplicateStudies"
-onclick="setTab('duplicateStudies')">
-Duplicate Study IDs
-</button>
-
-<button class="tab" data-tab="nameMismatches"
-onclick="setTab('nameMismatches')">
-Name Mismatches
-</button>
-
-<button class="tab" data-tab="studyMismatches"
-onclick="setTab('studyMismatches')">
-Study Count Mismatches
-</button>
-
-<button class="tab" data-tab="blanks"
-onclick="setTab('blanks')">
-Blank Patient IDs
-</button>
+    </div>
 
 </div>
-
-
-<div class="table-panel">
-
-<div class="table-toolbar">
-
-<input
-    type="text"
-    id="searchBox"
-    placeholder="Search current results..."
-    oninput="renderTable()"
->
-
-<button
-    class="export"
-    onclick="exportCurrentTab()"
->
-    Export Current Tab
-</button>
-
-<button
-    class="secondary"
-    onclick="exportFullExcel()"
->
-    Export Full Excel
-</button>
-
-<div
-    class="table-info"
-    id="tableInfo"
->
-</div>
-
-</div>
-
-<div class="table-wrap">
-    <div id="tableContainer"></div>
-</div>
-
-<div class="pagination">
-
-<button
-    class="secondary"
-    onclick="previousPage()"
->
-    ← Previous
-</button>
-
-<span id="pageInfo">Page 1</span>
-
-<button
-    class="secondary"
-    onclick="nextPage()"
->
-    Next →
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 
 <script>
 
-/* =========================================================
-   PDF.JS
-========================================================= */
-
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 
 /* =========================================================
-   STATE
-========================================================= */
+   GLOBAL STATE
+   ========================================================= */
 
 const state = {
 
-    clientFiles:[],
+    clientData: [],
+    fivecData: [],
 
-    fivecFiles:[],
+    clientHeaders: [],
+    fivecHeaders: [],
 
-    clientData:null,
+    clientSheets: [],
+    fivecSheets: [],
 
-    fivecData:null,
+    results: {
+        matched: [],
+        missing5c: [],
+        missingClient: [],
+        duplicatePatients: [],
+        duplicateStudies: [],
+        names: [],
+        studyCounts: [],
+        blankIds: []
+    },
 
-    results:null,
-
-    activeTab:"summary",
-
-    page:1,
-
-    pageSize:50
+    currentTab: "summary",
+    currentPage: 1,
+    pageSize: 100
 
 };
 
 
-const $ = id =>
-document.getElementById(id);
-
-
 /* =========================================================
-   BASIC HELPERS
-========================================================= */
+   COMMON HELPERS
+   ========================================================= */
 
-function norm(value){
+function normalizeText(value){
 
-    if(
-        value === null ||
-        value === undefined
-    ){
+    if(value === null || value === undefined){
         return "";
     }
 
     return String(value)
-        .trim()
+        .replace(/\u00a0/g," ")
+        .replace(/\u200b/g,"")
+        .replace(/\r/g," ")
+        .replace(/\n/g," ")
+        .replace(/\t/g," ")
         .replace(/\s+/g," ")
-        .toUpperCase();
+        .trim();
+
 }
 
 
-function cleanHeader(value){
+function normalizeHeader(value){
 
-    return String(value ?? "")
-        .trim()
-        .replace(/\s+/g," ");
+    return normalizeText(value)
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g,"");
+
 }
 
 
-function escapeHtml(value){
+function normalizePatientId(value){
 
-    return String(value ?? "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+    return normalizeText(value)
+        .toUpperCase()
+        .replace(/\s+/g,"");
+
 }
 
 
-function showMessage(
-    text,
-    type="success"
-){
+function normalizeName(value){
 
-    const box = $("message");
+    return normalizeText(value)
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g,"");
 
-    box.textContent = text;
-
-    box.className =
-        "message " + type;
 }
 
 
-function showLoading(show){
+function isValidPatientId(value){
 
-    $("loading").style.display =
-        show ? "block" : "none";
+    return /^[A-Z]{2}\d{8}$/i.test(
+        normalizePatientId(value)
+    );
+
+}
+
+
+function isValidOrderId(value){
+
+    return /^[A-Z0-9]{10}$/i.test(
+        normalizeText(value)
+    );
+
+}
+
+
+function isValidDate(value){
+
+    return /^\d{4}[-/]\d{2}[-/]\d{2}$/.test(
+        normalizeText(value)
+    );
+
+}
+
+
+function isNumber(value){
+
+    if(value === null || value === undefined){
+        return false;
+    }
+
+    const s = normalizeText(value)
+        .replace(/₹/g,"")
+        .replace(/Rs\.?/gi,"")
+        .replace(/,/g,"");
+
+    return s !== "" && !isNaN(Number(s));
+
+}
+
+
+function isInteger(value){
+
+    const s = normalizeText(value);
+
+    return /^\d+$/.test(s);
+
+}
+
+
+function isModality(value){
+
+    const s = normalizeText(value).toUpperCase();
+
+    const modalities = [
+        "PET-CT",
+        "PET CT",
+        "MAMMO",
+        "X-RAY",
+        "XRAY",
+        "MRI",
+        "MR",
+        "CT",
+        "USG",
+        "US",
+        "PET",
+        "DX",
+        "CR",
+        "DR"
+    ];
+
+    return modalities.includes(s);
+
+}
+
+
+function cleanDate(value){
+
+    return normalizeText(value).replace(/\//g,"-");
+
 }
 
 
 /* =========================================================
-   FILE INPUT
-========================================================= */
+   FILE TYPE HELPERS
+   ========================================================= */
 
-$("clientFiles").addEventListener(
-"change",
-async function(){
+function isExcelFile(file){
 
-    state.clientFiles =
-        Array.from(this.files || []);
+    return /\.(xlsx|xls|xlsm|xlsb)$/i.test(file.name);
 
-    renderFileList(
-        "clientFileList",
-        state.clientFiles
-    );
+}
 
-    if(!state.clientFiles.length){
+
+function isPdfFile(file){
+
+    return /\.pdf$/i.test(file.name);
+
+}
+
+
+function isDocxFile(file){
+
+    return /\.docx$/i.test(file.name);
+
+}
+
+
+function isTextFile(file){
+
+    return /\.(txt|log|html|htm|json|csv)$/i.test(file.name);
+
+}
+
+
+/* =========================================================
+   FILE UPLOAD EVENTS
+   ========================================================= */
+
+document.getElementById("clientFiles")
+.addEventListener("change", async function(){
+
+    const files = Array.from(this.files || []);
+
+    if(!files.length){
         return;
     }
 
     try{
 
-        showLoading(true);
+        setStatus(
+            "clientStatus",
+            "Reading Client document...",
+            "warning"
+        );
 
-        state.clientData =
-            await parseFiles(
-                state.clientFiles,
-                "Client"
-            );
+        const result = await readMultipleFiles(
+            files,
+            false
+        );
 
-        populateColumnControls("client");
+        state.clientData = result.rows;
+        state.clientHeaders = result.headers;
+        state.clientSheets = result.sheets;
 
-        showMessage(
-            "Client loaded successfully: " +
-            state.clientData.rows.length.toLocaleString() +
-            " rows.",
+        populateClientControls();
+
+        setStatus(
+            "clientStatus",
+            `Client records loaded: ${state.clientData.length.toLocaleString()}`,
             "success"
         );
 
@@ -874,82 +795,67 @@ async function(){
 
         console.error(error);
 
-        state.clientData = null;
-
-        showMessage(
-            "Client file error: " +
-            error.message,
+        setStatus(
+            "clientStatus",
+            "Client file error: " + error.message,
             "error"
         );
-
-    }finally{
-
-        showLoading(false);
 
     }
 
 });
 
 
-$("fivecFiles").addEventListener(
-"change",
-async function(){
+document.getElementById("fivecFiles")
+.addEventListener("change", async function(){
 
-    state.fivecFiles =
-        Array.from(this.files || []);
+    const files = Array.from(this.files || []);
 
-    renderFileList(
-        "fivecFileList",
-        state.fivecFiles
-    );
-
-    if(!state.fivecFiles.length){
+    if(!files.length){
         return;
     }
 
     try{
 
-        showLoading(true);
+        setStatus(
+            "fivecStatus",
+            "Reading 5C document...",
+            "warning"
+        );
+
+        const result = await readMultipleFiles(
+            files,
+            true
+        );
 
         /*
          * IMPORTANT:
-         * Passing "5C" here activates
-         * the strict 5C PDF parser.
+         * The 5C parser returns ONLY valid 5C records.
+         * Headers, page numbers, totals and unrelated
+         * PDF text are ignored.
          */
 
-        state.fivecData =
-            await parseFiles(
-                state.fivecFiles,
-                "5C"
-            );
+        state.fivecData = result.rows;
+        state.fivecHeaders = result.headers;
+        state.fivecSheets = result.sheets;
 
-        populateColumnControls("fivec");
+        populateFiveCControls();
 
-        showMessage(
-            "5C loaded successfully: " +
-            state.fivecData.rows.length.toLocaleString() +
-            " valid patient rows found.",
+        setStatus(
+            "fivecStatus",
+            `Valid 5C records detected: ${state.fivecData.length.toLocaleString()}`,
             "success"
         );
 
     }catch(error){
 
-        console.error(
-            "5C ERROR:",
-            error
-        );
+        console.error(error);
 
-        state.fivecData = null;
-
-        showMessage(
-            "5C file error: " +
-            error.message,
+        setStatus(
+            "fivecStatus",
+            "5C file error: " + error.message,
             "error"
         );
-
-    }finally{
-
-        showLoading(false);
 
     }
 
@@ -957,859 +863,454 @@ async function(){
 
 
 /* =========================================================
-   FILE LIST
-========================================================= */
+   READ MULTIPLE FILES
+   ========================================================= */
 
-function renderFileList(
-    elementId,
-    files
-){
-
-    const el =
-        $(elementId);
-
-    if(!files.length){
-
-        el.innerHTML = "";
-
-        return;
-    }
-
-    el.innerHTML =
-        files.map(
-            (file,index)=>`
-
-            <div class="file-item">
-
-                <span class="badge">
-                    ${index+1}
-                </span>
-
-                ${escapeHtml(file.name)}
-
-                <span style="color:#71849d">
-                    (${(
-                        file.size /
-                        1024 /
-                        1024
-                    ).toFixed(2)} MB)
-                </span>
-
-            </div>
-
-            `
-        ).join("");
-}
-
-
-/* =========================================================
-   PARSE FILES
-========================================================= */
-
-async function parseFiles(
-    files,
-    sourceName
-){
+async function readMultipleFiles(files,isFiveC){
 
     let allRows = [];
-
-    let headers = new Set();
-
-    let sheetNames = [];
-
+    let allHeaders = new Set();
+    let allSheets = [];
 
     for(const file of files){
 
-        const ext =
-            file.name
-                .split(".")
-                .pop()
-                .toLowerCase();
+        const result = isFiveC
+            ? await readFiveCFile(file)
+            : await readClientFile(file);
 
+        if(result.rows && result.rows.length){
 
-        let parsed;
-
-
-        if([
-            "xlsx",
-            "xls",
-            "xlsm",
-            "xlsb"
-        ].includes(ext)){
-
-            parsed =
-                await readExcel(
-                    file,
-                    sourceName
-                );
+            allRows.push(...result.rows);
 
         }
 
-        else if(ext === "csv"){
+        if(result.headers){
 
-            parsed =
-                await readCsv(
-                    file,
-                    sourceName
-                );
-
-        }
-
-        else if(ext === "pdf"){
-
-            parsed =
-                await readPdf(
-                    file,
-                    sourceName
-                );
-
-        }
-
-        else if(ext === "docx"){
-
-            parsed =
-                await readDocx(
-                    file,
-                    sourceName
-                );
-
-        }
-
-        else if([
-            "html",
-            "htm"
-        ].includes(ext)){
-
-            parsed =
-                await readHtml(
-                    file,
-                    sourceName
-                );
-
-        }
-
-        else if(ext === "json"){
-
-            parsed =
-                await readJson(
-                    file,
-                    sourceName
-                );
-
-        }
-
-        else{
-
-            parsed =
-                await readText(
-                    file,
-                    sourceName
-                );
-
-        }
-
-
-        for(const row of parsed.rows){
-
-            allRows.push(row);
-
-            Object.keys(row)
-                .forEach(
-                    header =>
-                        headers.add(header)
-                );
-
-        }
-
-
-        if(parsed.sheetNames){
-
-            sheetNames.push(
-                ...parsed.sheetNames
+            result.headers.forEach(h =>
+                allHeaders.add(h)
             );
 
         }
 
+        if(result.sheets){
+
+            allSheets.push(...result.sheets);
+
+        }
+
     }
 
-
     return {
-
-        source:sourceName,
-
-        rows:allRows,
-
-        headers:Array.from(headers),
-
-        sheetNames
-
+        rows: allRows,
+        headers: Array.from(allHeaders),
+        sheets: allSheets
     };
+
 }
 
 
 /* =========================================================
-   EXCEL
-========================================================= */
+   CLIENT FILE READER
+   ========================================================= */
 
-async function readExcel(
-    file,
-    sourceName
-){
+async function readClientFile(file){
 
-    const buffer =
-        await file.arrayBuffer();
+    if(isExcelFile(file)){
+
+        return await readExcelFile(
+            file,
+            false
+        );
+
+    }
+
+    if(isPdfFile(file)){
+
+        return await readPdfFile(
+            file,
+            false
+        );
+
+    }
+
+    if(isDocxFile(file)){
+
+        return await readDocxFile(
+            file,
+            false
+        );
+
+    }
+
+    if(isTextFile(file)){
+
+        return await readTextLikeFile(
+            file,
+            false
+        );
+
+    }
+
+    throw new Error(
+        "Unsupported Client file type: " + file.name
+    );
+
+}
 
 
-    const workbook =
-        XLSX.read(
-            buffer,
+/* =========================================================
+   5C FILE READER
+   ========================================================= */
+
+async function readFiveCFile(file){
+
+    if(isExcelFile(file)){
+
+        return await readExcelFile(
+            file,
+            true
+        );
+
+    }
+
+    if(isPdfFile(file)){
+
+        return await readPdfFile(
+            file,
+            true
+        );
+
+    }
+
+    if(isDocxFile(file)){
+
+        return await readDocxFile(
+            file,
+            true
+        );
+
+    }
+
+    if(isTextFile(file)){
+
+        return await readTextLikeFile(
+            file,
+            true
+        );
+
+    }
+
+    throw new Error(
+        "Unsupported 5C file type: " + file.name
+    );
+
+}
+
+
+/* =========================================================
+   EXCEL READER
+   ========================================================= */
+
+async function readExcelFile(file,isFiveC){
+
+    const buffer = await file.arrayBuffer();
+
+    const workbook = XLSX.read(
+        buffer,
+        {
+            type:"array",
+            cellDates:true
+        }
+    );
+
+    const rows = [];
+    const headers = [];
+    const sheets = [];
+
+    for(const sheetName of workbook.SheetNames){
+
+        sheets.push(sheetName);
+
+        const sheet = workbook.Sheets[sheetName];
+
+        const json = XLSX.utils.sheet_to_json(
+            sheet,
             {
-                type:"array",
-                cellDates:true,
+                defval:"",
                 raw:false
             }
         );
 
-
-    const rows = [];
-
-    const headers = new Set();
-
-    const sheetNames =
-        workbook.SheetNames.slice();
-
-
-    for(
-        const sheetName
-        of workbook.SheetNames
-    ){
-
-        const sheet =
-            workbook.Sheets[sheetName];
-
-
-        const data =
-            XLSX.utils.sheet_to_json(
-                sheet,
-                {
-                    defval:"",
-                    raw:false
-                }
-            );
-
-
-        data.forEach(
-            (row,index)=>{
-
-                const output = {};
-
-
-                Object.keys(row)
-                    .forEach(
-                        key=>{
-
-                            const header =
-                                cleanHeader(key);
-
-                            output[header] =
-                                row[key] ?? "";
-
-                            headers.add(
-                                header
-                            );
-
-                        }
-                    );
-
-
-                output["__Source File"] =
-                    file.name;
-
-                output["__Source Sheet"] =
-                    sheetName;
-
-                output["__Source Row"] =
-                    index + 2;
-
-
-                const hasData =
-                    Object.keys(output)
-                        .some(
-                            key =>
-                                !key.startsWith("__") &&
-                                String(
-                                    output[key]
-                                ).trim() !== ""
-                        );
-
-
-                if(hasData){
-
-                    rows.push(output);
-
-                }
-
-            }
-        );
-
-    }
-
-
-    return {
-
-        rows,
-
-        headers:Array.from(headers),
-
-        sheetNames
-
-    };
-}
-
-
-/* =========================================================
-   CSV
-========================================================= */
-
-async function readCsv(
-    file,
-    sourceName
-){
-
-    const text =
-        await file.text();
-
-
-    const rows =
-        parseDelimitedText(text);
-
-
-    return {
-
-        rows:
-            rowsToObjects(
-                rows,
-                file.name,
-                "",
-                sourceName
-            )
-
-    };
-}
-
-
-function parseDelimitedText(text){
-
-    const lines =
-        text
-            .split(/\r?\n/)
-            .filter(
-                line =>
-                    line.trim() !== ""
-            );
-
-
-    if(!lines.length){
-        return [];
-    }
-
-
-    let delimiter = ",";
-
-
-    if(lines[0].includes("\t")){
-
-        delimiter = "\t";
-
-    }
-
-    else if(lines[0].includes("|")){
-
-        delimiter = "|";
-
-    }
-
-
-    return lines.map(
-        line =>
-            line
-                .split(delimiter)
-                .map(
-                    value =>
-                        value.trim()
-                )
-    );
-}
-
-
-function rowsToObjects(
-    rows,
-    fileName,
-    sheetName,
-    sourceName
-){
-
-    if(!rows.length){
-        return [];
-    }
-
-
-    const headers =
-        rows[0].map(
-            (h,index)=>
-                cleanHeader(h) ||
-                "Column " +
-                (index+1)
-        );
-
-
-    return rows
-        .slice(1)
-        .map(
-            (values,index)=>{
-
-                const obj = {};
-
-
-                headers.forEach(
-                    (header,i)=>{
-
-                        obj[header] =
-                            values[i] ?? "";
-
-                    }
-                );
-
-
-                obj["__Source File"] =
-                    fileName;
-
-
-                if(sheetName){
-
-                    obj["__Source Sheet"] =
-                        sheetName;
-
-                }
-
-
-                obj["__Source Row"] =
-                    index + 2;
-
-
-                return obj;
-
-            }
-        )
-        .filter(
-            row =>
-                Object.keys(row)
-                    .some(
-                        key =>
-                            !key.startsWith("__") &&
-                            String(
-                                row[key]
-                            ).trim() !== ""
-                    )
-        );
-}
-
-
-/* =========================================================
-   JSON
-========================================================= */
-
-async function readJson(
-    file,
-    sourceName
-){
-
-    const text =
-        await file.text();
-
-
-    const data =
-        JSON.parse(text);
-
-
-    const array =
-        Array.isArray(data)
-            ? data
-            : Array.isArray(data.data)
-                ? data.data
-                : [data];
-
-
-    const rows =
-        array.map(
-            (item,index)=>{
-
-                const obj = {};
-
-
-                Object.keys(
-                    item || {}
-                ).forEach(
-                    key=>{
-
-                        obj[
-                            cleanHeader(key)
-                        ] =
-                            item[key];
-
-                    }
-                );
-
-
-                obj["__Source File"] =
-                    file.name;
-
-                obj["__Source Row"] =
-                    index + 1;
-
-
-                return obj;
-
-            }
-        );
-
-
-    return {rows};
-}
-
-
-/* =========================================================
-   TEXT
-========================================================= */
-
-async function readText(
-    file,
-    sourceName
-){
-
-    const text =
-        await file.text();
-
-
-    const lines =
-        text
-            .split(/\r?\n/)
-            .map(x=>x.trim())
-            .filter(Boolean);
-
-
-    const rows = [];
-
-
-    lines.forEach(
-        (line,index)=>{
-
-            const parts =
-                line.includes("\t")
-                    ? line.split("\t")
-                    : line.split(/\s{2,}/);
-
-
-            if(parts.length < 2){
-                return;
-            }
-
-
-            const obj = {};
-
-
-            parts.forEach(
-                (value,i)=>{
-
-                    obj[
-                        "Column " +
-                        (i+1)
-                    ] =
-                        value.trim();
-
-                }
-            );
-
-
-            obj["__Source File"] =
-                file.name;
-
-            obj["__Source Row"] =
-                index + 1;
-
-
-            rows.push(obj);
-
+        if(!json.length){
+            continue;
         }
-    );
 
+        Object.keys(json[0]).forEach(h => {
 
-    return {rows};
-}
-
-
-/* =========================================================
-   HTML
-========================================================= */
-
-async function readHtml(
-    file,
-    sourceName
-){
-
-    const text =
-        await file.text();
-
-
-    const parser =
-        new DOMParser();
-
-
-    const doc =
-        parser.parseFromString(
-            text,
-            "text/html"
-        );
-
-
-    const rows = [];
-
-
-    const tables =
-        Array.from(
-            doc.querySelectorAll("table")
-        );
-
-
-    tables.forEach(
-        (table,tableIndex)=>{
-
-            const trs =
-                Array.from(
-                    table.querySelectorAll("tr")
-                );
-
-
-            if(!trs.length){
-                return;
+            if(!headers.includes(h)){
+                headers.push(h);
             }
 
-
-            const headers =
-                Array.from(
-                    trs[0].querySelectorAll(
-                        "th,td"
-                    )
-                ).map(
-                    x =>
-                        cleanHeader(
-                            x.textContent
-                        )
-                );
-
-
-            trs.slice(1).forEach(
-                (tr,rowIndex)=>{
-
-                    const cells =
-                        Array.from(
-                            tr.querySelectorAll(
-                                "td,th"
-                            )
-                        ).map(
-                            x =>
-                                x.textContent.trim()
-                        );
-
-
-                    if(!cells.length){
-                        return;
-                    }
-
-
-                    const obj = {};
-
-
-                    cells.forEach(
-                        (value,i)=>{
-
-                            obj[
-                                headers[i] ||
-                                "Column " +
-                                (i+1)
-                            ] =
-                                value;
-
-                        }
-                    );
-
-
-                    obj["__Source File"] =
-                        file.name;
-
-                    obj["__Source Sheet"] =
-                        "HTML Table " +
-                        (tableIndex+1);
-
-                    obj["__Source Row"] =
-                        rowIndex + 2;
-
-
-                    rows.push(obj);
-
-                }
-            );
-
-        }
-    );
-
-
-    return {rows};
-}
-
-
-/* =========================================================
-   DOCX
-========================================================= */
-
-async function readDocx(
-    file,
-    sourceName
-){
-
-    const buffer =
-        await file.arrayBuffer();
-
-
-    const result =
-        await mammoth.convertToHtml({
-            arrayBuffer:buffer
         });
 
+        if(isFiveC){
 
-    const parser =
-        new DOMParser();
+            /*
+             * DO NOT count every Excel row.
+             *
+             * Only count rows that satisfy the exact
+             * 5C record structure.
+             */
 
-
-    const doc =
-        parser.parseFromString(
-            result.value,
-            "text/html"
-        );
-
-
-    const rows = [];
-
-
-    const tables =
-        Array.from(
-            doc.querySelectorAll(
-                "table"
-            )
-        );
-
-
-    tables.forEach(
-        (table,tableIndex)=>{
-
-            const trs =
-                Array.from(
-                    table.querySelectorAll(
-                        "tr"
-                    )
+            const fivecRows =
+                parseFiveCStructuredRows(
+                    json,
+                    file.name,
+                    sheetName
                 );
 
+            rows.push(...fivecRows);
 
-            if(!trs.length){
-                return;
+        }else{
+
+            for(let i=0;i<json.length;i++){
+
+                const row = {...json[i]};
+
+                row["__Source File"] =
+                    file.name;
+
+                row["__Source Sheet"] =
+                    sheetName;
+
+                row["__Source Row"] =
+                    i + 2;
+
+                rows.push(row);
+
             }
 
-
-            const headers =
-                Array.from(
-                    trs[0].querySelectorAll(
-                        "th,td"
-                    )
-                ).map(
-                    x =>
-                        cleanHeader(
-                            x.textContent
-                        )
-                );
-
-
-            trs.slice(1).forEach(
-                (tr,index)=>{
-
-                    const cells =
-                        Array.from(
-                            tr.querySelectorAll(
-                                "td,th"
-                            )
-                        ).map(
-                            x =>
-                                x.textContent.trim()
-                        );
-
-
-                    const obj = {};
-
-
-                    cells.forEach(
-                        (value,i)=>{
-
-                            obj[
-                                headers[i] ||
-                                "Column " +
-                                (i+1)
-                            ] =
-                                value;
-
-                        }
-                    );
-
-
-                    obj["__Source File"] =
-                        file.name;
-
-                    obj["__Source Row"] =
-                        index + 2;
-
-
-                    rows.push(obj);
-
-                }
-            );
-
         }
-    );
 
+    }
 
-    return {rows};
+    return {
+        rows,
+        headers,
+        sheets
+    };
+
 }
 
 
 /* =========================================================
-   PDF
-========================================================= */
+   STRICT 5C EXCEL ROW PARSER
+   ========================================================= */
 
-async function readPdf(
-    file,
-    sourceName
+function parseFiveCStructuredRows(
+    json,
+    fileName,
+    sheetName
 ){
+
+    const result = [];
+
+    for(let i=0;i<json.length;i++){
+
+        const row = json[i];
+
+        const keys = Object.keys(row);
+
+        const values = {};
+
+        for(const key of keys){
+
+            const nk = normalizeHeader(key);
+
+            if(
+                nk === "orderid" ||
+                nk === "order"
+            ){
+                values.orderId =
+                    normalizeText(row[key]);
+            }
+
+            else if(
+                nk === "patientid" ||
+                nk === "patient"
+            ){
+                values.patientId =
+                    normalizeText(row[key]);
+            }
+
+            else if(
+                nk === "patientname" ||
+                nk === "name"
+            ){
+                values.patientName =
+                    normalizeText(row[key]);
+            }
+
+            else if(
+                nk === "modality"
+            ){
+                values.modality =
+                    normalizeText(row[key]);
+            }
+
+            else if(
+                nk === "study" ||
+                nk === "studyname"
+            ){
+                values.study =
+                    normalizeText(row[key]);
+            }
+
+            else if(
+                nk === "date" ||
+                nk === "studydate" ||
+                nk === "orderdate"
+            ){
+                values.date =
+                    normalizeText(row[key]);
+            }
+
+            else if(
+                nk === "numofreports" ||
+                nk === "numberofreports" ||
+                nk === "reports"
+            ){
+                values.reports =
+                    normalizeText(row[key]);
+            }
+
+            else if(
+                nk === "costrs" ||
+                nk === "cost" ||
+                nk === "costinrs"
+            ){
+                values.cost =
+                    normalizeText(row[key]);
+            }
+
+        }
+
+        const valid =
+            isValidFiveCRecord(values);
+
+        if(valid){
+
+            result.push({
+                "Order Id":
+                    values.orderId,
+
+                "Patient Id":
+                    normalizePatientId(
+                        values.patientId
+                    ),
+
+                "Patient Name":
+                    values.patientName,
+
+                "Modality":
+                    values.modality,
+
+                "Study":
+                    values.study,
+
+                "Date":
+                    cleanDate(values.date),
+
+                "Num of Reports":
+                    Number(values.reports),
+
+                "Cost (Rs)":
+                    Number(
+                        String(values.cost)
+                        .replace(/,/g,"")
+                    ),
+
+                "__Source File":
+                    fileName,
+
+                "__Source Sheet":
+                    sheetName,
+
+                "__Source Row":
+                    i + 2
+            });
+
+        }
+
+    }
+
+    return result;
+
+}
+
+
+/* =========================================================
+   STRICT 5C RECORD VALIDATION
+   ========================================================= */
+
+function isValidFiveCRecord(row){
+
+    if(!row){
+        return false;
+    }
+
+    if(!isValidOrderId(row.orderId)){
+        return false;
+    }
+
+    if(!isValidPatientId(row.patientId)){
+        return false;
+    }
+
+    if(!row.patientName){
+        return false;
+    }
+
+    if(!isModality(row.modality)){
+        return false;
+    }
+
+    if(!row.study){
+        return false;
+    }
+
+    if(!isValidDate(row.date)){
+        return false;
+    }
+
+    if(!isInteger(row.reports)){
+        return false;
+    }
+
+    if(!isNumber(row.cost)){
+        return false;
+    }
+
+    return true;
+
+}
+
+
+/* =========================================================
+   PDF READER
+   ========================================================= */
+
+async function readPdfFile(file,isFiveC){
 
     const buffer =
         await file.arrayBuffer();
-
 
     const pdf =
         await pdfjsLib.getDocument({
             data:buffer
         }).promise;
 
-
-    const allLines = [];
-
+    let allText = "";
 
     for(
         let pageNumber=1;
@@ -1818,60 +1319,40 @@ async function readPdf(
     ){
 
         const page =
-            await pdf.getPage(
-                pageNumber
-            );
-
+            await pdf.getPage(pageNumber);
 
         const content =
             await page.getTextContent();
 
+        /*
+         * Keep PDF text items separated.
+         * The 5C parser below reconstructs records
+         * rather than assuming one PDF text item equals
+         * one complete row.
+         */
+
+        const items =
+            content.items || [];
 
         const lines =
-            pdfLineGroups(
-                content.items,
-                pageNumber
-            );
+            reconstructPdfLines(items);
 
-
-        allLines.push(
-            ...lines
-        );
+        allText +=
+            lines.join("\n") +
+            "\n";
 
     }
 
-
-    /*
-     * STRICT 5C PDF
-     */
-
-    if(
-        String(sourceName).toUpperCase()
-        === "5C"
-    ){
+    if(isFiveC){
 
         const rows =
-            parseStrict5CPdf(
-                allLines,
+            parseFiveCPdfText(
+                allText,
                 file.name
             );
 
-
-        if(!rows.length){
-
-            throw new Error(
-                "No valid 5C patient rows found in " +
-                file.name +
-                ". Expected Order ID, Patient ID, Patient Name, Modality, Study, Date, Reports and Cost."
-            );
-
-        }
-
-
         return {
-
             rows,
-
             headers:[
                 "Order Id",
                 "Patient Id",
@@ -1880,1486 +1361,1254 @@ async function readPdf(
                 "Study",
                 "Date",
                 "Num of Reports",
-                "Cost (Rs)",
-                "__Source File",
-                "__Source Row"
-            ]
-
+                "Cost (Rs)"
+            ],
+            sheets:["PDF"]
         };
 
     }
 
-
-    /*
-     * Generic Client PDF
-     */
-
     const rows =
-        parseGenericPatientPdf(
-            allLines,
-            file.name
+        parseGenericTextRows(
+            allText,
+            file.name,
+            "PDF"
         );
 
+    return {
+        rows,
+        headers:rows.length
+            ? Object.keys(rows[0])
+            : [],
+        sheets:["PDF"]
+    };
 
-    if(!rows.length){
-
-        throw new Error(
-            "No patient rows could be identified in Client PDF."
-        );
-
-    }
-
-
-    return {rows};
 }
 
 
 /* =========================================================
-   PDF LINE GROUPING
-========================================================= */
+   PDF LINE RECONSTRUCTION
+   ========================================================= */
 
-function pdfLineGroups(
-    items,
-    pageNumber
-){
+function reconstructPdfLines(items){
 
-    const groups = [];
-
-    const tolerance = 3;
-
+    const positioned = [];
 
     for(const item of items){
 
-        const text =
-            String(
-                item.str || ""
-            ).trim();
-
-
-        if(!text){
+        if(!item.str){
             continue;
         }
 
+        const transform =
+            item.transform || [];
 
         const x =
-            item.transform[4];
-
+            Number(transform[4] || 0);
 
         const y =
-            item.transform[5];
+            Number(transform[5] || 0);
 
-
-        let group =
-            groups.find(
-                g =>
-                    Math.abs(g.y-y)
-                    <= tolerance
-            );
-
-
-        if(!group){
-
-            group = {
-
-                y,
-
-                items:[]
-
-            };
-
-
-            groups.push(group);
-
-        }
-
-
-        group.items.push({
-
+        positioned.push({
+            text:normalizeText(item.str),
             x,
-
-            text
-
+            y
         });
 
     }
 
+    positioned.sort((a,b)=>{
 
-    groups.sort(
-        (a,b)=>
-            b.y-a.y
-    );
+        if(Math.abs(a.y-b.y)>3){
+            return b.y-a.y;
+        }
 
+        return a.x-b.x;
 
-    return groups.map(
-        group=>{
+    });
 
-            group.items.sort(
-                (a,b)=>
-                    a.x-b.x
-            );
+    const lines = [];
 
+    for(const item of positioned){
 
-            return {
+        let line = null;
 
-                page:pageNumber,
+        for(const existing of lines){
 
-                y:group.y,
+            if(
+                Math.abs(existing.y-item.y)
+                <= 3
+            ){
 
-                items:group.items,
+                line = existing;
+                break;
 
-                text:
-                    group.items
-                        .map(x=>x.text)
-                        .join(" ")
-                        .replace(/\s+/g," ")
-                        .trim()
-
-            };
+            }
 
         }
-    );
+
+        if(!line){
+
+            line = {
+                y:item.y,
+                items:[]
+            };
+
+            lines.push(line);
+
+        }
+
+        line.items.push(item);
+
+    }
+
+    lines.sort((a,b)=>b.y-a.y);
+
+    return lines.map(line => {
+
+        line.items.sort(
+            (a,b)=>a.x-b.x
+        );
+
+        return line.items
+            .map(x=>x.text)
+            .filter(Boolean)
+            .join(" ");
+
+    });
+
 }
 
 
 /* =========================================================
    STRICT 5C PDF PARSER
-=========================================================
+   ========================================================= */
 
-VALID EXAMPLE:
-
-G1UDPW3EBR BP00519532 Sinha Chandan XRAY XRAY Radiograph Foot - Left and Right - AP and Oblique,XRAY Radiograph Pelvis - AP 2026-08-31 2 114.0
-
-OUTPUT:
-
-Order Id
-Patient Id
-Patient Name
-Modality
-Study
-Date
-Num of Reports
-Cost (Rs)
-
-Everything else is ignored.
-========================================================= */
-
-function parseStrict5CPdf(
-    lines,
+function parseFiveCPdfText(
+    text,
     fileName
 ){
 
-    const rows = [];
+    /*
+     * This parser DOES NOT assume that every PDF line
+     * is a complete record.
+     *
+     * It looks for the unique Patient ID pattern:
+     *
+     * BP########
+     *
+     * and reconstructs the surrounding record.
+     *
+     * A record is accepted only when all 8 fields
+     * are valid.
+     */
 
+    const rawLines =
+        text
+        .split(/\n+/)
+        .map(x=>normalizeText(x))
+        .filter(Boolean);
 
-    const patientIdRegex =
-        /^[A-Z]{2}\d{8}$/i;
+    const records = [];
 
+    /*
+     * First pass:
+     * Join nearby PDF lines so records split by
+     * PDF extraction can still be recognized.
+     */
 
-    const orderIdRegex =
-        /^[A-Z0-9]{10}$/i;
+    let buffer = "";
 
+    const candidateBlocks = [];
 
-    const dateRegex =
-        /^\d{4}[-/]\d{2}[-/]\d{2}$/;
+    for(let i=0;i<rawLines.length;i++){
 
-
-    const costRegex =
-        /^\d+(?:\.\d+)?$/;
-
-
-    const modalities = [
-
-        "PET-CT",
-
-        "MAMMO",
-
-        "X-RAY",
-
-        "XRAY",
-
-        "MRI",
-
-        "MR",
-
-        "CT",
-
-        "USG",
-
-        "US",
-
-        "PET",
-
-        "DX",
-
-        "CR",
-
-        "DR"
-
-    ];
-
-
-    for(
-        const line
-        of lines
-    ){
+        const line =
+            rawLines[i];
 
         /*
-         * IMPORTANT:
-         * Use the complete visual PDF line.
+         * A new record normally begins with a
+         * 10-character Order ID.
          */
 
-        const text =
-            line.items
-                .map(
-                    item =>
-                        item.text
-                )
-                .join(" ")
-                .replace(
-                    /\s+/g,
-                    " "
-                )
-                .trim();
+        const startsOrder =
+            /^[A-Z0-9]{10}\b/i.test(line);
 
+        if(startsOrder){
 
-        if(!text){
-            continue;
-        }
+            if(buffer){
 
-
-        const tokens =
-            text.split(" ");
-
-
-        /*
-         * Need at least:
-         *
-         * Order
-         * Patient ID
-         * Name
-         * Modality
-         * Study
-         * Date
-         * Reports
-         * Cost
-         */
-
-        if(tokens.length < 8){
-            continue;
-        }
-
-
-        /* -------------------------
-           ORDER ID
-        ------------------------- */
-
-        const orderId =
-            tokens[0];
-
-
-        if(
-            !orderIdRegex.test(
-                orderId
-            )
-        ){
-
-            continue;
-
-        }
-
-
-        /* -------------------------
-           PATIENT ID
-        ------------------------- */
-
-        const patientId =
-            tokens[1];
-
-
-        if(
-            !patientIdRegex.test(
-                patientId
-            )
-        ){
-
-            continue;
-
-        }
-
-
-        /*
-         * Find DATE.
-         *
-         * This fixes the previous
-         * "date is not defined" error.
-         */
-
-        let dateIndex = -1;
-
-
-        for(
-            let i=2;
-            i<tokens.length;
-            i++
-        ){
-
-            if(
-                dateRegex.test(
-                    tokens[i]
-                )
-            ){
-
-                dateIndex = i;
-
-                break;
-
-            }
-
-        }
-
-
-        /*
-         * No date = NOT a patient row.
-         */
-
-        if(dateIndex === -1){
-
-            continue;
-
-        }
-
-
-        /*
-         * We now explicitly create DATE.
-         */
-
-        const date =
-            tokens[dateIndex];
-
-
-        /*
-         * Date must be followed by:
-         *
-         * Number of Reports
-         * Cost
-         */
-
-        if(
-            dateIndex + 2 >=
-            tokens.length
-        ){
-
-            continue;
-
-        }
-
-
-        const numReports =
-            tokens[
-                dateIndex + 1
-            ];
-
-
-        const cost =
-            tokens[
-                dateIndex + 2
-            ];
-
-
-        /*
-         * Number of reports
-         */
-
-        if(
-            !/^\d+$/.test(
-                numReports
-            )
-        ){
-
-            continue;
-
-        }
-
-
-        /*
-         * Cost
-         */
-
-        if(
-            !costRegex.test(
-                cost
-            )
-        ){
-
-            continue;
-
-        }
-
-
-        /*
-         * Everything before DATE
-         */
-
-        const beforeDate =
-            tokens.slice(
-                2,
-                dateIndex
-            );
-
-
-        if(
-            beforeDate.length < 3
-        ){
-
-            continue;
-
-        }
-
-
-        /*
-         * Find modality.
-         */
-
-        let modalityIndex =
-            -1;
-
-        let modality =
-            "";
-
-
-        for(
-            let i=1;
-            i<beforeDate.length;
-            i++
-        ){
-
-            const current =
-                beforeDate[i]
-                    .toUpperCase();
-
-
-            const found =
-                modalities.find(
-                    m =>
-                        current === m
+                candidateBlocks.push(
+                    buffer
                 );
 
+            }
 
-            if(found){
+            buffer = line;
 
-                modalityIndex =
-                    i;
+        }else{
 
-                modality =
-                    found;
+            /*
+             * Ignore obvious page/header noise
+             * before the first record.
+             */
 
-                break;
+            if(buffer){
+
+                buffer += " " + line;
 
             }
 
         }
 
+    }
 
-        /*
-         * No modality:
-         * ignore the entire line.
-         */
-
-        if(
-            modalityIndex === -1
-        ){
-
-            continue;
-
-        }
-
-
-        /*
-         * Patient Name
-         */
-
-        const patientName =
-            beforeDate
-                .slice(
-                    0,
-                    modalityIndex
-                )
-                .join(" ")
-                .trim();
-
-
-        if(!patientName){
-
-            continue;
-
-        }
-
-
-        /*
-         * Study
-         */
-
-        const study =
-            beforeDate
-                .slice(
-                    modalityIndex + 1
-                )
-                .join(" ")
-                .trim();
-
-
-        if(!study){
-
-            continue;
-
-        }
-
-
-        /*
-         * FINAL VALIDATION
-         */
-
-        if(
-            !/^[A-Z]{2}\d{8}$/i.test(
-                patientId
-            )
-        ){
-
-            continue;
-
-        }
-
-
-        /*
-         * ADD ONLY VALID ROW
-         */
-
-        rows.push({
-
-            "Order Id":
-                orderId,
-
-            "Patient Id":
-                patientId,
-
-            "Patient Name":
-                patientName,
-
-            "Modality":
-                modality,
-
-            "Study":
-                study,
-
-            "Date":
-                date,
-
-            "Num of Reports":
-                numReports,
-
-            "Cost (Rs)":
-                cost,
-
-            "__Source File":
-                fileName,
-
-            "__Source Row":
-                rows.length + 1
-
-        });
-
+    if(buffer){
+        candidateBlocks.push(buffer);
     }
 
 
-    return rows;
-}
-
-
-/* =========================================================
-   GENERIC CLIENT PDF
-========================================================= */
-
-function parseGenericPatientPdf(
-    lines,
-    fileName
-){
-
-    const rows = [];
-
-
-    const patientRegex =
-        /\b([A-Za-z]{2}\d{8})\b/;
-
-
-    const dateRegex =
-        /\b(\d{4}[-/]\d{2}[-/]\d{2})\b/;
-
-
-    const modalities = [
-        "CT",
-        "MRI",
-        "MR",
-        "XRAY",
-        "X-RAY",
-        "USG",
-        "US",
-        "PET",
-        "PET-CT",
-        "MAMMO",
-        "DX",
-        "CR",
-        "DR"
-    ];
-
+    /*
+     * Second pass:
+     * Validate every candidate block.
+     */
 
     for(
-        const line
-        of lines
+        let i=0;
+        i<candidateBlocks.length;
+        i++
     ){
 
-        const text =
-            line.text
-                .replace(
-                    /\s+/g,
-                    " "
-                )
-                .trim();
-
-
-        const patientMatch =
-            text.match(
-                patientRegex
+        const block =
+            normalizeText(
+                candidateBlocks[i]
             );
 
-
-        if(!patientMatch){
-            continue;
-        }
-
-
-        const patientId =
-            patientMatch[1];
-
-
-        const dateMatch =
-            text.match(
-                dateRegex
+        const record =
+            extractFiveCRecordFromBlock(
+                block
             );
 
+        if(record){
 
-        if(!dateMatch){
-            continue;
-        }
+            record["__Source File"] =
+                fileName;
 
+            record["__Source Sheet"] =
+                "PDF";
 
-        const date =
-            dateMatch[1];
+            record["__Source Row"] =
+                i + 1;
 
+            records.push(record);
 
-        let modality =
-            "";
-
-        let modalityIndex =
-            -1;
-
-
-        for(
-            const m
-            of modalities
-        ){
-
-            const index =
-                text
-                    .toUpperCase()
-                    .indexOf(
-                        m.toUpperCase()
-                    );
-
-
-            if(index >= 0){
-
-                modality =
-                    m;
-
-                modalityIndex =
-                    index;
-
-                break;
-
-            }
-
-        }
-
-
-        if(
-            !modality ||
-            modalityIndex < 0
-        ){
-
-            continue;
-
-        }
-
-
-        const patientStart =
-            text.indexOf(
-                patientId
-            );
-
-
-        const patientName =
-            text
-                .slice(
-                    patientStart +
-                    patientId.length,
-                    modalityIndex
-                )
-                .trim();
-
-
-        if(!patientName){
-            continue;
-        }
-
-
-        const studyStart =
-            modalityIndex +
-            modality.length;
-
-
-        const dateIndex =
-            text.indexOf(
-                date,
-                studyStart
-            );
-
-
-        if(dateIndex < 0){
-            continue;
-        }
-
-
-        const study =
-            text
-                .slice(
-                    studyStart,
-                    dateIndex
-                )
-                .trim();
-
-
-        if(!study){
-            continue;
-        }
-
-
-        const afterDate =
-            text
-                .slice(
-                    dateIndex +
-                    date.length
-                )
-                .trim();
-
-
-        const nums =
-            afterDate.match(
-                /\d+(?:\.\d+)?/g
-            ) || [];
-
-
-        let numReports = "";
-
-        let cost = "";
-
-
-        if(nums.length >= 2){
-
-            numReports =
-                nums[nums.length-2];
-
-            cost =
-                nums[nums.length-1];
-
-        }
-
-
-        rows.push({
-
-            "Patient Id":
-                patientId,
-
-            "Patient Name":
-                patientName,
-
-            "Modality":
-                modality,
-
-            "Study":
-                study,
-
-            "Date":
-                date,
-
-            "Num of Reports":
-                numReports,
-
-            "Cost (Rs)":
-                cost,
-
-            "__Source File":
-                fileName,
-
-            "__Source Row":
-                rows.length + 1
-
-        });
-
-    }
-
-
-    return rows;
-}
-
-
-/* =========================================================
-   COLUMN CONTROLS
-========================================================= */
-
-function populateColumnControls(
-    source
-){
-
-    const data =
-        source === "client"
-            ? state.clientData
-            : state.fivecData;
-
-
-    if(!data){
-        return;
-    }
-
-
-    let headers =
-        data.headers
-            .filter(
-                h =>
-                    !String(h)
-                        .startsWith("__")
-            );
-
-
-    /*
-     * If PDF parser did not return headers,
-     * get them directly from first row.
-     */
-
-    if(!headers.length && data.rows.length){
-
-        headers =
-            Object.keys(
-                data.rows[0]
-            ).filter(
-                h =>
-                    !h.startsWith("__")
-            );
-
-    }
-
-
-    const patientSelect =
-        $(source + "Key");
-
-
-    const studySelect =
-        $(source + "StudyKey");
-
-
-    const nameSelect =
-        $(source + "NameKey");
-
-
-    patientSelect.innerHTML =
-        `<option value="">
-            Select Patient ID
-        </option>` +
-        headers.map(
-            h =>
-                `<option value="${escapeHtml(h)}">
-                    ${escapeHtml(h)}
-                </option>`
-        ).join("");
-
-
-    studySelect.innerHTML =
-        `<option value="">
-            Not selected
-        </option>` +
-        headers.map(
-            h =>
-                `<option value="${escapeHtml(h)}">
-                    ${escapeHtml(h)}
-                </option>`
-        ).join("");
-
-
-    nameSelect.innerHTML =
-        `<option value="">
-            Not selected
-        </option>` +
-        headers.map(
-            h =>
-                `<option value="${escapeHtml(h)}">
-                    ${escapeHtml(h)}
-                </option>`
-        ).join("");
-
-
-    /*
-     * CLIENT automatic detection
-     */
-
-    if(source === "client"){
-
-        const patient =
-            findColumn(
-                headers,
-                [
-                    "patient id",
-                    "patientid",
-                    "patient_id",
-                    "uhid",
-                    "mrn"
-                ]
-            );
-
-
-        const study =
-            findColumn(
-                headers,
-                [
-                    "study id",
-                    "studyid",
-                    "study_id",
-                    "order id",
-                    "orderid",
-                    "accession"
-                ]
-            );
-
-
-        const name =
-            findColumn(
-                headers,
-                [
-                    "patient name",
-                    "patientname",
-                    "patient_name",
-                    "name"
-                ]
-            );
-
-
-        if(patient){
-            patientSelect.value =
-                patient;
-        }
-
-
-        if(study){
-            studySelect.value =
-                study;
-        }
-
-
-        if(name){
-            nameSelect.value =
-                name;
         }
 
     }
 
 
     /*
-     * 5C PDF / data:
-     *
-     * ALWAYS force Patient Id.
-     *
-     * User does not have to manually
-     * choose the Patient ID.
+     * If the PDF extraction did not preserve
+     * Order ID at the beginning of each block,
+     * perform a second pattern-based recovery.
      */
 
-    if(
-        source === "fivec" &&
-        headers.includes(
-            "Patient Id"
-        )
-    ){
+    if(records.length === 0){
 
-        patientSelect.value =
-            "Patient Id";
-
-    }
-
-
-    if(
-        source === "fivec" &&
-        headers.includes(
-            "Order Id"
-        )
-    ){
-
-        studySelect.value =
-            "Order Id";
-
-    }
-
-
-    if(
-        source === "fivec" &&
-        headers.includes(
-            "Patient Name"
-        )
-    ){
-
-        nameSelect.value =
-            "Patient Name";
-
-    }
-
-}
-
-
-/* =========================================================
-   FIND COLUMN
-========================================================= */
-
-function findColumn(
-    headers,
-    candidates
-){
-
-    const normalized =
-        headers.map(
-            h => ({
-                original:h,
-                normalized:norm(h)
-            })
+        return recoverFiveCRecordsFromFlatText(
+            rawLines,
+            fileName
         );
 
-
-    for(
-        const candidate
-        of candidates
-    ){
-
-        const target =
-            norm(candidate);
-
-
-        const exact =
-            normalized.find(
-                x =>
-                    x.normalized ===
-                    target
-            );
-
-
-        if(exact){
-
-            return exact.original;
-
-        }
-
     }
 
 
-    return "";
+    /*
+     * Remove exact duplicate records.
+     */
+
+    return deduplicateFiveCRecords(
+        records
+    );
+
 }
 
 
 /* =========================================================
-   INDEX
-========================================================= */
+   EXTRACT 5C RECORD FROM ONE BLOCK
+   ========================================================= */
 
-function indexBy(
-    rows,
-    key
-){
+function extractFiveCRecordFromBlock(block){
 
-    const map =
-        new Map();
+    if(!block){
+        return null;
+    }
 
-    const blanks = [];
+    /*
+     * Exact Order ID at beginning.
+     */
 
+    const orderMatch =
+        block.match(
+            /^([A-Z0-9]{10})\b/i
+        );
 
-    rows.forEach(
-        (row,index)=>{
+    if(!orderMatch){
+        return null;
+    }
 
-            const raw =
-                row[key] === undefined
-                    ? ""
-                    : String(
-                        row[key]
-                    ).trim();
+    const orderId =
+        orderMatch[1];
 
-
-            const id =
-                norm(raw);
-
-
-            const entry = {
-
-                raw,
-
-                row,
-
-                rowNumber:
-                    Number(
-                        row["__Source Row"]
-                    ) ||
-                    index + 2
-
-            };
+    if(!isValidOrderId(orderId)){
+        return null;
+    }
 
 
-            if(!id){
+    /*
+     * Patient ID.
+     */
 
-                blanks.push(
-                    entry
-                );
+    const patientMatch =
+        block.match(
+            /\b(BP\d{8})\b/i
+        );
 
-                return;
+    if(!patientMatch){
+        return null;
+    }
 
-            }
+    const patientId =
+        patientMatch[1].toUpperCase();
 
-
-            if(!map.has(id)){
-
-                map.set(
-                    id,
-                    []
-                );
-
-            }
+    if(!isValidPatientId(patientId)){
+        return null;
+    }
 
 
-            map.get(id).push(
-                entry
-            );
+    /*
+     * Date.
+     */
 
-        }
-    );
+    const dateMatch =
+        block.match(
+            /\b(20\d{2}[-/]\d{2}[-/]\d{2})\b/
+        );
+
+    if(!dateMatch){
+        return null;
+    }
+
+    const date =
+        cleanDate(dateMatch[1]);
+
+
+    /*
+     * Locate modality.
+     */
+
+    const beforeDate =
+        block.substring(
+            0,
+            dateMatch.index
+        );
+
+    const modalityRegex =
+        /\b(PET-CT|PET CT|MAMMO|X-RAY|XRAY|MRI|MR|CT|USG|US|PET|DX|CR|DR)\b/i;
+
+    const modalityMatch =
+        beforeDate.match(
+            modalityRegex
+        );
+
+    if(!modalityMatch){
+        return null;
+    }
+
+    const modality =
+        modalityMatch[1];
+
+    if(!isModality(modality)){
+        return null;
+    }
+
+
+    /*
+     * Everything between Patient ID and Modality
+     * is the patient name.
+     */
+
+    const patientStart =
+        patientMatch.index +
+        patientMatch[0].length;
+
+    const modalityStart =
+        modalityMatch.index;
+
+    let patientName =
+        block.substring(
+            patientStart,
+            modalityStart
+        ).trim();
+
+
+    /*
+     * Remove accidental separators.
+     */
+
+    patientName =
+        patientName
+        .replace(/^[|,:;\-]+/,"")
+        .replace(/[|,:;\-]+$/,"")
+        .trim();
+
+
+    if(!patientName){
+        return null;
+    }
+
+
+    /*
+     * Study is between modality and date.
+     */
+
+    const studyStart =
+        modalityMatch.index +
+        modalityMatch[0].length;
+
+    let study =
+        block.substring(
+            studyStart,
+            dateMatch.index
+        ).trim();
+
+    study =
+        study
+        .replace(/^[|,:;\-]+/,"")
+        .trim();
+
+
+    if(!study){
+        return null;
+    }
+
+
+    /*
+     * Text after date.
+     */
+
+    const afterDate =
+        block.substring(
+            dateMatch.index +
+            dateMatch[0].length
+        ).trim();
+
+
+    /*
+     * Reports and cost.
+     *
+     * Expected:
+     *
+     * 1 27.0
+     *
+     * or
+     *
+     * 2 114.0
+     */
+
+    const tailMatch =
+        afterDate.match(
+            /^.*?\b(\d+)\s+([0-9]+(?:\.[0-9]+)?)\s*$/
+        );
+
+    if(!tailMatch){
+        return null;
+    }
+
+    const reports =
+        tailMatch[1];
+
+    const cost =
+        tailMatch[2];
+
+
+    if(!isInteger(reports)){
+        return null;
+    }
+
+    if(!isNumber(cost)){
+        return null;
+    }
 
 
     return {
 
-        map,
+        "Order Id":
+            orderId,
 
-        blanks
+        "Patient Id":
+            patientId,
+
+        "Patient Name":
+            patientName,
+
+        "Modality":
+            modality,
+
+        "Study":
+            study,
+
+        "Date":
+            date,
+
+        "Num of Reports":
+            Number(reports),
+
+        "Cost (Rs)":
+            Number(cost)
 
     };
+
 }
 
 
 /* =========================================================
-   DUPLICATES
-========================================================= */
+   FLAT PDF RECOVERY
+   ========================================================= */
 
-function duplicatesFromIndex(
-    map,
-    source,
-    label
+function recoverFiveCRecordsFromFlatText(
+    lines,
+    fileName
 ){
 
-    const result = [];
+    const text =
+        lines.join(" ");
 
+    const orderRegex =
+        /[A-Z0-9]{10}\b/gi;
+
+    const matches =
+        [...text.matchAll(orderRegex)];
+
+    const records = [];
 
     for(
-        const [id,entries]
-        of map
+        let i=0;
+        i<matches.length;
+        i++
     ){
 
-        if(entries.length > 1){
+        const start =
+            matches[i].index;
 
-            result.push({
+        const end =
+            i+1 < matches.length
+                ? matches[i+1].index
+                : text.length;
 
-                Source:source,
+        const block =
+            normalizeText(
+                text.substring(
+                    start,
+                    end
+                )
+            );
 
-                [label]:
-                    entries[0].raw,
+        const record =
+            extractFiveCRecordFromBlock(
+                block
+            );
 
-                Occurrences:
-                    entries.length
+        if(record){
 
-            });
+            record["__Source File"] =
+                fileName;
+
+            record["__Source Sheet"] =
+                "PDF";
+
+            record["__Source Row"] =
+                i + 1;
+
+            records.push(record);
 
         }
 
     }
 
+    return deduplicateFiveCRecords(
+        records
+    );
 
-    return result;
 }
 
 
 /* =========================================================
-   CORRECT COMPARE DATA
-========================================================= */
+   DEDUPLICATE 5C RECORDS
+   ========================================================= */
+
+function deduplicateFiveCRecords(records){
+
+    const seen = new Set();
+
+    const result = [];
+
+    for(const row of records){
+
+        const key = [
+
+            row["Order Id"],
+            row["Patient Id"],
+            row["Patient Name"],
+            row["Modality"],
+            row["Study"],
+            row["Date"],
+            row["Num of Reports"],
+            row["Cost (Rs)"]
+
+        ].map(normalizeText).join("|");
+
+        if(seen.has(key)){
+            continue;
+        }
+
+        seen.add(key);
+
+        result.push(row);
+
+    }
+
+    return result;
+
+}
+
+
+/* =========================================================
+   DOCX READER
+   ========================================================= */
+
+async function readDocxFile(file,isFiveC){
+
+    const buffer =
+        await file.arrayBuffer();
+
+    const result =
+        await mammoth.extractRawText({
+            arrayBuffer:buffer
+        });
+
+    const text =
+        result.value || "";
+
+    if(isFiveC){
+
+        const rows =
+            parseFiveCPdfText(
+                text,
+                file.name
+            );
+
+        return {
+            rows,
+            headers:[
+                "Order Id",
+                "Patient Id",
+                "Patient Name",
+                "Modality",
+                "Study",
+                "Date",
+                "Num of Reports",
+                "Cost (Rs)"
+            ],
+            sheets:["DOCX"]
+        };
+
+    }
+
+    const rows =
+        parseGenericTextRows(
+            text,
+            file.name,
+            "DOCX"
+        );
+
+    return {
+        rows,
+        headers:
+            rows.length
+                ? Object.keys(rows[0])
+                : [],
+        sheets:["DOCX"]
+    };
+
+}
+
+
+/* =========================================================
+   TEXT / CSV / HTML / JSON READER
+   ========================================================= */
+
+async function readTextLikeFile(
+    file,
+    isFiveC
+){
+
+    const text =
+        await file.text();
+
+    if(isFiveC){
+
+        /*
+         * JSON can contain structured records.
+         */
+
+        if(/\.json$/i.test(file.name)){
+
+            try{
+
+                const json =
+                    JSON.parse(text);
+
+                const array =
+                    Array.isArray(json)
+                        ? json
+                        : Array.isArray(json.data)
+                            ? json.data
+                            : [];
+
+                const rows =
+                    parseFiveCStructuredRows(
+                        array,
+                        file.name,
+                        "JSON"
+                    );
+
+                if(rows.length){
+
+                    return {
+                        rows,
+                        headers:[
+                            "Order Id",
+                            "Patient Id",
+                            "Patient Name",
+                            "Modality",
+                            "Study",
+                            "Date",
+                            "Num of Reports",
+                            "Cost (Rs)"
+                        ],
+                        sheets:["JSON"]
+                    };
+
+                }
+
+            }catch(e){
+
+                console.warn(
+                    "JSON parse failed; using text parser."
+                );
+
+            }
+
+        }
+
+
+        /*
+         * CSV can be read directly with SheetJS.
+         */
+
+        if(/\.csv$/i.test(file.name)){
+
+            const workbook =
+                XLSX.read(
+                    text,
+                    {
+                        type:"string",
+                        raw:false
+                    }
+                );
+
+            const sheet =
+                workbook.Sheets[
+                    workbook.SheetNames[0]
+                ];
+
+            const json =
+                XLSX.utils.sheet_to_json(
+                    sheet,
+                    {
+                        defval:"",
+                        raw:false
+                    }
+                );
+
+            const rows =
+                parseFiveCStructuredRows(
+                    json,
+                    file.name,
+                    "CSV"
+                );
+
+            if(rows.length){
+
+                return {
+                    rows,
+                    headers:[
+                        "Order Id",
+                        "Patient Id",
+                        "Patient Name",
+                        "Modality",
+                        "Study",
+                        "Date",
+                        "Num of Reports",
+                        "Cost (Rs)"
+                    ],
+                    sheets:["CSV"]
+                };
+
+            }
+
+        }
+
+
+        const rows =
+            parseFiveCPdfText(
+                text,
+                file.name
+            );
+
+        return {
+            rows,
+            headers:[
+                "Order Id",
+                "Patient Id",
+                "Patient Name",
+                "Modality",
+                "Study",
+                "Date",
+                "Num of Reports",
+                "Cost (Rs)"
+            ],
+            sheets:["TEXT"]
+        };
+
+    }
+
+
+    const rows =
+        parseGenericTextRows(
+            text,
+            file.name,
+            "TEXT"
+        );
+
+    return {
+        rows,
+        headers:
+            rows.length
+                ? Object.keys(rows[0])
+                : [],
+        sheets:["TEXT"]
+    };
+
+}
+
+
+/* =========================================================
+   GENERIC CLIENT TEXT PARSER
+   ========================================================= */
+
+function parseGenericTextRows(
+    text,
+    fileName,
+    sheetName
+){
+
+    const lines =
+        text
+        .split(/\n+/)
+        .map(x=>normalizeText(x))
+        .filter(Boolean);
+
+    const rows = [];
+
+    for(
+        let i=0;
+        i<lines.length;
+        i++
+    ){
+
+        const line =
+            lines[i];
+
+        const patient =
+            line.match(
+                /\b[A-Z]{2}\d{8}\b/i
+            );
+
+        if(!patient){
+            continue;
+        }
+
+        rows.push({
+
+            "Patient Id":
+                patient[0].toUpperCase(),
+
+            "Raw Data":
+                line,
+
+            "__Source File":
+                fileName,
+
+            "__Source Sheet":
+                sheetName,
+
+            "__Source Row":
+                i + 1
+
+        });
+
+    }
+
+    return rows;
+
+}
+
+
+/* =========================================================
+   CONTROLS
+   ========================================================= */
+
+function populateClientControls(){
+
+    populateSelect(
+        "clientSheet",
+        state.clientSheets,
+        true
+    );
+
+    populateSelect(
+        "clientPatientId",
+        detectHeaders(
+            state.clientHeaders,
+            [
+                "patientid",
+                "patient_id",
+                "patient id",
+                "patientnumber",
+                "mrn"
+            ]
+        )
+    );
+
+    populateSelect(
+        "clientStudyId",
+        detectHeaders(
+            state.clientHeaders,
+            [
+                "studyid",
+                "study_id",
+                "study id",
+                "accession"
+            ]
+        ),
+        true
+    );
+
+    populateSelect(
+        "clientPatientName",
+        detectHeaders(
+            state.clientHeaders,
+            [
+                "patientname",
+                "patient_name",
+                "patient name",
+                "name"
+            ]
+        )
+    );
+
+}
+
+
+function populateFiveCControls(){
+
+    populateSelect(
+        "fivecSheet",
+        state.fivecSheets,
+        true
+    );
+
+    /*
+     * 5C Patient ID is automatic.
+     * The user should NOT have to manually select it.
+     */
+
+    const patientSelect =
+        document.getElementById(
+            "fivecPatientId"
+        );
+
+    patientSelect.innerHTML =
+        '<option value="Patient Id">Patient Id - Automatic</option>';
+
+    populateSelect(
+        "fivecStudyId",
+        ["Study"],
+        true
+    );
+
+    populateSelect(
+        "fivecPatientName",
+        ["Patient Name"],
+        true
+    );
+
+}
+
+
+function detectHeaders(
+    headers,
+    wanted
+){
+
+    const found = [];
+
+    for(const header of headers){
+
+        const normalized =
+            normalizeHeader(header);
+
+        for(const candidate of wanted){
+
+            if(
+                normalized ===
+                normalizeHeader(candidate)
+            ){
+
+                found.push(header);
+                break;
+
+            }
+
+        }
+
+    }
+
+    return found;
+
+}
+
+
+function populateSelect(
+    id,
+    values,
+    optional=false
+){
+
+    const select =
+        document.getElementById(id);
+
+    select.innerHTML = "";
+
+    if(optional){
+
+        const option =
+            document.createElement("option");
+
+        option.value = "";
+
+        option.textContent =
+            "Auto detect";
+
+        select.appendChild(
+            option
+        );
+
+    }
+
+    const unique =
+        [...new Set(values || [])];
+
+    unique.forEach(value=>{
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            value;
+
+        option.textContent =
+            value;
+
+        select.appendChild(
+            option
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   COMPARE DATA
+   ========================================================= */
 
 function compareData(){
 
     try{
 
-        const client =
-            state.clientData;
+        if(!state.clientData.length){
 
-
-        const fivec =
-            state.fivecData;
-
-
-        if(!client){
-
-            showMessage(
+            setStatus(
+                "mainStatus",
                 "Please upload the Client document first.",
                 "error"
             );
 
             return;
+
         }
 
+        if(!state.fivecData.length){
 
-        if(!fivec){
-
-            showMessage(
-                "Please upload the 5C document first.",
+            setStatus(
+                "mainStatus",
+                "No valid 5C records were detected. Only rows matching the required 8-field 5C format are counted.",
                 "error"
             );
 
             return;
+
         }
+
+
+        setStatus(
+            "mainStatus",
+            "Comparing documents...",
+            "warning"
+        );
+
+
+        const clientPatientColumn =
+            document.getElementById(
+                "clientPatientId"
+            ).value;
+
+
+        let clientRows =
+            state.clientData;
 
 
         /*
-         * Client Patient ID
+         * If Client ID was selected, normalize it.
          */
 
-        const ck =
-            $("clientKey").value;
+        clientRows =
+            clientRows.map(row=>{
+
+                const copy = {...row};
+
+                if(clientPatientColumn){
+
+                    copy.__PatientId =
+                        normalizePatientId(
+                            copy[
+                                clientPatientColumn
+                            ]
+                        );
+
+                }else{
+
+                    copy.__PatientId =
+                        autoFindPatientId(
+                            copy
+                        );
+
+                }
+
+                return copy;
+
+            });
 
 
         /*
-         * 5C Patient ID.
-         *
-         * It should automatically be
-         * Patient Id for the strict parser.
+         * 5C always uses Patient Id.
          */
 
-        let fk =
-            $("fivecKey").value;
+        const fivecRows =
+            state.fivecData.map(row=>{
+
+                const copy = {...row};
+
+                copy.__PatientId =
+                    normalizePatientId(
+                        row["Patient Id"]
+                    );
+
+                return copy;
+
+            });
 
 
-        /*
-         * Safety:
-         * if 5C contains Patient Id,
-         * automatically use it.
-         */
-
-        if(
-            fivec.headers.includes(
-                "Patient Id"
-            )
-        ){
-
-            fk =
-                "Patient Id";
-
-            $("fivecKey").value =
-                "Patient Id";
-
-        }
-
-
-        if(!ck){
-
-            showMessage(
-                "Please select the Client Patient ID column.",
-                "error"
+        const clientMap =
+            groupByPatientId(
+                clientRows
             );
 
-            return;
-        }
-
-
-        if(!fk){
-
-            showMessage(
-                "5C Patient ID column was not found.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if(!client.rows.length){
-
-            showMessage(
-                "Client has no patient rows.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if(!fivec.rows.length){
-
-            showMessage(
-                "5C has no valid patient rows.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        const cs =
-            $("clientStudyKey").value;
-
-
-        const fs =
-            $("fivecStudyKey").value;
-
-
-        const cn =
-            $("clientNameKey").value;
-
-
-        const fn =
-            $("fivecNameKey").value;
-
-
-        const ci =
-            indexBy(
-                client.rows,
-                ck
+        const fivecMap =
+            groupByPatientId(
+                fivecRows
             );
 
 
-        const fi =
-            indexBy(
-                fivec.rows,
-                fk
-            );
+        const allIds =
+            new Set([
+                ...clientMap.keys(),
+                ...fivecMap.keys()
+            ]);
 
 
         const matched = [];
+        const missing5c = [];
+        const missingClient = [];
+        const names = [];
+        const studyCounts = [];
 
-        const clientMissing = [];
-
-        const fivecMissing = [];
-
-        const duplicates = [];
-
-        const duplicateStudies = [];
-
-        const nameMismatches = [];
-
-        const studyMismatches = [];
-
-        const blanks = [];
-
-
-        const matchedIds =
-            new Set();
-
-
-        const missingFivecIds =
-            new Set();
-
-
-        const missingClientIds =
-            new Set();
-
-
-        const duplicatedIds =
-            new Set();
-
-
-        /*
-         * ACTUAL MATCHED CASE ROWS
-         */
 
         let matchedCases = 0;
 
 
-        /* =================================================
-           CLIENT SIDE
-        ================================================= */
+        for(const id of allIds){
 
-        for(
-            const [id,clientEntries]
-            of ci.map
-        ){
-
-            const fivecEntries =
-                fi.map.get(id);
-
-
-            /*
-             * Patient ID not present in 5C
-             */
-
-            if(!fivecEntries){
-
-                missingFivecIds.add(id);
-
-
-                clientEntries.forEach(
-                    entry=>{
-
-                        clientMissing.push({
-
-                            "Patient ID":
-                                entry.raw,
-
-                            "Client Row Number":
-                                entry.rowNumber,
-
-                            ...entry.row
-
-                        });
-
-                    }
-                );
-
-
+            if(!id){
                 continue;
             }
 
+            const client =
+                clientMap.get(id) || [];
+
+            const fivec =
+                fivecMap.get(id) || [];
+
 
             /*
-             * Patient ID exists in both.
-             */
-
-            matchedIds.add(id);
-
-
-            /*
-             * If Client has 5 rows
-             * and 5C has 4 rows:
+             * Correct case-level matching:
              *
-             * 4 = matched cases
-             * 1 = Client-only
+             * If Client has 3 rows and 5C has 2 rows:
+             *
+             * matched = 2
+             * client-only = 1
+             *
+             * If both have 5:
+             * matched = 5
              */
 
             const pairCount =
                 Math.min(
-                    clientEntries.length,
-                    fivecEntries.length
+                    client.length,
+                    fivec.length
                 );
 
 
@@ -3373,110 +2622,136 @@ function compareData(){
                 i++
             ){
 
-                const cr =
-                    clientEntries[i];
+                const clientRow =
+                    client[i];
+
+                const fivecRow =
+                    fivec[i];
 
 
-                const fr =
-                    fivecEntries[i];
-
-
-                const matchedRow = {
+                matched.push({
 
                     "Patient ID":
-                        cr.raw,
-
-                    "Client Row Number":
-                        cr.rowNumber,
-
-                    "5C Row Number":
-                        fr.rowNumber,
+                        id,
 
                     "Client Patient Name":
-                        cn
-                            ? cr.row[cn] ?? ""
-                            : "",
+                        getClientName(
+                            clientRow
+                        ),
 
                     "5C Patient Name":
-                        fn
-                            ? fr.row[fn] ?? ""
-                            : "",
+                        fivecRow[
+                            "Patient Name"
+                        ] || "",
 
                     "Client Study ID":
-                        cs
-                            ? cr.row[cs] ?? ""
-                            : "",
+                        getClientStudyId(
+                            clientRow
+                        ),
 
-                    "5C Study ID":
-                        fs
-                            ? fr.row[fs] ?? ""
-                            : ""
+                    "5C Study":
+                        fivecRow[
+                            "Study"
+                        ] || "",
 
-                };
+                    "5C Order ID":
+                        fivecRow[
+                            "Order Id"
+                        ] || "",
 
+                    "5C Date":
+                        fivecRow[
+                            "Date"
+                        ] || "",
 
-                client.headers.forEach(
-                    header=>{
+                    "5C Reports":
+                        fivecRow[
+                            "Num of Reports"
+                        ] ?? "",
 
-                        matchedRow[
-                            "Client - " +
-                            header
-                        ] =
-                            cr.row[header] ?? "";
+                    "5C Cost":
+                        fivecRow[
+                            "Cost (Rs)"
+                        ] ?? ""
 
-                    }
-                );
+                });
 
-
-                fivec.headers.forEach(
-                    header=>{
-
-                        matchedRow[
-                            "5C - " +
-                            header
-                        ] =
-                            fr.row[header] ?? "";
-
-                    }
-                );
+            }
 
 
-                matched.push(
-                    matchedRow
-                );
+            if(
+                client.length >
+                fivec.length
+            ){
 
-
-                /*
-                 * Name mismatch
-                 */
-
-                if(
-                    cn &&
-                    fn &&
-                    norm(
-                        cr.row[cn]
-                    ) !==
-                    norm(
-                        fr.row[fn]
-                    )
+                for(
+                    let i=pairCount;
+                    i<client.length;
+                    i++
                 ){
 
-                    nameMismatches.push({
+                    missing5c.push(
+                        flattenPatientRow(
+                            client[i],
+                            id
+                        )
+                    );
+
+                }
+
+            }
+
+
+            if(
+                fivec.length >
+                client.length
+            ){
+
+                for(
+                    let i=pairCount;
+                    i<fivec.length;
+                    i++
+                ){
+
+                    missingClient.push({
 
                         "Patient ID":
-                            cr.raw,
+                            id,
 
-                        "Client Name":
-                            cr.row[cn] ?? "",
+                        "Order ID":
+                            fivec[i][
+                                "Order Id"
+                            ],
 
-                        "5C Name":
-                            fr.row[fn] ?? "",
+                        "Patient Name":
+                            fivec[i][
+                                "Patient Name"
+                            ],
 
-                        "Client Row":
-                            cr.rowNumber,
+                        "Modality":
+                            fivec[i][
+                                "Modality"
+                            ],
 
-                        "5C Row":
-                            fr.rowNumber
+                        "Study":
+                            fivec[i][
+                                "Study"
+                            ],
+
+                        "Date":
+                            fivec[i][
+                                "Date"
+                            ],
+
+                        "Num of Reports":
+                            fivec[i][
+                                "Num of Reports"
+                            ],
+
+                        "Cost (Rs)":
+                            fivec[i][
+                                "Cost (Rs)"
+                            ]
 
                     });
 
@@ -3486,92 +2761,130 @@ function compareData(){
 
 
             /*
-             * Different number of records
+             * Name mismatch is checked separately.
+             * Patient ID still remains matched.
              */
 
             if(
-                clientEntries.length !==
-                fivecEntries.length
+                client.length &&
+                fivec.length
             ){
 
-                const difference =
-                    clientEntries.length -
-                    fivecEntries.length;
+                const clientName =
+                    getClientName(
+                        client[0]
+                    );
+
+                const fivecName =
+                    fivec[0][
+                        "Patient Name"
+                    ] || "";
+
+                if(
+                    normalizeName(
+                        clientName
+                    ) !==
+                    normalizeName(
+                        fivecName
+                    )
+                ){
+
+                    names.push({
+
+                        "Patient ID":
+                            id,
+
+                        "Client Name":
+                            clientName,
+
+                        "5C Name":
+                            fivecName
+
+                    });
+
+                }
+
+            }
 
 
-                studyMismatches.push({
+            if(
+                client.length !==
+                fivec.length
+            ){
+
+                studyCounts.push({
 
                     "Patient ID":
-                        clientEntries[0].raw,
+                        id,
 
-                    "Client Record Count":
-                        clientEntries.length,
+                    "Client Count":
+                        client.length,
 
-                    "5C Record Count":
-                        fivecEntries.length,
-
-                    "Matched Case Count":
-                        pairCount,
+                    "5C Count":
+                        fivec.length,
 
                     "Difference":
-                        difference,
-
-                    "Status":
-                        difference > 0
-                            ? "More records in Client"
-                            : "More records in 5C"
+                        client.length -
+                        fivec.length
 
                 });
 
             }
 
-
-            /*
-             * Duplicate Client IDs
-             */
-
-            if(
-                clientEntries.length > 1
-            ){
-
-                duplicatedIds.add(id);
+        }
 
 
-                duplicates.push({
+        /*
+         * Duplicate Patient IDs.
+         *
+         * Count UNIQUE duplicated IDs,
+         * not every duplicate row.
+         */
 
-                    Source:"Client",
+        const duplicatePatients =
+            [];
+
+        for(const [id,rows] of clientMap){
+
+            if(id && rows.length > 1){
+
+                duplicatePatients.push({
 
                     "Patient ID":
-                        clientEntries[0].raw,
+                        id,
 
-                    Occurrences:
-                        clientEntries.length
+                    "Client Count":
+                        rows.length,
+
+                    "5C Count":
+                        (fivecMap.get(id) || []).length
 
                 });
 
             }
 
+        }
 
-            /*
-             * Duplicate 5C IDs
-             */
+        for(const [id,rows] of fivecMap){
 
             if(
-                fivecEntries.length > 1
+                id &&
+                rows.length > 1 &&
+                !duplicatePatients.some(
+                    x=>x["Patient ID"]===id
+                )
             ){
 
-                duplicatedIds.add(id);
-
-
-                duplicates.push({
-
-                    Source:"5C",
+                duplicatePatients.push({
 
                     "Patient ID":
-                        fivecEntries[0].raw,
+                        id,
 
-                    Occurrences:
-                        fivecEntries.length
+                    "Client Count":
+                        (clientMap.get(id) || []).length,
+
+                    "5C Count":
+                        rows.length
 
                 });
 
@@ -3580,431 +2893,198 @@ function compareData(){
         }
 
 
-        /* =================================================
-           5C SIDE
-        ================================================= */
+        /*
+         * Duplicate Study IDs.
+         */
 
-        for(
-            const [id,fivecEntries]
-            of fi.map
-        ){
-
-            if(
-                !ci.map.has(id)
-            ){
-
-                missingClientIds.add(id);
-
-
-                fivecEntries.forEach(
-                    entry=>{
-
-                        fivecMissing.push({
-
-                            "Patient ID":
-                                entry.raw,
-
-                            "5C Row Number":
-                                entry.rowNumber,
-
-                            ...entry.row
-
-                        });
-
-                    }
-                );
-
-            }
-
-        }
-
-
-        /* =================================================
-           DUPLICATE STUDIES
-        ================================================= */
-
-        if(cs){
-
-            const idx =
-                indexBy(
-                    client.rows,
-                    cs
-                );
-
-
-            duplicateStudies.push(
-                ...duplicatesFromIndex(
-                    idx.map,
-                    "Client",
-                    "Study ID"
-                )
+        const duplicateStudies =
+            findDuplicateStudyIds(
+                clientRows,
+                fivecRows
             );
 
-        }
 
+        /*
+         * Blank Patient IDs.
+         */
 
-        if(fs){
+        const blankIds =
+            [];
 
-            const idx =
-                indexBy(
-                    fivec.rows,
-                    fs
-                );
+        state.clientData.forEach(
+            (row,index)=>{
 
+                const id =
+                    clientPatientColumn
+                        ? normalizePatientId(
+                            row[
+                                clientPatientColumn
+                            ]
+                        )
+                        : autoFindPatientId(
+                            row
+                        );
 
-            duplicateStudies.push(
-                ...duplicatesFromIndex(
-                    idx.map,
-                    "5C",
-                    "Study ID"
-                )
-            );
+                if(!id){
 
-        }
+                    blankIds.push({
 
+                        "Side":
+                            "Client",
 
-        /* =================================================
-           BLANK IDS
-        ================================================= */
+                        "Row":
+                            index + 2,
 
-        ci.blanks.forEach(
-            entry=>{
+                        "Data":
+                            JSON.stringify(
+                                row
+                            )
 
-                blanks.push({
+                    });
 
-                    Source:"Client",
-
-                    "Row Number":
-                        entry.rowNumber,
-
-                    ...entry.row
-
-                });
+                }
 
             }
         );
 
 
-        fi.blanks.forEach(
-            entry=>{
+        state.fivecData.forEach(
+            (row,index)=>{
 
-                blanks.push({
+                const id =
+                    normalizePatientId(
+                        row[
+                            "Patient Id"
+                        ]
+                    );
 
-                    Source:"5C",
+                if(!id){
 
-                    "Row Number":
-                        entry.rowNumber,
+                    blankIds.push({
 
-                    ...entry.row
+                        "Side":
+                            "5C",
 
-                });
+                        "Row":
+                            index + 1,
+
+                        "Data":
+                            JSON.stringify(
+                                row
+                            )
+
+                    });
+
+                }
 
             }
         );
 
-
-        /* =================================================
-           FINAL CASE COUNTS
-        ================================================= */
-
-        const clientTotal =
-            client.rows.length;
-
-
-        const fivecTotal =
-            fivec.rows.length;
-
-
-        /*
-         * matchedCases is the matched count
-         * on EACH side.
-         */
-
-        const clientMatchedCases =
-            matchedCases;
-
-
-        const fivecMatchedCases =
-            matchedCases;
-
-
-        /*
-         * Actual unmatched rows.
-         */
-
-        const clientOnlyCases =
-            clientTotal -
-            clientMatchedCases;
-
-
-        const fivecOnlyCases =
-            fivecTotal -
-            fivecMatchedCases;
-
-
-        const totalMissingCaseRows =
-            clientOnlyCases +
-            fivecOnlyCases;
-
-
-        /*
-         * A matched case appears once
-         * in Client and once in 5C.
-         */
-
-        const matchedAcrossBoth =
-            matchedCases * 2;
-
-
-        /* =================================================
-           SUMMARY
-        ================================================= */
-
-        const summary = [
-
-            {
-                Metric:"Client total cases",
-                Value:clientTotal
-            },
-
-            {
-                Metric:"5C total valid cases",
-                Value:fivecTotal
-            },
-
-            {
-                Metric:"Matched unique Patient IDs",
-                Value:matchedIds.size
-            },
-
-            {
-                Metric:"Matched cases on Client side",
-                Value:clientMatchedCases
-            },
-
-            {
-                Metric:"Matched cases on 5C side",
-                Value:fivecMatchedCases
-            },
-
-            {
-                Metric:
-                    "Matched case rows across both documents",
-                Value:
-                    matchedAcrossBoth
-            },
-
-            {
-                Metric:"Client-only cases",
-                Value:clientOnlyCases
-            },
-
-            {
-                Metric:"5C-only cases",
-                Value:fivecOnlyCases
-            },
-
-            {
-                Metric:"Total unmatched case rows",
-                Value:totalMissingCaseRows
-            },
-
-            {
-                Metric:
-                    "Unique Patient IDs missing from 5C",
-                Value:
-                    missingFivecIds.size
-            },
-
-            {
-                Metric:
-                    "Unique Patient IDs missing from Client",
-                Value:
-                    missingClientIds.size
-            },
-
-            {
-                Metric:
-                    "Total unique missing Patient IDs",
-                Value:
-                    missingFivecIds.size +
-                    missingClientIds.size
-            },
-
-            {
-                Metric:
-                    "Duplicate Patient IDs",
-                Value:
-                    duplicatedIds.size
-            },
-
-            {
-                Metric:
-                    "Duplicate Patient ID source occurrences",
-                Value:
-                    duplicates.length
-            },
-
-            {
-                Metric:
-                    "Duplicate Study IDs",
-                Value:
-                    duplicateStudies.length
-            },
-
-            {
-                Metric:
-                    "Patient name mismatches",
-                Value:
-                    nameMismatches.length
-            },
-
-            {
-                Metric:
-                    "Study count mismatches",
-                Value:
-                    studyMismatches.length
-            },
-
-            {
-                Metric:
-                    "Blank Patient ID rows",
-                Value:
-                    blanks.length
-            }
-
-        ];
-
-
-        /* =================================================
-           SAVE RESULTS
-        ================================================= */
 
         state.results = {
 
-            summary,
-
             matched,
-
-            clientMissing,
-
-            fivecMissing,
-
-            duplicates,
-
+            missing5c,
+            missingClient,
+            duplicatePatients,
             duplicateStudies,
-
-            nameMismatches,
-
-            studyMismatches,
-
-            blanks
+            names,
+            studyCounts,
+            blankIds
 
         };
 
 
-        /* =================================================
-           UPDATE CARDS
-        ================================================= */
-
-        $("clientCount").textContent =
-            clientTotal.toLocaleString();
-
-
-        $("fivecCount").textContent =
-            fivecTotal.toLocaleString();
-
-
-        $("matchedCount").textContent =
-            clientMatchedCases.toLocaleString();
-
-
-        $("missingCount").textContent =
-            totalMissingCaseRows.toLocaleString();
-
-
-        $("duplicateCount").textContent =
-            duplicatedIds.size.toLocaleString();
-
-
-        $("duplicateStudyCount").textContent =
-            duplicateStudies.length.toLocaleString();
-
-
-        $("nameMismatchCount").textContent =
-            nameMismatches.length.toLocaleString();
-
-
-        $("studyMismatchCount").textContent =
-            studyMismatches.length.toLocaleString();
-
-
-        $("results").style.display =
-            "block";
-
-
-        state.activeTab =
-            "summary";
-
-
-        state.page = 1;
-
-
-        $("searchBox").value =
-            "";
-
-
-        updateTabs();
-
-        renderTable();
-
-
-        showMessage(
-
-            "Comparison completed. " +
-
-            clientMatchedCases.toLocaleString() +
-
-            " cases matched on each side. " +
-
-            clientOnlyCases.toLocaleString() +
-
-            " Client-only cases. " +
-
-            fivecOnlyCases.toLocaleString() +
-
-            " 5C-only cases. " +
-
-            matchedAcrossBoth.toLocaleString() +
-
-            " matched rows across both documents.",
-
-            "success"
-
+        updateStats(
+            clientRows,
+            fivecRows,
+            matchedCases,
+            duplicatePatients.length,
+            names.length
         );
 
 
-        $("results").scrollIntoView({
-            behavior:"smooth",
-            block:"start"
-        });
+        renderAllTables();
+
+
+        document.getElementById(
+            "summaryText"
+        ).innerHTML = `
+
+            <div style="line-height:1.9">
+
+                <div>
+                    <b>Client records:</b>
+                    ${clientRows.length.toLocaleString()}
+                </div>
+
+                <div>
+                    <b>Valid 5C records:</b>
+                    ${fivecRows.length.toLocaleString()}
+                </div>
+
+                <div>
+                    <b>Matched cases on Client side:</b>
+                    ${matchedCases.toLocaleString()}
+                </div>
+
+                <div>
+                    <b>Matched cases on 5C side:</b>
+                    ${matchedCases.toLocaleString()}
+                </div>
+
+                <div>
+                    <b>Matched case rows across both documents:</b>
+                    ${(matchedCases * 2).toLocaleString()}
+                </div>
+
+                <div>
+                    <b>Client-only case rows:</b>
+                    ${Math.max(
+                        0,
+                        clientRows.length -
+                        matchedCases
+                    ).toLocaleString()}
+                </div>
+
+                <div>
+                    <b>5C-only case rows:</b>
+                    ${Math.max(
+                        0,
+                        fivecRows.length -
+                        matchedCases
+                    ).toLocaleString()}
+                </div>
+
+                <div>
+                    <b>Name mismatches:</b>
+                    ${names.length.toLocaleString()}
+                </div>
+
+            </div>
+
+        `;
+
+
+        setStatus(
+            "mainStatus",
+            `Comparison completed. ${matchedCases.toLocaleString()} case rows matched by Patient ID.`,
+            "success"
+        );
 
 
     }catch(error){
 
         console.error(
-            "COMPARE ERROR:",
+            "compareData error:",
             error
         );
 
-
-        showMessage(
-
-            "Comparison failed: " +
+        setStatus(
+            "mainStatus",
+            "Comparison error: " +
             error.message,
-
             "error"
-
         );
 
     }
@@ -4013,344 +3093,492 @@ function compareData(){
 
 
 /* =========================================================
-   TABS
-========================================================= */
+   GROUP BY PATIENT
+   ========================================================= */
 
-function setTab(tab){
+function groupByPatientId(rows){
 
-    state.activeTab =
-        tab;
+    const map = new Map();
 
-    state.page = 1;
+    for(const row of rows){
 
-    $("searchBox").value =
-        "";
+        const id =
+            normalizePatientId(
+                row.__PatientId
+            );
 
-    updateTabs();
+        if(!id){
+            continue;
+        }
 
-    renderTable();
-}
+        if(!map.has(id)){
+            map.set(id,[]);
+        }
 
+        map.get(id).push(row);
 
-function updateTabs(){
+    }
 
-    document
-        .querySelectorAll(".tab")
-        .forEach(
-            button=>{
+    return map;
 
-                button.classList.toggle(
-                    "active",
-                    button.dataset.tab ===
-                    state.activeTab
-                );
-
-            }
-        );
 }
 
 
 /* =========================================================
-   CURRENT TAB DATA
-========================================================= */
+   AUTO FIND CLIENT PATIENT ID
+   ========================================================= */
 
-function getCurrentRows(){
+function autoFindPatientId(row){
 
-    if(!state.results){
-        return [];
+    const keys =
+        Object.keys(row);
+
+    for(const key of keys){
+
+        const value =
+            normalizePatientId(
+                row[key]
+            );
+
+        if(
+            isValidPatientId(value)
+        ){
+
+            return value;
+
+        }
+
     }
 
+    return "";
 
-    switch(
-        state.activeTab
+}
+
+
+/* =========================================================
+   CLIENT NAME
+   ========================================================= */
+
+function getClientName(row){
+
+    if(!row){
+        return "";
+    }
+
+    const selected =
+        document.getElementById(
+            "clientPatientName"
+        ).value;
+
+    if(
+        selected &&
+        row[selected] !== undefined
     ){
 
-        case "summary":
-            return state.results.summary;
-
-        case "matched":
-            return state.results.matched;
-
-        case "clientMissing":
-            return state.results.clientMissing;
-
-        case "fivecMissing":
-            return state.results.fivecMissing;
-
-        case "duplicates":
-            return state.results.duplicates;
-
-        case "duplicateStudies":
-            return state.results.duplicateStudies;
-
-        case "nameMismatches":
-            return state.results.nameMismatches;
-
-        case "studyMismatches":
-            return state.results.studyMismatches;
-
-        case "blanks":
-            return state.results.blanks;
-
-        default:
-            return [];
+        return normalizeText(
+            row[selected]
+        );
 
     }
+
+    const keys =
+        Object.keys(row);
+
+    for(const key of keys){
+
+        const nk =
+            normalizeHeader(key);
+
+        if(
+            nk === "patientname" ||
+            nk === "patient_name" ||
+            nk === "name"
+        ){
+
+            return normalizeText(
+                row[key]
+            );
+
+        }
+
+    }
+
+    return "";
+
 }
 
 
 /* =========================================================
-   TABLE
-========================================================= */
+   CLIENT STUDY ID
+   ========================================================= */
 
-function renderTable(){
+function getClientStudyId(row){
+
+    if(!row){
+        return "";
+    }
+
+    const selected =
+        document.getElementById(
+            "clientStudyId"
+        ).value;
+
+    if(
+        selected &&
+        row[selected] !== undefined
+    ){
+
+        return normalizeText(
+            row[selected]
+        );
+
+    }
+
+    return "";
+
+}
+
+
+/* =========================================================
+   FLATTEN CLIENT ROW
+   ========================================================= */
+
+function flattenPatientRow(
+    row,
+    patientId
+){
+
+    const result = {
+        "Patient ID":
+            patientId
+    };
+
+    for(const key of Object.keys(row)){
+
+        if(
+            key.startsWith("__")
+        ){
+            continue;
+        }
+
+        result[key] =
+            row[key];
+
+    }
+
+    return result;
+
+}
+
+
+/* =========================================================
+   DUPLICATE STUDY IDS
+   ========================================================= */
+
+function findDuplicateStudyIds(
+    clientRows,
+    fivecRows
+){
+
+    const map = new Map();
+
+
+    const selectedStudy =
+        document.getElementById(
+            "clientStudyId"
+        ).value;
+
+
+    if(selectedStudy){
+
+        clientRows.forEach(row=>{
+
+            const study =
+                normalizeText(
+                    row[selectedStudy]
+                );
+
+            if(!study){
+                return;
+            }
+
+            if(!map.has(study)){
+                map.set(study,{
+                    client:0,
+                    fivec:0
+                });
+            }
+
+            map.get(study).client++;
+
+        });
+
+    }
+
+
+    fivecRows.forEach(row=>{
+
+        const study =
+            normalizeText(
+                row["Study"]
+            );
+
+        if(!study){
+            return;
+        }
+
+        if(!map.has(study)){
+            map.set(study,{
+                client:0,
+                fivec:0
+            });
+        }
+
+        map.get(study).fivec++;
+
+    });
+
+
+    const result = [];
+
+
+    for(
+        const [study,count] of map
+    ){
+
+        if(
+            count.client > 1 ||
+            count.fivec > 1
+        ){
+
+            result.push({
+
+                "Study ID / Study":
+                    study,
+
+                "Client Count":
+                    count.client,
+
+                "5C Count":
+                    count.fivec
+
+            });
+
+        }
+
+    }
+
+    return result;
+
+}
+
+
+/* =========================================================
+   UPDATE STATS
+   ========================================================= */
+
+function updateStats(
+    clientRows,
+    fivecRows,
+    matched,
+    duplicatePatients,
+    names
+){
+
+    document.getElementById(
+        "clientRecords"
+    ).textContent =
+        clientRows.length.toLocaleString();
+
+
+    document.getElementById(
+        "fivecRecords"
+    ).textContent =
+        fivecRows.length.toLocaleString();
+
+
+    document.getElementById(
+        "matchedCases"
+    ).textContent =
+        matched.toLocaleString();
+
+
+    const missing =
+        Math.max(
+            0,
+            clientRows.length - matched
+        ) +
+        Math.max(
+            0,
+            fivecRows.length - matched
+        );
+
+
+    document.getElementById(
+        "missingCases"
+    ).textContent =
+        missing.toLocaleString();
+
+
+    document.getElementById(
+        "duplicatePatientIds"
+    ).textContent =
+        duplicatePatients.toLocaleString();
+
+
+    document.getElementById(
+        "nameMismatches"
+    ).textContent =
+        names.toLocaleString();
+
+}
+
+
+/* =========================================================
+   TABLE RENDERING
+   ========================================================= */
+
+function renderAllTables(){
+
+    renderTable(
+        "matchedTable",
+        state.results.matched
+    );
+
+    renderTable(
+        "missing5cTable",
+        state.results.missing5c
+    );
+
+    renderTable(
+        "missingClientTable",
+        state.results.missingClient
+    );
+
+    renderTable(
+        "duplicatePatientsTable",
+        state.results.duplicatePatients
+    );
+
+    renderTable(
+        "duplicateStudiesTable",
+        state.results.duplicateStudies
+    );
+
+    renderTable(
+        "namesTable",
+        state.results.names
+    );
+
+    renderTable(
+        "studyCountsTable",
+        state.results.studyCounts
+    );
+
+    renderTable(
+        "blankIdsTable",
+        state.results.blankIds
+    );
+
+    state.currentPage = 1;
+
+    updatePagination();
+
+}
+
+
+function renderCurrentTable(){
+
+    const mapping = {
+
+        matched:
+            ["matchedTable",
+             state.results.matched],
+
+        missing5c:
+            ["missing5cTable",
+             state.results.missing5c],
+
+        missingClient:
+            ["missingClientTable",
+             state.results.missingClient],
+
+        duplicatePatients:
+            ["duplicatePatientsTable",
+             state.results.duplicatePatients],
+
+        duplicateStudies:
+            ["duplicateStudiesTable",
+             state.results.duplicateStudies],
+
+        names:
+            ["namesTable",
+             state.results.names],
+
+        studyCounts:
+            ["studyCountsTable",
+             state.results.studyCounts],
+
+        blankIds:
+            ["blankIdsTable",
+             state.results.blankIds]
+
+    };
+
+    if(mapping[state.currentTab]){
+
+        renderTable(
+            mapping[state.currentTab][0],
+            mapping[state.currentTab][1]
+        );
+
+    }
+
+}
+
+
+function renderTable(
+    containerId,
+    rows
+){
 
     const container =
-        $("tableContainer");
+        document.getElementById(
+            containerId
+        );
 
-
-    const rows =
-        getCurrentRows();
-
-
-    if(!rows.length){
-
-        container.innerHTML =
-            `<div class="empty">
-                No records found.
-            </div>`;
-
-
-        $("tableInfo").textContent =
-            "0 records";
-
-
-        $("pageInfo").textContent =
-            "Page 1";
-
-
+    if(!container){
         return;
     }
 
 
     const search =
-        norm(
-            $("searchBox").value
-        );
+        normalizeText(
+            document.getElementById(
+                "searchInput"
+            ).value
+        ).toLowerCase();
 
 
     let filtered =
-        rows;
+        rows || [];
 
 
     if(search){
 
         filtered =
-            rows.filter(
-                row =>
-                    Object.values(row)
-                        .some(
-                            value =>
-                                norm(value)
-                                    .includes(
-                                        search
-                                    )
-                        )
+            filtered.filter(row=>
+
+                Object.values(row)
+                    .some(value=>
+                        normalizeText(value)
+                        .toLowerCase()
+                        .includes(search)
+                    )
+
             );
 
     }
-
-
-    const total =
-        filtered.length;
-
-
-    const totalPages =
-        Math.max(
-            1,
-            Math.ceil(
-                total /
-                state.pageSize
-            )
-        );
-
-
-    if(
-        state.page >
-        totalPages
-    ){
-
-        state.page =
-            totalPages;
-
-    }
-
-
-    const start =
-        (state.page-1) *
-        state.pageSize;
-
-
-    const pageRows =
-        filtered.slice(
-            start,
-            start + state.pageSize
-        );
-
-
-    if(!pageRows.length){
-
-        container.innerHTML =
-            `<div class="empty">
-                No matching records.
-            </div>`;
-
-
-        $("tableInfo").textContent =
-            `0 of ${total}`;
-
-
-        $("pageInfo").textContent =
-            `Page ${state.page} of ${totalPages}`;
-
-
-        return;
-    }
-
-
-    const columns = [];
-
-
-    pageRows.forEach(
-        row=>{
-
-            Object.keys(row)
-                .forEach(
-                    key=>{
-
-                        if(
-                            !columns.includes(key)
-                        ){
-
-                            columns.push(key);
-
-                        }
-
-                    }
-                );
-
-        }
-    );
-
-
-    let html =
-        "<table><thead><tr>";
-
-
-    columns.forEach(
-        column=>{
-
-            html +=
-                `<th>
-                    ${escapeHtml(column)}
-                </th>`;
-
-        }
-    );
-
-
-    html +=
-        "</tr></thead><tbody>";
-
-
-    pageRows.forEach(
-        row=>{
-
-            html += "<tr>";
-
-
-            columns.forEach(
-                column=>{
-
-                    html +=
-                        `<td>
-                            ${escapeHtml(
-                                row[column] ?? ""
-                            )}
-                        </td>`;
-
-                }
-            );
-
-
-            html +=
-                "</tr>";
-
-        }
-    );
-
-
-    html +=
-        "</tbody></table>";
-
-
-    container.innerHTML =
-        html;
-
-
-    $("tableInfo").textContent =
-        `${start+1}-${Math.min(
-            start+pageRows.length,
-            total
-        )} of ${total}`;
-
-
-    $("pageInfo").textContent =
-        `Page ${state.page} of ${totalPages}`;
-}
-
-
-/* =========================================================
-   PAGINATION
-========================================================= */
-
-function previousPage(){
-
-    if(state.page > 1){
-
-        state.page--;
-
-        renderTable();
-
-    }
-
-}
-
-
-function nextPage(){
-
-    const rows =
-        getCurrentRows();
-
-
-    const search =
-        norm(
-            $("searchBox").value
-        );
-
-
-    const filtered =
-        search
-            ? rows.filter(
-                row =>
-                    Object.values(row)
-                        .some(
-                            value =>
-                                norm(value)
-                                    .includes(search)
-                        )
-            )
-            : rows;
 
 
     const totalPages =
@@ -4364,48 +3592,351 @@ function nextPage(){
 
 
     if(
-        state.page <
+        state.currentPage >
         totalPages
     ){
 
-        state.page++;
+        state.currentPage =
+            totalPages;
 
-        renderTable();
+    }
+
+
+    const start =
+        (state.currentPage - 1) *
+        state.pageSize;
+
+
+    const pageRows =
+        filtered.slice(
+            start,
+            start + state.pageSize
+        );
+
+
+    if(!pageRows.length){
+
+        container.innerHTML =
+            '<div class="empty">No records found.</div>';
+
+        updatePagination(
+            filtered.length
+        );
+
+        return;
+
+    }
+
+
+    const columns =
+        Object.keys(
+            pageRows[0]
+        ).filter(
+            x=>!x.startsWith("__")
+        );
+
+
+    let html =
+        '<div class="table-wrap"><table><thead><tr>';
+
+
+    columns.forEach(column=>{
+
+        html +=
+            "<th>" +
+            escapeHtml(column) +
+            "</th>";
+
+    });
+
+
+    html +=
+        "</tr></thead><tbody>";
+
+
+    pageRows.forEach(row=>{
+
+        html += "<tr>";
+
+        columns.forEach(column=>{
+
+            html +=
+                "<td>" +
+                escapeHtml(
+                    row[column]
+                ) +
+                "</td>";
+
+        });
+
+        html += "</tr>";
+
+    });
+
+
+    html +=
+        "</tbody></table></div>";
+
+
+    container.innerHTML =
+        html;
+
+
+    updatePagination(
+        filtered.length
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHtml(value){
+
+    return String(
+        value ?? ""
+    )
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================================
+   TABS
+   ========================================================= */
+
+function openTab(
+    tabName,
+    button
+){
+
+    document.querySelectorAll(
+        ".tab-content"
+    ).forEach(tab=>{
+
+        tab.classList.remove(
+            "active"
+        );
+
+    });
+
+
+    document.querySelectorAll(
+        ".tab"
+    ).forEach(tab=>{
+
+        tab.classList.remove(
+            "active"
+        );
+
+    });
+
+
+    const content =
+        document.getElementById(
+            tabName
+        );
+
+    if(content){
+
+        content.classList.add(
+            "active"
+        );
+
+    }
+
+
+    if(button){
+
+        button.classList.add(
+            "active"
+        );
+
+    }
+
+
+    state.currentTab =
+        tabName;
+
+    state.currentPage = 1;
+
+    renderCurrentTable();
+
+}
+
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+
+function updatePagination(
+    totalRows
+){
+
+    let rows = totalRows;
+
+
+    if(rows === undefined){
+
+        const mapping = {
+
+            matched:
+                state.results.matched,
+
+            missing5c:
+                state.results.missing5c,
+
+            missingClient:
+                state.results.missingClient,
+
+            duplicatePatients:
+                state.results.duplicatePatients,
+
+            duplicateStudies:
+                state.results.duplicateStudies,
+
+            names:
+                state.results.names,
+
+            studyCounts:
+                state.results.studyCounts,
+
+            blankIds:
+                state.results.blankIds
+
+        };
+
+        rows =
+            mapping[
+                state.currentTab
+            ]?.length || 0;
+
+    }
+
+
+    const pages =
+        Math.max(
+            1,
+            Math.ceil(
+                rows /
+                state.pageSize
+            )
+        );
+
+
+    document.getElementById(
+        "pageInfo"
+    ).textContent =
+        `Page ${state.currentPage} of ${pages}`;
+
+}
+
+
+function nextPage(){
+
+    const total =
+        getCurrentRows().length;
+
+    const pages =
+        Math.max(
+            1,
+            Math.ceil(
+                total /
+                state.pageSize
+            )
+        );
+
+
+    if(
+        state.currentPage <
+        pages
+    ){
+
+        state.currentPage++;
+
+        renderCurrentTable();
 
     }
 
 }
 
 
-/* =========================================================
-   EXPORT CURRENT
-========================================================= */
+function previousPage(){
 
-function exportCurrentTab(){
+    if(
+        state.currentPage >
+        1
+    ){
 
-    if(!state.results){
+        state.currentPage--;
 
-        showMessage(
-            "Run Compare Documents first.",
-            "error"
-        );
+        renderCurrentTable();
 
-        return;
     }
 
+}
+
+
+function getCurrentRows(){
+
+    const mapping = {
+
+        matched:
+            state.results.matched,
+
+        missing5c:
+            state.results.missing5c,
+
+        missingClient:
+            state.results.missingClient,
+
+        duplicatePatients:
+            state.results.duplicatePatients,
+
+        duplicateStudies:
+            state.results.duplicateStudies,
+
+        names:
+            state.results.names,
+
+        studyCounts:
+            state.results.studyCounts,
+
+        blankIds:
+            state.results.blankIds
+
+    };
+
+    return mapping[
+        state.currentTab
+    ] || [];
+
+}
+
+
+/* =========================================================
+   EXPORT CURRENT TAB
+   ========================================================= */
+
+function exportCurrentTab(){
 
     const rows =
         getCurrentRows();
 
-
     if(!rows.length){
 
-        showMessage(
-            "No data in current tab.",
-            "error"
+        alert(
+            "There are no records to export."
         );
 
         return;
+
     }
 
 
@@ -4414,10 +3945,8 @@ function exportCurrentTab(){
             rows
         );
 
-
     const workbook =
         XLSX.utils.book_new();
-
 
     XLSX.utils.book_append_sheet(
         workbook,
@@ -4425,30 +3954,33 @@ function exportCurrentTab(){
         "Results"
     );
 
-
     XLSX.writeFile(
         workbook,
         "Patient_Reconciliation_" +
-        state.activeTab +
+        state.currentTab +
         ".xlsx"
     );
+
 }
 
 
 /* =========================================================
-   EXPORT FULL
-========================================================= */
+   FULL EXCEL EXPORT
+   ========================================================= */
 
 function exportFullExcel(){
 
-    if(!state.results){
+    if(
+        !state.clientData.length &&
+        !state.fivecData.length
+    ){
 
-        showMessage(
-            "Run Compare Documents first.",
-            "error"
+        alert(
+            "Please upload documents first."
         );
 
         return;
+
     }
 
 
@@ -4458,204 +3990,118 @@ function exportFullExcel(){
 
     const sheets = {
 
-        "Summary":
-            state.results.summary,
-
-        "Matched Patients":
+        "Matched":
             state.results.matched,
 
         "Missing from 5C":
-            state.results.clientMissing,
+            state.results.missing5c,
 
         "Missing from Client":
-            state.results.fivecMissing,
+            state.results.missingClient,
 
         "Duplicate Patient IDs":
-            state.results.duplicates,
+            state.results.duplicatePatients,
 
         "Duplicate Study IDs":
             state.results.duplicateStudies,
 
         "Name Mismatches":
-            state.results.nameMismatches,
+            state.results.names,
 
         "Study Count Mismatches":
-            state.results.studyMismatches,
+            state.results.studyCounts,
 
         "Blank Patient IDs":
-            state.results.blanks
+            state.results.blankIds,
+
+        "5C Valid Records":
+            state.fivecData
 
     };
 
 
-    Object.entries(sheets)
-        .forEach(
-            ([name,rows])=>{
+    for(
+        const [name,rows] of
+        Object.entries(sheets)
+    ){
 
-                const safeRows =
-                    rows && rows.length
-                        ? rows
-                        : [
-                            {
-                                Message:
-                                    "No records"
-                            }
-                        ];
+        const safeName =
+            name.substring(0,31);
 
+        const worksheet =
+            XLSX.utils.json_to_sheet(
+                rows || []
+            );
 
-                const worksheet =
-                    XLSX.utils.json_to_sheet(
-                        safeRows
-                    );
-
-
-                XLSX.utils.book_append_sheet(
-                    workbook,
-                    worksheet,
-                    name.slice(0,31)
-                );
-
-            }
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            safeName
         );
+
+    }
 
 
     XLSX.writeFile(
         workbook,
-        "Patient_Reconciliation_Full_Report.xlsx"
+        "Jay_Prabha_Medanta_Patient_Reconciliation.xlsx"
     );
+
 }
 
 
 /* =========================================================
-   CLEAR
-========================================================= */
+   STATUS
+   ========================================================= */
 
-function clearAll(){
+function setStatus(
+    id,
+    message,
+    type
+){
 
-    state.clientFiles = [];
+    const element =
+        document.getElementById(id);
 
-    state.fivecFiles = [];
+    if(!element){
+        return;
+    }
 
-    state.clientData = null;
+    element.textContent =
+        message;
 
-    state.fivecData = null;
+    element.className =
+        "status " +
+        (type || "");
 
-    state.results = null;
-
-    state.activeTab =
-        "summary";
-
-    state.page = 1;
-
-
-    $("clientFiles").value =
-        "";
-
-    $("fivecFiles").value =
-        "";
-
-
-    $("clientFileList").innerHTML =
-        "";
-
-    $("fivecFileList").innerHTML =
-        "";
-
-
-    $("clientSheet").innerHTML =
-        `<option value="">
-            Upload file first
-        </option>`;
-
-
-    $("fivecSheet").innerHTML =
-        `<option value="">
-            Upload file first
-        </option>`;
-
-
-    $("clientKey").innerHTML =
-        `<option value="">
-            Select Patient ID
-        </option>`;
-
-
-    $("fivecKey").innerHTML =
-        `<option value="">
-            Select Patient ID
-        </option>`;
-
-
-    $("clientStudyKey").innerHTML =
-        `<option value="">
-            Not selected
-        </option>`;
-
-
-    $("fivecStudyKey").innerHTML =
-        `<option value="">
-            Not selected
-        </option>`;
-
-
-    $("clientNameKey").innerHTML =
-        `<option value="">
-            Not selected
-        </option>`;
-
-
-    $("fivecNameKey").innerHTML =
-        `<option value="">
-            Not selected
-        </option>`;
-
-
-    $("results").style.display =
-        "none";
-
-
-    $("message").className =
-        "message";
-
-
-    $("message").textContent =
-        "";
-
-
-    $("tableContainer").innerHTML =
-        "";
-
-
-    $("searchBox").value =
-        "";
-
-
-    [
-        "clientCount",
-        "fivecCount",
-        "matchedCount",
-        "missingCount",
-        "duplicateCount",
-        "duplicateStudyCount",
-        "nameMismatchCount",
-        "studyMismatchCount"
-    ].forEach(
-        id=>{
-            $(id).textContent =
-                "0";
-        }
-    );
-
-
-    updateTabs();
 }
 
 
 /* =========================================================
-   INITIAL
-========================================================= */
+   INITIAL STATE
+   ========================================================= */
 
-updateTabs();
+document.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+        setStatus(
+            "clientStatus",
+            "No Client document selected."
+        );
+
+        setStatus(
+            "fivecStatus",
+            "No 5C document selected."
+        );
+
+        setStatus(
+            "mainStatus",
+            "Ready."
+        );
+
+    }
+);
 
 </script>
 
